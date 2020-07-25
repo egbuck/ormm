@@ -1,5 +1,6 @@
-appdirs==1.4.4
-distlib==0.3.1
-filelock==3.0.12
-six==1.15.0
-virtualenv==20.0.27
+appdirs>=1.4.4
+nose>=1.3.7
+ply>=3.11
+Pyomo>=5.7
+PyUtilib>=6.0.0
+six>=1.15.0
