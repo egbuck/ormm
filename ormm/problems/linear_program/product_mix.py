@@ -1,6 +1,4 @@
 import pyomo.environ as pyo
-# import pandas / numpy
-
 
 class ProductMix(object):
 
@@ -39,7 +37,7 @@ class ProductMix(object):
         self.print_sol(results)
 
     def print_sol(self, results):
-        print(f"Objective Value: ${self.instance.OBJ():,.2f}")
+        print(f"Objective Value: ${self.instance.OBJ():,}")
         for v in self.instance.component_objects(pyo.Var, active=True):
             print ("Variable component: ",v)
             for index in v:
