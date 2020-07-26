@@ -1,0 +1,27 @@
+# Sets for products & machines
+set Products := P Q ;
+set Machines := A B C D ;
+
+# Params for products - profit/unit & max demand per product
+param:  Profits  MaxDemand :=
+    P     45        100
+    Q     60         50;
+
+# Params for machines - max time available
+param MaxTimes := [*]
+A 2400
+B 2400
+C 2400
+D 2400;
+
+# Params for machines & products
+#  - amount of time needed on each machine to make product
+param ProcessTimes :=
+A P 15
+A Q 10
+B P 15
+B Q 30
+C P 15
+C Q  5
+D P 10
+D Q  5;
