@@ -1,44 +1,40 @@
 import pyomo.environ as pyo
 
-class ProductMix(object):
+class ProductMix(pyo.AbstractModel):
 
-    def __init__(self, dat_file):
+    def __init__(self):
         """dat file holds param values for our abstract model"""
-        self.model = self.create_abstract_model()
-        self.instance = self.model.create_instance(dat_file)
+        super().__init__()
+        self.create_abstract_model()
 
     def create_abstract_model(self):
-        """Create the abstract model"""
-        model = pyo.AbstractModel()
-        model.Products = pyo.Set()
-        model.Machines = pyo.Set()
-        model.Profits = pyo.Param(model.Products)
-        model.ProcessTimes = pyo.Param(model.Machines, model.Products)
-        model.MaxTimes = pyo.Param(model.Machines)
-        model.MaxDemand = pyo.Param(model.Products)
-        model.Produce = pyo.Var(model.Products, within = pyo.NonNegativeIntegers, bounds = self._get_bounds)
+        """Create the abstract model for Resource Allocation"""
+        self.Products = pyo.Set()
+        self.Machines = pyo.Set()
+        self.Profits = pyo.Param(self.Products)
+        self.ProcessTimes = pyo.Param(self.Machines, self.Products)
+        self.MaxTimes = pyo.Param(self.Machines)
+        self.MaxDemand = pyo.Param(self.Products)
+        self.Produce = pyo.Var(self.Products, within = pyo.NonNegativeIntegers, bounds = self._get_bounds)
 
-        model.OBJ = pyo.Objective(rule = self._obj_expression, sense = pyo.maximize)
-        model.AxbConstraint = pyo.Constraint(model.Machines, rule = self._ax_constraint_rule)
-        return model
+        self.OBJ = pyo.Objective(rule = self._obj_expression, sense = pyo.maximize)
+        self.ResourceConstraint = pyo.Constraint(self.Machines, rule = self._resource_constraint_rule)
 
     def _get_bounds(self, model, p):
-        return (0, model.MaxDemand[p])
+        """Upper Bounds for the Decision Vars based on Maximum Demand"""
+        return (0, self.MaxDemand[p])
 
     def _obj_expression(self, model):
-        return pyo.summation(model.Profits, model.Produce)
+        """Objective Expression: Maximizing Profit"""
+        return pyo.summation(self.Profits, self.Produce)
 
-    def _ax_constraint_rule(self, model, m):
-        return sum(model.ProcessTimes[m, p] * model.Produce[p] for p in model.Products) <= model.MaxTimes[m]
+    def _resource_constraint_rule(self, model, m):
+        """Constraints for Scarce Resources"""
+        return sum(self.ProcessTimes[m, p] * self.Produce[p] for p in self.Products) <= self.MaxTimes[m]
 
-    def solve(self, opt = pyo.SolverFactory("glpk"), verbose = False):
-        """Solve the ProductMix Model Instance"""
-        results = opt.solve(self.instance, tee = verbose)
-        self.print_sol(results)
-
-    def print_sol(self, results):
-        print(f"Objective Value: ${self.instance.OBJ():,}")
-        for v in self.instance.component_objects(pyo.Var, active=True):
-            print ("Variable component: ",v)
-            for index in v:
-                print ("   ", index, v[index].value)
+def print_sol(instance, results):
+    print(f"Objective Value: ${instance.OBJ():,}")
+    for v in instance.component_objects(pyo.Var, active=True):
+        print ("Variable component: ",v)
+        for index in v:
+            print ("   ", index, v[index].value)
