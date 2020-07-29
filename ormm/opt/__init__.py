@@ -1,1 +1,0 @@
-from mathprog.problems.resource_allocation import ResourceAllocation
