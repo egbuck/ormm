@@ -1,5 +1,5 @@
 import pyomo.environ as pyo
-from problems.linear_program.product_mix import ProductMix, print_sol
+from ormm.opt import ResourceAllocation, print_sol
 
 def main():
     data_path = "problems/linear_program/example_data/product_mix.dat"
