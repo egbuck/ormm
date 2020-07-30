@@ -7,6 +7,9 @@ setup(
     name = "ormm",
     version = "0.0.1",
     description = "Operations Research Models & Methods",
+    url = "https://github.com/egbuck/ormm",
+    author = "Ethan Buck",
+    author_email = "egbuck96@gmail.com",
     packages = find_packages(include=["ormm", "ormm.*"]),
     long_description = long_description,
     long_description_content_type = "text/x-rst",
@@ -19,6 +22,7 @@ setup(
             "sphinx >= 3.1.2",
             "sphinx_rtd_theme >= 0.5.0",
             "numpydoc >= 1.1.0",
+            #"check-manifest>=0.42" # used for creating Manifest.in
         ]
     },
     classifiers = [
