@@ -1,13 +1,15 @@
 from setuptools import setup, find_packages
 
+with open("README.rst", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name = "ormm",
     version = "0.0.1",
     description = "Operations Research Models & Methods",
     packages = find_packages(include=["ormm", "ormm.*"]),
-    #packages = find_packages(include="ormm"),
-    #py_modules = ["opt"],
-    #package_dir = {"":"ormm"},
+    long_description = long_description,
+    long_description_content_type = "text/x-rst",
     install_requires = [
         "pyomo >= 5.0",
     ],
@@ -18,4 +20,22 @@ setup(
             "sphinx_rtd_theme >= 0.5.0",
         ]
     },
+    classifiers = [
+        "Programming Language :: Cython",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Operating System :: OS Independent",
+        "Development Status :: 2 - Pre-Alpha",
+        "Environment :: Console",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Manufacturing",
+        "Intended Audience :: End Users/Desktop",
+        "Intended Audience :: Education",
+        "Topic :: Education",
+        "Topic :: Scientific/Engineering :: Mathematics",
+    ],
 )
