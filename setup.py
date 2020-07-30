@@ -18,6 +18,7 @@ setup(
             "pytest >= 6.0",
             "sphinx >= 3.1.2",
             "sphinx_rtd_theme >= 0.5.0",
+            "numpydoc >= 1.1.0",
         ]
     },
     classifiers = [
