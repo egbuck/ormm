@@ -26,7 +26,9 @@ Parameters:
 Decision Variables:
 - `Produce`: number of units to produce of Product p ⟶ `Produce[p] for p in Products`
 
-.. automodule:: ormm.opt.mathprog.problems.resource_allocation
-
-.. autoclass:: ResourceAllocation
+API Reference
+-------------
+.. autoclass:: ormm.opt.mathprog.problems.resource_allocation.ResourceAllocation
    :members:
+   :undoc-members:
+   :show-inheritance:

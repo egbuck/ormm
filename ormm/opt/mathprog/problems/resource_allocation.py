@@ -1,13 +1,9 @@
 import pyomo.environ as pyo
 
 class ResourceAllocation(pyo.AbstractModel):
-    """
-    Pyomo Abstract Model for the Resource Allocation Problem
+    """Pyomo Abstract Model for the Resource Allocation Problem
 
-    Returns
-    -------
-        pyomo.environ.AbstractModel
-            A pyomo abstract model with definitions for the Resource Allocation Problem
+    :return: A pyomo abstract model with definitions for the Resource Allocation Problem
 
     See Also
     --------
@@ -24,12 +20,14 @@ class ResourceAllocation(pyo.AbstractModel):
     """
 
     def __init__(self):
-        """dat file holds param values for our abstract model"""
+        """Constructor method - calls create_abstract_model
+        """
         super().__init__()
         self.create_abstract_model()
 
     def create_abstract_model(self):
-        """Create the abstract model for Resource Allocation"""
+        """Create the abstract model for Resource Allocation Problem
+        """
         self.Products = pyo.Set()
         self.Machines = pyo.Set()
         self.Profits = pyo.Param(self.Products)
@@ -42,18 +40,23 @@ class ResourceAllocation(pyo.AbstractModel):
         self.ResourceConstraint = pyo.Constraint(self.Machines, rule = self._resource_constraint_rule)
 
     def _get_bounds(self, model, p):
-        """Upper Bounds for the Decision Vars based on Maximum Demand"""
+        """Upper Bounds for the Decision Vars based on Maximum Demand
+        """
         return (0, self.MaxDemand[p])
 
     def _obj_expression(self, model):
-        """Objective Expression: Maximizing Profit"""
+        """Objective Expression: Maximizing Profit
+        """
         return pyo.summation(self.Profits, self.Produce)
 
     def _resource_constraint_rule(self, model, m):
         """Constraints for Scarce Resources"""
         return sum(self.ProcessTimes[m, p] * self.Produce[p] for p in self.Products) <= self.MaxTimes[m]
 
-def print_sol(instance, results):
+def print_sol(instance):
+    """Print the solution to the solved `instance`
+    :param instance: A solved pyomo.environ.ConcreteModel
+    """
     print(f"Objective Value: ${instance.OBJ():,}")
     for v in instance.component_objects(pyo.Var, active=True):
         print ("Variable component: ",v)
