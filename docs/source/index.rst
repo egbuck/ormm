@@ -16,6 +16,11 @@ User Guide
 
    problems/resource_allocation
 
+.. toctree::
+   :maxdepth: 2
+   :caption: API Ref:
+
+   api/modules
 .. Indices and tables
   ==================
   * :ref:`genindex`

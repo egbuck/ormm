@@ -28,7 +28,4 @@ Decision Variables:
 
 API Reference
 -------------
-.. autoclass:: ormm.opt.mathprog.problems.resource_allocation.ResourceAllocation
-   :members:
-   :undoc-members:
-   :show-inheritance:
+See the corresponding section on its class
