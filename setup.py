@@ -19,6 +19,7 @@ setup(
             "sphinx >= 3.1.2",
             "sphinx_rtd_theme >= 0.5.0",
             "numpydoc >= 1.1.0",
+            "mock >= 4.0.2"
         ]
     },
     classifiers = [
