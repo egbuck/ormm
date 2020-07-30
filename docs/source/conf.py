@@ -37,6 +37,9 @@ napoleon_google_docstring = False
 # list of modules to mock import
 autodoc_mock_imports = ["pyomo"]
 
+# overwrite default master doc - needed for readthedocs.org
+master_doc = "index"
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
