@@ -1,1 +1,0 @@
-from ormm.opt.mathprog.problems.resource_allocation import ResourceAllocation, print_sol
