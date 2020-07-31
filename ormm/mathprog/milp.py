@@ -9,17 +9,12 @@ class ResourceAllocation(pyo.AbstractModel):
 
     Parameters
     ----------
-    *args, **kwargs : optional
+    *args : optional
         Passed into Pyomo Abstract Model's `create_instance` 
         to return Pyomo Concrete Model instead.
-
-    Notes
-    -----
-    The Resource Allocation Problem optimizes using scarce resources for valued activities.
-    .. math:: 
-       Max  \sum_{a \in A} V_aX_a\\
-       s.t. \sum_{a \in A} N_{r,a}X_a <= M_r \forall r \in R\\
-            0 <= X_a <= M_a \forall a \in A
+    **kwargs : optional
+        Passed into Pyomo Abstract Model's `create_instance` 
+        to return Pyomo Concrete Model instead.
 
     Examples
     --------

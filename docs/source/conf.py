@@ -30,9 +30,17 @@ release = '0.0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.napoleon"
-] # "sphinx.ext.autosummary", "numpydoc"
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.coverage",
+    "numpydoc",
+    "sphinx.ext.autosummary"
+]
 napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+autosummary_generate = True
 
 # list of modules to mock import
 autodoc_mock_imports = ["pyomo"]
