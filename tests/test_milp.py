@@ -2,11 +2,11 @@ import io
 import sys
 
 import pyomo.environ as pyo
-from ormm.opt.mathprog.problems import ResourceAllocation, print_sol
+from ormm.mathprog import ResourceAllocation, print_sol
 
 def create_cm_with_data():
     """Use exmaple data & return results and solved instance"""
-    data_path = "../ormm/opt/mathprog/problems/example_data/resource_allocation.dat"
+    data_path = "../ormm/mathprog/example_data/resource_allocation.dat"
     mod = ResourceAllocation()
     instance = mod.create_instance(data_path)
     opt = pyo.SolverFactory("glpk")

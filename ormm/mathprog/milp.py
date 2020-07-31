@@ -20,12 +20,12 @@ class ResourceAllocation(pyo.AbstractModel):
     """
 
     def __init__(self):
-        """Constructor method - calls create_abstract_model
+        """Constructor method - calls _create_abstract_model
         """
         super().__init__()
-        self.create_abstract_model()
+        self._create_abstract_model()
 
-    def create_abstract_model(self):
+    def _create_abstract_model(self):
         """Create the abstract model for Resource Allocation Problem
         """
         self.Activities = pyo.Set()
