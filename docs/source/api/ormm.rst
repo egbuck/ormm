@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   ormm.opt
+   ormm.mathprog
 
 Module contents
 ---------------

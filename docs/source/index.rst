@@ -8,17 +8,15 @@ User Guide
 .. include:: ../../README.rst
    :start-line: 4
 
-.. Table of contents - what tells sphinx hierarchy between files in document
-
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Model Details
 
    problems/resource_allocation
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Ref:
+   :caption: API Ref
 
    api/modules
 .. Indices and tables
