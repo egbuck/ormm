@@ -23,7 +23,6 @@ mock==4.0.2
 more-itertools==8.4.0
 nose==1.3.7
 numpydoc==1.1.0
--e git+git@github.com:egbuck/ormm.git@d937302d74fde6dfce3b92ff234c18d4510b62b1#egg=ormm
 packaging==20.4
 pep517==0.8.2
 pkginfo==1.5.0.1
