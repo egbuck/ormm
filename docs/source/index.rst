@@ -18,7 +18,7 @@ User Guide
    :maxdepth: 2
    :caption: API Ref
 
-   api/modules
+   api/index
 .. Indices and tables
   ==================
   * :ref:`genindex`

@@ -10,10 +10,10 @@ class ResourceAllocation(pyo.AbstractModel):
     Parameters
     ----------
     *args : optional
-        Passed into Pyomo Abstract Model's `create_instance` 
+        Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
     **kwargs : optional
-        Passed into Pyomo Abstract Model's `create_instance` 
+        Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
 
     Examples
@@ -32,6 +32,14 @@ class ResourceAllocation(pyo.AbstractModel):
         self._create_abstract_model()
         if args or kwargs:
             self._return_concrete_model(*args, **kwargs)
+
+    def latex_formulation(self):
+        """Return LaTeX Formulation of Abstract Model as String"""
+        return (
+            "Max  \sum_{a \in A} V_aX_a\n"
+            "s.t. \sum_{a \in A} N_{r,a}X_a <= M_r \\forall r \in R"
+            "0 <= X_a <= M_a \\forall a \in A"
+        )
 
     def _create_abstract_model(self):
         """Create the abstract model for Resource Allocation Problem."""
