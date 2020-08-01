@@ -3,16 +3,15 @@ Module contains factory methods & other functions for Mixed Integer Linear Progr
 """
 import pyomo.environ as pyo
 
-def resource_allocation(*args, **kwargs):
+def resource_allocation(linear = True, **kwargs):
     """
     Factory method for Pyomo Abstract/Concrete Model for the Resource Allocation Problem.
 
     Parameters
     ----------
-    *args : optional
-        Passed into Pyomo Abstract Model's `create_instance`
-        to return Pyomo Concrete Model instead.
-    **kwargs : optional
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be Reals (True) or Integer (False).
+    **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
 
@@ -58,7 +57,10 @@ def resource_allocation(*args, **kwargs):
     model.ResourceNeeds = pyo.Param(model.Resources, model.Activities)
     model.MaxResource = pyo.Param(model.Resources)
     model.MaxActivity = pyo.Param(model.Activities)
-    model.NumActivity = pyo.Var(model.Activities, within = pyo.NonNegativeIntegers, bounds = _get_bounds)
+    model.NumActivity = pyo.Var(
+        model.Activities,
+        within = pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
+        bounds = _get_bounds)
     # Define objective & resource constraints
     model.OBJ = pyo.Objective(rule = _obj_expression, sense = pyo.maximize)
     model.ResourceConstraint = pyo.Constraint(model.Resources, rule = _resource_constraint_rule)

@@ -1,3 +1,7 @@
+.. include:: ../roles.rst
+
+.. _api_reference:
+
 API Library Reference
 =====================
 
