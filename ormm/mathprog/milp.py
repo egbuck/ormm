@@ -73,6 +73,7 @@ def resource_allocation(
             ) <= model.MaxResource[m] * model.NumResource[m]
     ## Create the abstract model for Resource Allocation Problem
     model = pyo.AbstractModel()
+    model.dual = pyo.Suffix(direction = pyo.Suffix.IMPORT)
     # Define sets/params/vars
     model.Activities = pyo.Set()
     model.Resources = pyo.Set()
@@ -110,10 +111,33 @@ def print_sol(instance):
 
     Notes
     ----
-    Assumes the objective is retrieval by :py:obj:`instance.OBJ()`
+    Assumes the objective is retrievable by :py:obj:`instance.OBJ()`
     """
     print(f"Objective Value: ${instance.OBJ():,}")
     for v in instance.component_objects(pyo.Var, active=True):
         print ("Variable component: ",v)
         for index in v:
             print ("   ", index, v[index].value)
+
+
+def sensitivity_analysis(instance):
+    """Print sensitivity analysis of solved `instance`
+
+    Parameters
+    ----------
+    instance : :py:class:`pyomo.environ.ConcreteModel`
+        A solved model to retrieve dual suffix
+
+    Notes
+    -----
+    Assumes the dual suffix is retrievable by :py:obj:`instance.dual`
+    """
+    # Dual Variable Values
+    instance.dual.pprint()
+    print()
+    # Constraint Info
+    for con in instance.dual:
+        print(con)
+        print(f"Slack: {round(con.slack(), 5)}")
+        con.pprint()
+        print()
