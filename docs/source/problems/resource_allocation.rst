@@ -1,31 +1,77 @@
 Problem Description
 ===================
-
-Objective
----------
-Maximize total profit of selling products produced.
-
-Constraints
------------
-- A Product p cannot be sold more than its Max Demand
-- To sell 1 unit of a product, it must undergo all processing for each machine.  In other words, `sum(ProcessTimes[m,p] for m in Machines)` must happen per product produced. This is implied by the problem parameters and the next constraint.
-- The amount of processing time for a machine m must not exceed `MaxTimes[m]`, or `sum(ProcessTimes[m,p] * Produce[p] for p in Products) <= MaxTimes[m]` for all m in machines.
+The Resource Allocation Problem optimizes using scarce resources for valued activities.
+The resources are limited by some maximum quantity available, while the activities have some numeric value assigned to each of them.
+A matrix-like parameter shows all of the resources needed to conduct one unit of that activity (:py:obj:`ResourceNeeds`).
+This type of problem is seen often, with a few examples being production management and budget allocation.
 
 Definitions
------------
-Sets:
-- `Products`: Set of products that are available to produce ⟶ `p in Products`
-- `Machines`: Set of machines that are used to produce products ⟶ `m in Machines`
+===========
 
-Parameters:
-- `Profits`: amount of profit made from producing one unit of Product p ⟶ `Profits[p] for p in Products`
-- `ProcessTimes`: amount of time it takes to process Product p on Machine m ⟶ `ProcessTimes[m, p] for m in Machines for p in Products`
-- `MaxTimes`: maximum amount of time available to use each Machine m ⟶ `MaxTimes[m] for m in Machines`
-- `MaxDemand`: maximum amount of demand for Product p ⟶ `MaxDemand[p] for p in Products`
+Sets
+----
+- :py:obj:`Activities` - Set of activities that are available to produce
 
-Decision Variables:
-- `Produce`: number of units to produce of Product p ⟶ `Produce[p] for p in Products`
+   - :py:obj:`a in Activities` or :math:`a \in A`
+
+- :py:obj:`Resources` - Set of resources that are used to conduct activities
+
+   - :py:obj:`r in Resources` or :math:`r \in R`
+
+Parameters
+----------
+- :py:obj:`Values` - measure of value from conducting one unit of :py:obj:`Activity a`
+
+   - :py:obj:`Values[a] for a in Activities` or :math:`V_a \enspace \forall a \in A`
+
+- :py:obj:`ResourceNeeds` - amount of :py:obj:`Resource r` needed for :py:obj:`Activity a`
+
+   - :py:obj:`ResourceNeeds[r, a] for r in Resources for a in Activities` or :math:`N_{r,a} \enspace \forall r \in R, a \in A`
+
+   .. note::
+
+      To conduct one unit of :py:obj:`Activity a`, you need all resources required.
+      For example, to conduct one unit of :py:obj:`Activity a_1`, you need :py:obj:`sum(ResourceNeeds[r, a_1] for r in Resources)`
+
+- :py:obj:`MaxResource` - maximum amount of units available of :py:obj:`Resource r`
+
+   - :py:obj:`MaxResource[r] for r in Resources` or :math:`M_r \enspace \forall r \in R`
+
+- :py:obj:`MaxActivity` - maximum amount of demand for :py:obj:`Activity a`
+
+   - :py:obj:`MaxActivity[a] for a in Activities` or :math:`M_a \enspace \forall a \in A`
+
+Decision Variables
+------------------
+- :py:obj:`NumActivity` - number of units to conduct of :py:obj:`Activity a`
+
+   - :py:obj:`NumActivity[a] for a in Activities` or :math:`X_a \enspace \forall a \in A`
+
+Objective
+=========
+**Maximize** total value of activities being conducted.
+
+.. math::
+
+   \text{Max} \sum_{a \in A} V_aX_a
+
+Constraints
+===========
+- An :py:obj:`Activity a` cannot be conducted more than its :py:obj:`MaxActivity`
+
+.. math::
+
+   0 \leq X_a \leq M_a \quad \forall a \in A
+
+- To conduct 1 unit of an Activity, all :py:obj:`ResourceNeeds` are required.
+  In other words, :py:obj:`sum(ResourceNeeds[r,a] for r in Resources)` must happen per :py:obj:`Activity a` conducted.
+  This is implied by the problem parameters given by the user and the next constraint.
+- The amount of resources used for a :py:obj:`Resource r` must not exceed :py:obj:`MaxResource[r]`
+
+.. math::
+
+    \sum_{a \in A} N_{r,a}X_a \leq M_r \quad \forall r \in R
 
 API Reference
--------------
-See the corresponding section on its class
+=============
+See the corresponding section in the :ref:`api_reference` to learn more about how to use the API for this problem class.
