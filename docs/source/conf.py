@@ -36,7 +36,6 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
-    "numpydoc",
     "sphinx.ext.autosummary"
 ]
 napoleon_google_docstring = False

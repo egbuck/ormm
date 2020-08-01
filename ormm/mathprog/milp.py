@@ -1,11 +1,11 @@
 """
-Module contains classes & functions for Mixed Integer Linear Programs (MILP).
+Module contains factory methods & other functions for Mixed Integer Linear Programs (MILP).
 """
 import pyomo.environ as pyo
 
-class ResourceAllocation(pyo.AbstractModel):
+def resource_allocation(*args, **kwargs):
     """
-    Subclass of Pyomo Abstract Model for the Resource Allocation Problem.
+    Factory method for Pyomo Abstract/Concrete Model for the Resource Allocation Problem.
 
     Parameters
     ----------
@@ -33,46 +33,41 @@ class ResourceAllocation(pyo.AbstractModel):
     Creating abstract model, an instance from data params, & solving instance.
 
     >>> import pyomo.environ as pyo
-    >>> model = ResourceAllocation()
+    >>> model = resource_allocation()
     >>> instance = model.create_instance("my_params.dat") # AMPL data file
     >>> opt = pyo.SolverFactory("glpk")
     >>> results = opt.solve(instance)
     """
-    def __init__(self, *args, **kwargs):
-        """Constructor method - calls _create_abstract_model"""
-        super().__init__()
-        self._create_abstract_model()
-        if args or kwargs:
-            self._return_concrete_model(*args, **kwargs)
-
-    def _create_abstract_model(self):
-        """Create the abstract model for Resource Allocation Problem."""
-        self.Activities = pyo.Set()
-        self.Resources = pyo.Set()
-        self.Values = pyo.Param(self.Activities)
-        self.ResourceNeeds = pyo.Param(self.Resources, self.Activities)
-        self.MaxResource = pyo.Param(self.Resources)
-        self.MaxActivity = pyo.Param(self.Activities)
-        self.NumActivity = pyo.Var(self.Activities, within = pyo.NonNegativeIntegers, bounds = self._get_bounds)
-
-        self.OBJ = pyo.Objective(rule = self._obj_expression, sense = pyo.maximize)
-        self.ResourceConstraint = pyo.Constraint(self.Resources, rule = self._resource_constraint_rule)
-
-    def _return_concrete_model(self, *args, **kwargs):
-        """Return Pyomo Concrete Model, given data."""
-        return self.create_instance(*args, **kwargs)
-
-    def _get_bounds(self, model, p):
+    def _get_bounds(model, p):
         """Upper Bounds for the Decision Vars based on Maximum Demand."""
-        return (0, self.MaxActivity[p])
+        return (0, model.MaxActivity[p])
 
-    def _obj_expression(self, model):
+    def _obj_expression(model):
         """Objective Expression: Maximizing Value"""
-        return pyo.summation(self.Values, self.NumActivity)
+        return pyo.summation(model.Values, model.NumActivity)
 
-    def _resource_constraint_rule(self, model, m):
+    def _resource_constraint_rule(model, m):
         """Constraints for Scarce Resources"""
-        return sum(self.ResourceNeeds[m, p] * self.NumActivity[p] for p in self.Activities) <= self.MaxResource[m]
+        return sum(model.ResourceNeeds[m, p] * model.NumActivity[p] for p in model.Activities) <= model.MaxResource[m]
+    ## Create the abstract model for Resource Allocation Problem
+    model = pyo.AbstractModel()
+    # Define sets/params/vars
+    model.Activities = pyo.Set()
+    model.Resources = pyo.Set()
+    model.Values = pyo.Param(model.Activities)
+    model.ResourceNeeds = pyo.Param(model.Resources, model.Activities)
+    model.MaxResource = pyo.Param(model.Resources)
+    model.MaxActivity = pyo.Param(model.Activities)
+    model.NumActivity = pyo.Var(model.Activities, within = pyo.NonNegativeIntegers, bounds = _get_bounds)
+    # Define objective & resource constraints
+    model.OBJ = pyo.Objective(rule = _obj_expression, sense = pyo.maximize)
+    model.ResourceConstraint = pyo.Constraint(model.Resources, rule = _resource_constraint_rule)
+    # check if returning concrete or abstract model
+    if args or kwargs:
+        return model.create_instance(*args, **kwargs)
+    else:
+        return model
+
 
 def print_sol(instance):
     """Print the solution to the solved `instance`.

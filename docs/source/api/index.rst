@@ -2,21 +2,18 @@ API Library Reference
 =====================
 
 The current models are implemented under :py:mod:`ormm.mathprog`, which only contains
-the :py:func:`print_sol` method and the :py:class:`ResourceAllocation` class for now.
+the :py:func:`print_sol` method and the :py:func:`resource_allocation` factory method for now.
 
 .. currentmodule:: ormm.mathprog
 
 .. autosummary::
 
-   ResourceAllocation
+   resource_allocation
    print_sol
 
 
 API Component Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. autoclass:: ResourceAllocation
-   :show-inheritance:
-   :members:
-   :inherited-members:
+.. autofunction:: resource_allocation
 
 .. autofunction:: print_sol
