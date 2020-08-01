@@ -16,6 +16,18 @@ class ResourceAllocation(pyo.AbstractModel):
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
 
+    Notes
+    -----
+    The Resource Allocation Problem optimizes using scarce resources for valued activities.
+
+    .. math::
+
+       \\text{Max}  \sum_{a \in A} V_aX_a
+
+       \\text{s.t.} \sum_{a \in A} N_{r,a}X_a \leq M_r \quad \\forall r \in R
+
+       0 \leq X_a \leq M_a \quad \\forall a \in A
+
     Examples
     --------
     Creating abstract model, an instance from data params, & solving instance.
@@ -32,14 +44,6 @@ class ResourceAllocation(pyo.AbstractModel):
         self._create_abstract_model()
         if args or kwargs:
             self._return_concrete_model(*args, **kwargs)
-
-    def latex_formulation(self):
-        """Return LaTeX Formulation of Abstract Model as String"""
-        return (
-            "Max  \sum_{a \in A} V_aX_a\n"
-            "s.t. \sum_{a \in A} N_{r,a}X_a <= M_r \\forall r \in R"
-            "0 <= X_a <= M_a \\forall a \in A"
-        )
 
     def _create_abstract_model(self):
         """Create the abstract model for Resource Allocation Problem."""
@@ -75,7 +79,7 @@ def print_sol(instance):
 
     Parameters
     ----------
-    instance : pyomo.core.base.PyomoModel.AbstractModel
+    instance : ``pyomo.environ.ConcreteModel``
         A solved model to retrieve objective & variable values.
     """
     print(f"Objective Value: ${instance.OBJ():,}")

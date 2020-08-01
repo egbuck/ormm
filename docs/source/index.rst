@@ -6,7 +6,7 @@
 User Guide
 ================================
 .. include:: ../../README.rst
-   :start-line: 4
+   :start-line: 2
 
 .. toctree::
    :maxdepth: 2

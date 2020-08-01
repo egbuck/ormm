@@ -1,7 +1,7 @@
 API Library Reference
 =====================
 
-The current models are implemented under `ormm.mathprog`, which only contains
+The current models are implemented under ``ormm.mathprog``, which only contains
 the `print_sol` method and the `ResourceAllocation` class for now.
 
 .. currentmodule:: ormm.mathprog
