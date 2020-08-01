@@ -1,23 +1,31 @@
 """
-Module contains factory methods & other functions for Mixed Integer Linear Programs (MILP).
+Module contains factory methods & other functions
+for Mixed Integer Linear Programs (MILP).
 """
 import pyomo.environ as pyo
 
-def resource_allocation(linear = True, **kwargs):
+def resource_allocation(
+    linear = True, mult_res = False,
+    max_activity = True, **kwargs):
     """
-    Factory method for Pyomo Abstract/Concrete Model for the Resource Allocation Problem.
+    Factory method returning Pyomo Abstract/Concrete Model
+    for the Resource Allocation Problem.
 
     Parameters
     ----------
     linear : :py:obj:`bool`, optional
-        Determines whether decision variables will be Reals (True) or Integer (False).
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
+    mult_res : :py:obj:`bool`, optional
+        Determines whether there are multiple of each resource or not
     **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
 
     Notes
     -----
-    The Resource Allocation Problem optimizes using scarce resources for valued activities.
+    The Resource Allocation Problem optimizes
+    using scarce resources for valued activities.
 
     .. math::
 
@@ -47,7 +55,19 @@ def resource_allocation(linear = True, **kwargs):
 
     def _resource_constraint_rule(model, m):
         """Constraints for Scarce Resources"""
-        return sum(model.ResourceNeeds[m, p] * model.NumActivity[p] for p in model.Activities) <= model.MaxResource[m]
+        return sum(
+            model.ResourceNeeds[m, p]
+            * model.NumActivity[p]
+            for p in model.Activities
+            ) <= model.MaxResource[m]
+
+    def _mult_resource_constraint_rule(model, m):
+        """Constraints for Scarce Resources"""
+        return sum(
+            model.ResourceNeeds[m, p]
+            * model.NumActivity[p]
+            for p in model.Activities
+            ) <= model.MaxResource[m] * model.NumResource[m]
     ## Create the abstract model for Resource Allocation Problem
     model = pyo.AbstractModel()
     # Define sets/params/vars
@@ -56,17 +76,23 @@ def resource_allocation(linear = True, **kwargs):
     model.Values = pyo.Param(model.Activities)
     model.ResourceNeeds = pyo.Param(model.Resources, model.Activities)
     model.MaxResource = pyo.Param(model.Resources)
-    model.MaxActivity = pyo.Param(model.Activities)
+    if mult_res:
+        model.NumResource = pyo.Param(model.Resources)
+    if max_activity:
+        model.MaxActivity = pyo.Param(model.Activities)
     model.NumActivity = pyo.Var(
         model.Activities,
         within = pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
-        bounds = _get_bounds)
+        bounds = _get_bounds if max_activity else (0, None))
     # Define objective & resource constraints
     model.OBJ = pyo.Objective(rule = _obj_expression, sense = pyo.maximize)
-    model.ResourceConstraint = pyo.Constraint(model.Resources, rule = _resource_constraint_rule)
+    model.ResourceConstraint = pyo.Constraint(
+        model.Resources,
+        rule = _resource_constraint_rule if not mult_res
+        else _mult_resource_constraint_rule)
     # check if returning concrete or abstract model
-    if args or kwargs:
-        return model.create_instance(*args, **kwargs)
+    if kwargs:
+        return model.create_instance(**kwargs)
     else:
         return model
 
