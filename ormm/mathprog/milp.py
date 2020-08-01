@@ -107,7 +107,8 @@ def resource_allocation(
 
 
 def print_sol(instance):
-    """Print the solution to the solved `instance`.
+    """
+    Print the solution to the solved `instance`.
 
     Parameters
     ----------
@@ -126,7 +127,8 @@ def print_sol(instance):
 
 
 def sensitivity_analysis(instance):
-    """Print sensitivity analysis of the solved `instance`.
+    """
+    Return dataframe containing sensitivity analysis
 
     Parameters
     ----------
@@ -136,7 +138,7 @@ def sensitivity_analysis(instance):
     Returns
     -------
     pandas.DataFrame
-        Dataframe with sensitivity analysis information
+        Dataframe with sensitivity analysis information.
 
     Notes
     -----
