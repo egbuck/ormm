@@ -79,7 +79,7 @@ def print_sol(instance):
 
     Parameters
     ----------
-    instance : ``pyomo.environ.ConcreteModel``
+    instance : :py:class:`pyomo.environ.ConcreteModel`
         A solved model to retrieve objective & variable values.
     """
     print(f"Objective Value: ${instance.OBJ():,}")

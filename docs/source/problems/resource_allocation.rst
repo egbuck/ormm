@@ -3,12 +3,16 @@ Problem Description
 
 Objective
 ---------
-Maximize total profit of selling products produced.
+**Maximize** total value of activities being performed.
+
+**Code:** :py:obj:`pyo.summation(self.Values, self.NumActivity)`
+
+**Math:** :math:`\sum_{a \in A} V_aX_a`
 
 Constraints
 -----------
 - A Product p cannot be sold more than its Max Demand
-- To sell 1 unit of a product, it must undergo all processing for each machine.  In other words, `sum(ProcessTimes[m,p] for m in Machines)` must happen per product produced. This is implied by the problem parameters and the next constraint.
+- To sell 1 unit of a product, it must undergo all processing for each machine.  In other words, :py:obj:`sum(ProcessTimes[m,p] for m in Machines)` must happen per product produced. This is implied by the problem parameters and the next constraint.
 - The amount of processing time for a machine m must not exceed `MaxTimes[m]`, or `sum(ProcessTimes[m,p] * Produce[p] for p in Products) <= MaxTimes[m]` for all m in machines.
 
 Definitions
