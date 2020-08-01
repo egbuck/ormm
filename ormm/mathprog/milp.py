@@ -17,9 +17,10 @@ def resource_allocation(
         Determines whether decision variables will be
         Reals (True) or Integer (False).
     mult_res : :py:obj:`bool`, optional
-        Determines whether there are multiple of each resource or not
+        Determines whether there are multiple of each resource or not.
     max_activity : :py:obj:`bool`, optional
-        Determines whether there is upper limit on NumActivity or not
+        Determines whether there is an upper limit on the
+        decision variables.
     **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
@@ -106,6 +107,10 @@ def print_sol(instance):
     ----------
     instance : :py:class:`pyomo.environ.ConcreteModel`
         A solved model to retrieve objective & variable values.
+
+    Notes
+    ----
+    Assumes the objective is retrieval by :py:obj:`instance.OBJ()`
     """
     print(f"Objective Value: ${instance.OBJ():,}")
     for v in instance.component_objects(pyo.Var, active=True):
