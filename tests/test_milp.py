@@ -2,6 +2,8 @@ import io
 import sys
 
 import pyomo.environ as pyo
+import pandas as pd
+
 from ormm.mathprog import resource_allocation, \
     print_sol, sensitivity_analysis
 
@@ -55,48 +57,21 @@ def test_print_sol_with_data():
 def test_sensitivity_analysis():
     instance, results = create_cm_with_data(
         COMPLEX_DATA, mult_res = True, max_activity = False)
-    # Redirect output to StringIO object
-    captured_output = io.StringIO()
-    sys.stdout = captured_output
-    sensitivity_analysis(instance)
-    sys.stdout = sys.__stdout__  # reset stdout
-    test_string = (
-    "dual : Direction=Suffix.IMPORT, Datatype=Suffix.FLOAT\n"
-    "    Key                   : Value\n    ResourceConstraint[A]"
-    " :  4.81950601646612\n    ResourceConstraint[B] :"
-    "  5.20160439096475\n    ResourceConstraint[C] :"
-    "  8.96347899514461\n    ResourceConstraint[D] :"
-    " 0.363099007810851\n\nResourceConstraint[A]\nSlack:"
-    " -0.0\n{Member of ResourceConstraint} : Size=4,"
-    " Index=Resources, Active=True\n    Key : Lower : Body      "
-    "                                                           "
-    "             : Upper : Active\n"
-    "      A :  -Inf : 1.2*NumActivity[Q] + 1.3*NumActivity[W] "
-    "+ 0.7*NumActivity[E] + 0.5*NumActivity[T] : 160.0 :   True\n"
-    "\nResourceConstraint[B]\nSlack: 0.0\n{Member of "
-    "ResourceConstraint} : Size=4, Index=Resources, Active=True\n"
-    "    Key : Lower : Body                                      "
-    "                                                        "
-    " : Upper : Active\n"
-    "      B :  -Inf : 0.7*NumActivity[Q] + 2.2*NumActivity[W] "
-    "+ 1.6*NumActivity[E] + 0.5*NumActivity[R] + NumActivity[T] :"
-    " 200.0 :   True\n\nResourceConstraint[C]\nSlack: -0.0\n"
-    "{Member of ResourceConstraint} : Size=4, Index=Resources,"
-    " Active=True\n    Key : Lower : Body                      "
-    "                                                          "
-    "               : "
-    "Upper : Active\n      C :  -Inf : 0.9*NumActivity[Q] + "
-    "0.7*NumActivity[W] + 1.3*NumActivity[E] + NumActivity[R] + "
-    "0.8*NumActivity[T] : 120.0 :   True\n\nResourceConstraint[D]\n"
-    "Slack: 0.0\n{Member of ResourceConstraint} : Size=4, "
-    "Index=Resources, Active=True\n    Key : Lower : Body        "
-    "                                                            "
-    "                               : Upper : Active\n      D "
-    ":  -Inf : 1.4*NumActivity[Q]"
-    " + 2.8*NumActivity[W] + 0.5*NumActivity[E] + 1.2*"
-    "NumActivity[R] + 0.6*NumActivity[T] : 280.0 :   True\n\n"
-    )
-    assert captured_output.getvalue() == test_string
+    sens_analysis_df = sensitivity_analysis(instance)
+    test_df = pd.DataFrame({
+        "Dual Value": [4.819506, 5.201604, 8.963479, 0.363099],
+        "Lower": [None, None, None, None],
+        "Upper": [160.0, 200.0, 120.0, 280.0],
+        "Slack": [0, 0, 0, 0],
+        "Active": [True, True, True, True]
+        }, index = [
+            "ResourceConstraint[A]",
+            "ResourceConstraint[B]",
+            "ResourceConstraint[C]",
+            "ResourceConstraint[D]"])
+    sens_analysis_df["Dual Value"] = \
+        sens_analysis_df["Dual Value"].round(decimals = 6)
+    assert sens_analysis_df.equals(test_df)
 
 if __name__ == "__main__":
     test_sensitivity_analysis()

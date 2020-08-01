@@ -2,7 +2,12 @@
 Module contains factory methods & other functions
 for Mixed Integer Linear Programs (MILP).
 """
+import math
+
 import pyomo.environ as pyo
+import pyomo
+import pandas as pd
+
 
 def resource_allocation(
     linear = True, mult_res = False,
@@ -128,16 +133,34 @@ def sensitivity_analysis(instance):
     instance : :py:class:`pyomo.environ.ConcreteModel`
         A solved model to retrieve dual suffix.
 
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with sensitivity analysis information
+
     Notes
     -----
     Assumes the dual suffix is retrievable by :py:obj:`instance.dual`.
     """
     # Dual Variable Values
-    instance.dual.pprint()
-    print()
+    dual_dict = {str(k):[v] for (k, v) in dict(instance.dual).items()}
     # Constraint Info
     for con in instance.dual:
-        print(con)
-        print(f"Slack: {round(con.slack(), 5)}")
-        con.pprint()
-        print()
+        lower = con.lower if type(con.lower) \
+            is not pyomo.core.expr.numvalue.NumericConstant \
+            else con.lower.value
+        upper = con.upper if type(con.upper) \
+            is not pyomo.core.expr.numvalue.NumericConstant \
+            else con.upper.value
+        slack = 0 if math.isclose(con.slack(), 0,
+            abs_tol = 1e-5) else con.slack
+        active = con.active
+        vals = [lower, upper, slack, active]
+        #con_name = con.name
+        dual_dict[con.name].extend(vals)
+    sens_analysis = pd.DataFrame.from_dict(dual_dict,
+        orient = "index",
+        columns = ["Dual Value", "Lower",
+            "Upper", "Slack", "Active"])
+    sens_analysis.index.name = "Constraint"
+    return sens_analysis
