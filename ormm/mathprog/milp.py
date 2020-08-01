@@ -18,6 +18,8 @@ def resource_allocation(
         Reals (True) or Integer (False).
     mult_res : :py:obj:`bool`, optional
         Determines whether there are multiple of each resource or not
+    max_activity : :py:obj:`bool`, optional
+        Determines whether there is upper limit on NumActivity or not
     **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.

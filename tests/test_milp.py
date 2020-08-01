@@ -20,20 +20,20 @@ def test_simple_resource_allocation_with_data():
     # Check all variable values
     for v in instance.component_objects(pyo.Var, active=True):
         if v.name == "NumActivity":
-            print({index: v[index].value for index in v})
-            assert {index: v[index].value for index in v} == {"P": 100, "Q": 30}
+            assert {index: v[index].value
+                for index in v} == {"P": 100, "Q": 30}
     assert instance.OBJ() == 6300
 
 def test_complex_resource_allocation_with_data():
     instance, results = create_cm_with_data(
         COMPLEX_DATA, mult_res = True, max_activity = False)
     # Check all variable values
-    assert 1 == 1  # dummy test for now
-    #for v in instance.component_objects(pyo.Var, active=True):
-    #    if v.name == "NumActivity":
-    #        print({index: v[index].value for index in v})
-    #        assert {index: v[index].value for index in v} == {"P": 100, "Q": 30}
-    #assert instance.OBJ() == 6300
+    for v in instance.component_objects(pyo.Var, active=True):
+        if v.name == "NumActivity":
+            assert {
+                index: round(v[index].value, 2) for index in v} == {
+                "Q": 58.96, "W": 62.63, "E": 0, "R": 10.58, "T":15.64}
+    assert round(instance.OBJ(), 0) == 2989
 
 def test_print_sol_with_data():
     instance, results = create_cm_with_data(SIMPLE_DATA)
