@@ -14,6 +14,7 @@ the :py:func:`print_sol` method and the :py:func:`resource_allocation` factory m
 
    resource_allocation
    print_sol
+   sensitivity_analysis
 
 
 API Component Documentation
@@ -21,3 +22,5 @@ API Component Documentation
 .. autofunction:: resource_allocation
 
 .. autofunction:: print_sol
+
+.. autofunction:: sensitivity_analysis

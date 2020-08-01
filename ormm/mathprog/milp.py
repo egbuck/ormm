@@ -121,16 +121,16 @@ def print_sol(instance):
 
 
 def sensitivity_analysis(instance):
-    """Print sensitivity analysis of solved `instance`
+    """Print sensitivity analysis of the solved `instance`.
 
     Parameters
     ----------
     instance : :py:class:`pyomo.environ.ConcreteModel`
-        A solved model to retrieve dual suffix
+        A solved model to retrieve dual suffix.
 
     Notes
     -----
-    Assumes the dual suffix is retrievable by :py:obj:`instance.dual`
+    Assumes the dual suffix is retrievable by :py:obj:`instance.dual`.
     """
     # Dual Variable Values
     instance.dual.pprint()
