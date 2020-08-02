@@ -10,8 +10,8 @@ import pandas as pd
 
 
 def resource_allocation(
-    linear = True, mult_res = False,
-    max_activity = True, **kwargs):
+        linear=True, mult_res=False,
+        max_activity=True, **kwargs):
     """
     Factory method returning Pyomo Abstract/Concrete Model
     for the Resource Allocation Problem.
@@ -37,11 +37,12 @@ def resource_allocation(
 
     .. math::
 
-       \\text{Max}  \sum_{a \in A} V_aX_a
+       \\text{Max}  \\sum_{a \\in A} V_aX_a
 
-       \\text{s.t.} \sum_{a \in A} N_{r,a}X_a \leq M_r \quad \\forall r \in R
+       \\text{s.t.} \\sum_{a \\in A} N_{r,a}X_a \\leq M_r
+           \\quad \\forall r \\in R
 
-       0 \leq X_a \leq M_a \quad \\forall a \in A
+       0 \\leq X_a \\leq M_a \\quad \\forall a \\in A
 
     Examples
     --------
@@ -76,9 +77,9 @@ def resource_allocation(
             * model.NumActivity[p]
             for p in model.Activities
             ) <= model.MaxResource[m] * model.NumResource[m]
-    ## Create the abstract model for Resource Allocation Problem
+    # Create the abstract model for Resource Allocation Problem
     model = pyo.AbstractModel()
-    model.dual = pyo.Suffix(direction = pyo.Suffix.IMPORT)
+    model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
     # Define sets/params/vars
     model.Activities = pyo.Set()
     model.Resources = pyo.Set()
@@ -91,13 +92,13 @@ def resource_allocation(
         model.MaxActivity = pyo.Param(model.Activities)
     model.NumActivity = pyo.Var(
         model.Activities,
-        within = pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
-        bounds = _get_bounds if max_activity else (0, None))
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
+        bounds=_get_bounds if max_activity else (0, None))
     # Define objective & resource constraints
-    model.OBJ = pyo.Objective(rule = _obj_expression, sense = pyo.maximize)
+    model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.maximize)
     model.ResourceConstraint = pyo.Constraint(
         model.Resources,
-        rule = _resource_constraint_rule if not mult_res
+        rule=_resource_constraint_rule if not mult_res
         else _mult_resource_constraint_rule)
     # check if returning concrete or abstract model
     if kwargs:
@@ -121,9 +122,9 @@ def print_sol(instance):
     """
     print(f"Objective Value: ${instance.OBJ():,}")
     for v in instance.component_objects(pyo.Var, active=True):
-        print ("Variable component: ",v)
+        print("Variable component: ", v)
         for index in v:
-            print ("   ", index, v[index].value)
+            print("   ", index, v[index].value)
 
 
 def sensitivity_analysis(instance):
@@ -145,7 +146,7 @@ def sensitivity_analysis(instance):
     Assumes the dual suffix is retrievable by :py:obj:`instance.dual`.
     """
     # Dual Variable Values
-    dual_dict = {str(k):[v] for (k, v) in dict(instance.dual).items()}
+    dual_dict = {str(k): [v] for (k, v) in dict(instance.dual).items()}
     # Constraint Info
     for con in instance.dual:
         lower = con.lower if type(con.lower) \
@@ -155,14 +156,17 @@ def sensitivity_analysis(instance):
             is not pyomo.core.expr.numvalue.NumericConstant \
             else con.upper.value
         slack = 0 if math.isclose(con.slack(), 0,
-            abs_tol = 1e-5) else con.slack
+                                  abs_tol=1e-5) else con.slack
         active = con.active
         vals = [lower, upper, slack, active]
-        #con_name = con.name
         dual_dict[con.name].extend(vals)
     sens_analysis = pd.DataFrame.from_dict(dual_dict,
-        orient = "index",
-        columns = ["Dual Value", "Lower",
-            "Upper", "Slack", "Active"])
+                                           orient="index",
+                                           columns=[
+                                               "Dual Value",
+                                               "Lower",
+                                               "Upper",
+                                               "Slack",
+                                               "Active"])
     sens_analysis.index.name = "Constraint"
     return sens_analysis

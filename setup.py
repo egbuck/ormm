@@ -23,6 +23,7 @@ setup(
             "sphinx >= 3.1.2",
             "sphinx_rtd_theme >= 0.5.0",
             "twine >= 3.2.0",
+            "flake8 >= 3.8.3",
             #"check-manifest>=0.42" # used for creating Manifest.in
         ]
     },
