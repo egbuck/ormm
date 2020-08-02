@@ -15,14 +15,15 @@ setup(
     long_description_content_type = "text/x-rst",
     install_requires = [
         "pyomo >= 5.0",
+        "pandas >= 1"
     ],
     extras_require = {
         "dev": [
             "pytest >= 6.0",
             "sphinx >= 3.1.2",
             "sphinx_rtd_theme >= 0.5.0",
-            "numpydoc >= 1.1.0",
             "twine >= 3.2.0",
+            "flake8 >= 3.8.3",
             #"check-manifest>=0.42" # used for creating Manifest.in
         ]
     },

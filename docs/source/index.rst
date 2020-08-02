@@ -22,13 +22,11 @@ To use the same packages used in development (for creating additions / modificat
 
 .. toctree::
    :maxdepth: 2
-   :caption: Model Details
 
-   problems/resource_allocation
+   problem_desc/index
 
 .. toctree::
    :maxdepth: 2
-   :caption: API Ref
 
    api/index
 .. Indices and tables
