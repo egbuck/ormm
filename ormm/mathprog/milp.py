@@ -28,12 +28,23 @@ def blending(linear=True, **kwargs):
     The Blending Problem optimizes the mixing of ingredients
     to satisfy restrictions while minimizing cost.
 
+    .. math::
+
+       \\text{Min}  \\sum_{i \\in I} C_iX_i
+
+       \\text{s.t.} \\enspace Min_p \\leq \\sum_{i \\in I} N_{i,p}X_i
+            \\leq Max_p \\quad \\forall p \\in P
+
+       \\sum_{i \\in I} X_i = 1
+
+       X_i \\geq 0 \\quad \\forall i \\in I
+
     Examples
     --------
-    Creating abstract model, an instance from data params, & solving instance.
+    Creating a concrete model from data params & solving instance.
 
     >>> import pyomo.environ as pyo
-    >>> instance = resource_allocation("my_params.dat") # AMPL data file
+    >>> instance = blending("my_params.dat") # AMPL data file
     >>> opt = pyo.SolverFactory("glpk")
     >>> results = opt.solve(instance)
     """
@@ -118,7 +129,7 @@ def resource_allocation(
 
     Examples
     --------
-    Creating abstract model, an instance from data params, & solving instance.
+    Creating a concrete model from data params & solving instance.
 
     >>> import pyomo.environ as pyo
     >>> instance = resource_allocation("my_params.dat) # AMPL data file
