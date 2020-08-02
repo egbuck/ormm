@@ -37,6 +37,21 @@ def blending(linear=True, **kwargs):
     >>> opt = pyo.SolverFactory("glpk")
     >>> results = opt.solve(instance)
     """
+    def _obj_expression(model):
+        """Objective Expression: Maximizing Value"""
+        return pyo.summation(model.Cost, model.Blend)
+
+    def _property_constraint_rule(model, p):
+        """Constraints for Scarce Resources"""
+        return (model.MinProperty[p], sum(
+            model.IngredientProperties[i, p]
+            * model.Blend[i]
+            for i in model.Ingredients
+            ), model.MaxProperty[p])
+
+    def _conservation_constraint_rule(model):
+        return pyo.summation(model.Blend) == 1
+
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
     model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
@@ -47,6 +62,23 @@ def blending(linear=True, **kwargs):
     model.IngredientProperties = pyo.Param(model.Ingredients, model.Properties)
     model.MinProperty = pyo.Param(model.Properties)
     model.MaxProperty = pyo.Param(model.Properties)
+    # Define decision variables
+    model.Blend = pyo.Var(
+        model.Ingredients,
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
+        bounds=(0, None))
+    # Define objective & constraints
+    model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
+    model.PropertyConstraint = pyo.Constraint(
+        model.Properties,
+        rule=_property_constraint_rule)
+    model.ConservationConstraint = pyo.Constraint(
+        rule=_conservation_constraint_rule)
+    # Check if returning concrete or abstract model
+    if kwargs:
+        return model.create_instance(**kwargs)
+    else:
+        return model
 
 
 def resource_allocation(
@@ -93,29 +125,29 @@ def resource_allocation(
     >>> opt = pyo.SolverFactory("glpk")
     >>> results = opt.solve(instance)
     """
-    def _get_bounds(model, p):
+    def _get_bounds(model, a):
         """Upper Bounds for the Decision Vars based on Maximum Demand."""
-        return (0, model.MaxActivity[p])
+        return (0, model.MaxActivity[a])
 
     def _obj_expression(model):
         """Objective Expression: Maximizing Value"""
         return pyo.summation(model.Values, model.NumActivity)
 
-    def _resource_constraint_rule(model, m):
+    def _resource_constraint_rule(model, r):
         """Constraints for Scarce Resources"""
         return sum(
-            model.ResourceNeeds[m, p]
-            * model.NumActivity[p]
-            for p in model.Activities
-            ) <= model.MaxResource[m]
+            model.ResourceNeeds[r, a]
+            * model.NumActivity[a]
+            for a in model.Activities
+            ) <= model.MaxResource[r]
 
-    def _mult_resource_constraint_rule(model, m):
+    def _mult_resource_constraint_rule(model, r):
         """Constraints for Scarce Resources"""
         return sum(
-            model.ResourceNeeds[m, p]
-            * model.NumActivity[p]
-            for p in model.Activities
-            ) <= model.MaxResource[m] * model.NumResource[m]
+            model.ResourceNeeds[r, a]
+            * model.NumActivity[a]
+            for a in model.Activities
+            ) <= model.MaxResource[r] * model.NumResource[r]
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
     model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
