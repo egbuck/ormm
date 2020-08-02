@@ -9,6 +9,46 @@ import pyomo
 import pandas as pd
 
 
+def blending(linear=True, **kwargs):
+    """
+    Factory method returning Pyomo Abstract/Concrete Model
+    for the Blending Problem
+
+    Parameters
+    ----------
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
+    **kwargs
+        Passed into Pyomo Abstract Model's `create_instance`
+        to return Pyomo Concrete Model instead.
+
+    Notes
+    -----
+    The Blending Problem optimizes the mixing of ingredients
+    to satisfy restrictions while minimizing cost.
+
+    Examples
+    --------
+    Creating abstract model, an instance from data params, & solving instance.
+
+    >>> import pyomo.environ as pyo
+    >>> instance = resource_allocation("my_params.dat") # AMPL data file
+    >>> opt = pyo.SolverFactory("glpk")
+    >>> results = opt.solve(instance)
+    """
+    # Create the abstract model & dual suffix
+    model = pyo.AbstractModel()
+    model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
+    # Define sets/params that are always used
+    model.Ingredients = pyo.Set()
+    model.Properties = pyo.Set()
+    model.Cost = pyo.Param(model.Ingredients)
+    model.IngredientProperties = pyo.Param(model.Ingredients, model.Properties)
+    model.MinProperty = pyo.Param(model.Properties)
+    model.MaxProperty = pyo.Param(model.Properties)
+
+
 def resource_allocation(
         linear=True, mult_res=False,
         max_activity=True, **kwargs):
@@ -49,8 +89,7 @@ def resource_allocation(
     Creating abstract model, an instance from data params, & solving instance.
 
     >>> import pyomo.environ as pyo
-    >>> model = resource_allocation()
-    >>> instance = model.create_instance("my_params.dat") # AMPL data file
+    >>> instance = resource_allocation("my_params.dat) # AMPL data file
     >>> opt = pyo.SolverFactory("glpk")
     >>> results = opt.solve(instance)
     """
