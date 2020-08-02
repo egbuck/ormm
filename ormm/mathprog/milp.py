@@ -77,19 +77,22 @@ def resource_allocation(
             * model.NumActivity[p]
             for p in model.Activities
             ) <= model.MaxResource[m] * model.NumResource[m]
-    # Create the abstract model for Resource Allocation Problem
+    # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
     model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
-    # Define sets/params/vars
+    # Define sets/params that are always used
     model.Activities = pyo.Set()
     model.Resources = pyo.Set()
     model.Values = pyo.Param(model.Activities)
     model.ResourceNeeds = pyo.Param(model.Resources, model.Activities)
     model.MaxResource = pyo.Param(model.Resources)
+    # If multiple resources, load those params
     if mult_res:
         model.NumResource = pyo.Param(model.Resources)
+    # If upper bound on dec. vars, load those params
     if max_activity:
         model.MaxActivity = pyo.Param(model.Activities)
+    # Define decision variables
     model.NumActivity = pyo.Var(
         model.Activities,
         within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
@@ -100,7 +103,7 @@ def resource_allocation(
         model.Resources,
         rule=_resource_constraint_rule if not mult_res
         else _mult_resource_constraint_rule)
-    # check if returning concrete or abstract model
+    # Check if returning concrete or abstract model
     if kwargs:
         return model.create_instance(**kwargs)
     else:
@@ -159,7 +162,9 @@ def sensitivity_analysis(instance):
                                   abs_tol=1e-5) else con.slack
         active = con.active
         vals = [lower, upper, slack, active]
+        # Add constraint info to dual_dict
         dual_dict[con.name].extend(vals)
+    # dual_dict to pandas dataframe
     sens_analysis = pd.DataFrame.from_dict(dual_dict,
                                            orient="index",
                                            columns=[
@@ -168,5 +173,6 @@ def sensitivity_analysis(instance):
                                                "Upper",
                                                "Slack",
                                                "Active"])
+    # Name the index and return the dataframe
     sens_analysis.index.name = "Constraint"
     return sens_analysis
