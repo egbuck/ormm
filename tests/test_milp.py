@@ -7,7 +7,7 @@ import pandas as pd
 from ormm.mathprog import resource_allocation, \
     print_sol, sensitivity_analysis, blending
 
-MATHPROG_DATA = "../ormm/mathprog/example_data/"
+MATHPROG_DATA = "ormm/mathprog/example_data/"
 SIMPLE_RES_DATA = MATHPROG_DATA + "resource_allocation.dat"
 COMPLEX_RES_DATA = MATHPROG_DATA + "mult_resource_allocation.dat"
 BLENDING_DATA = MATHPROG_DATA + "blending.dat"
