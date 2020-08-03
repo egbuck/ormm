@@ -192,7 +192,7 @@ def resource_allocation(
         return model
 
 
-def print_sol(instance):
+def print_sol(instance, money_obj=False):
     """
     Print the solution to the solved `instance`.
 
@@ -200,12 +200,15 @@ def print_sol(instance):
     ----------
     instance : :py:class:`pyomo.environ.ConcreteModel`
         A solved model to retrieve objective & variable values.
+    money_obj : bool
+        Whether or not the objective is a monetary value (adds $ if True).
 
     Notes
     ----
     Assumes the objective is retrievable by :py:obj:`instance.OBJ()`
     """
-    print(f"Objective Value: ${instance.OBJ():,}")
+    dollar_sign = "$" if money_obj else ""
+    print(f"Objective Value: {dollar_sign}{instance.OBJ():,}")
     for v in instance.component_objects(pyo.Var, active=True):
         print("Variable component: ", v)
         for index in v:

@@ -14,6 +14,7 @@ A matrix-like parameter shows the numeric properties of each of the ingredients
 (:py:obj:`IngredientProperties`).
 This type of problem arises often in the food, feed, and oil
 refinement industries.
+The diet problem is a well-studied example of an application of this problem class.
 
 Definitions
 -----------
