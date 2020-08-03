@@ -1,7 +1,7 @@
 .. image:: https://readthedocs.org/projects/ormm/badge/?version=latest
     :target: https://ormm.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-.. image:: https://travis-ci.com/egbuck/ormm.svg?branch=master
+.. image:: https://img.shields.io/travis/com/egbuck/ormm/master?logo=travis
     :target: https://travis-ci.com/egbuck/ormm
 .. image:: https://codecov.io/gh/egbuck/ormm/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/egbuck/ormm
