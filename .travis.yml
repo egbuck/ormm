@@ -4,6 +4,10 @@ python:
   - "3.6"
   - "3.7"
   - "3.8"
+# Installing glpk solver
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq glpk-utils
 # command to install dependencies
 install: pip install .[dev]
 # Test with pytest
