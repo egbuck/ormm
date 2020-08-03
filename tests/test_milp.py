@@ -68,7 +68,7 @@ def test_print_sol_with_data():
     # Redirect output to StringIO object
     captured_output = io.StringIO()
     sys.stdout = captured_output
-    print_sol(instance)
+    print_sol(instance, money_obj=True)
     sys.stdout = sys.__stdout__  # reset stdout
     test_string = (
         "Objective Value: $6,300.0\n"
