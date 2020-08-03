@@ -11,8 +11,11 @@ before_install:
 # command to install dependencies
 install: pip install .[dev]
 # Test with pytest
-script: pytest
+script: pytest --cov=ormm
 # Only run on this branch
 branches:
   only:
     - pkg-features
+# Run codecov after success
+after_success:
+    - codecov

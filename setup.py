@@ -28,6 +28,8 @@ setup(
             "sphinx_rtd_theme >= 0.5.0",
             "twine >= 3.2.0",
             "flake8 >= 3.8.3",
+            "pytest-cov >=2.10.0",
+            "codecov >= 2.1.8"
             # "check-manifest>=0.42" # used for creating Manifest.in
         ]
     },
