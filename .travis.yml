@@ -1,0 +1,14 @@
+# Language versions to run on
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+# command to install dependencies
+install: pip install .[dev]
+# Test with pytest
+script: pytest
+# Only run on this branch
+branches:
+  only:
+    - pkg-features

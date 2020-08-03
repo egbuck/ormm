@@ -1,3 +1,7 @@
+.. image:: https://readthedocs.org/projects/ormm/badge/?version=latest
+:target: https://ormm.readthedocs.io/en/latest/?badge=latest
+:alt: Documentation Status
+
 ORMM
 ====
 
