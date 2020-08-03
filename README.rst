@@ -3,6 +3,8 @@
     :alt: Documentation Status
 .. image:: https://travis-ci.com/egbuck/ormm.svg?branch=master
     :target: https://travis-ci.com/egbuck/ormm
+.. image:: https://codecov.io/gh/egbuck/ormm/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/egbuck/ormm
 
 ORMM
 ====
