@@ -1,10 +1,10 @@
 # Set for Periods
 # Here: shifts in a day
-set Periods := 1 2 3 4 5 6 ;
+#set Periods := 1 2 3 4 5 6 ;
 
 # Params for Periods - Required num workers in each
 # Here: num workers needed per shift
-param  PeriodReqs :=
+param: Periods: PeriodReqs :=
 1   70
 2  140
 3  200

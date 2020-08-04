@@ -1,0 +1,62 @@
+# Set Periods and its Param PeriodReqs - Required num workers in each
+# Here: days of the week & num rental cars needed per day of the week
+param: Periods: PeriodReqs :=
+           Sat   2
+           Sun   5
+           Mon  10
+           Tue   9
+           Wed  16
+           Thu   7
+           Fri  11;
+
+# Set for Plans - Cost of each plan
+param: Plans: PlanCosts  PlanLengths :=  # keeping this in case figure out how to use it
+ DailyWeekDay     35       1
+ DailyWeekend     50       1
+ ThreeWeekDay    125       3
+ Weekend          60       2
+ AllWeekDay      180       5
+ AllWeek         200       7;
+
+# Set definition in case figure out how to use it
+set   PlanToPeriod:  Sat Sun Mon Tue Wed Thu Fri  :=
+       DailyWeekDay   -   -   +   +   +   +   +
+       DailyWeekend   +   +   -   -   -   -   -
+       ThreeWeekDay   -   -   +   +   +   -   -
+            Weekend   +   -   -   -   -   -   -
+         AllWeekDay   -   -   +   -   -   -   -
+            AllWeek   +   -   -   -   -   -   -;
+
+#set Plans := DailyWeekDay DailyWeekend ThreeWeekDay Weekend AllWeekDay AllWeek;
+# Set: defining the possible starting periods for each plan
+# Param: Cost of each plan, with relation to its starting period
+# Here: Different rental rates based on the plans
+#param:   PlanPeriodSet1  Costs :=
+#    DailyWeekDay  Mon    35
+#    DailyWeekDay  Tue    35
+#    DailyWeekDay  Wed    35
+#    DailyWeekDay  Thu    35
+#    DailyWeekDay  Fri    35
+#    DailyWeekend  Sat    50
+#    DailyWeekend  Sun    50
+#    ThreeWeekDay  Mon   125
+#    ThreeWeekDay  Tue   125
+#    ThreeWeekDay  Wed   125
+#         Weekend  Sat    60
+#      AllWeekDay  Mon   180
+#         AllWeek  Sat   200;
+
+#param:   PlanPeriodSet2  :=
+#    (DailyWeekDay,  Mon)
+#    (DailyWeekDay,  Tue)
+#    (DailyWeekDay,  Wed)
+#    (DailyWeekDay,  Thu)
+#    (DailyWeekDay,  Fri)
+#    (DailyWeekend,  Sat)
+#    (DailyWeekend,  Sun)
+#    (ThreeWeekDay,  Mon)
+#    (ThreeWeekDay,  Tue)
+#    (ThreeWeekDay,  Wed)
+#    (     Weekend,  Sat)
+#    (  AllWeekDay,  Mon)
+#    (     AllWeek,  Sat);
