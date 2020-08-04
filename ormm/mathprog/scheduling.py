@@ -52,21 +52,24 @@ def _rental(**kwargs):
         """Constraints for having enough workers per period"""
         num_periods = len(model.Periods)
         my_sum = 0
+        sum_terms = []
         for (period, plan) in model.PlanToPeriod:
-            if period == p:
-                # Get index of current period
-                ind = model.Periods.ord(p)
-                # Get effective periods based on PlanLength
-                periods_in_plan = [
-                    model.Periods[(
-                        (ind - 1 - pl) % num_periods) + 1]
-                    for pl in range(model.PlanLengths[plan])]
-                periods_in_plan = [per for per in periods_in_plan
-                                   if (per, plan) in model.PlanToPeriod]
-                # Sum up how many rented in effective periods
-                my_sum += sum(
-                    [model.NumRent[(p_in_plan, plan)]
-                        for p_in_plan in periods_in_plan])
+            # Get index of current period
+            ind = model.Periods.ord(p)
+            # Get effective periods based on PlanLength
+            periods_in_plan = [
+                model.Periods[(
+                    (ind - 1 - pl) % num_periods) + 1]
+                for pl in range(model.PlanLengths[plan])]
+            periods_in_plan = [per for per in periods_in_plan
+                               if (per, plan) in model.PlanToPeriod]
+            # Sum up how many rented in effective periods
+            # new_terms makes sure that not adding same term again
+            new_terms = [(p_in_plan, plan)
+                         for p_in_plan in periods_in_plan
+                         if (p_in_plan, plan) not in sum_terms]
+            my_sum += sum([model.NumRent[term] for term in new_terms])
+            sum_terms.extend(new_terms)
         return my_sum >= model.PeriodReqs[p]
 
     # Create the abstract model & dual suffix
@@ -82,7 +85,7 @@ def _rental(**kwargs):
     # Define decision variables
     model.NumRent = pyo.Var(
         model.PlanToPeriod,
-        within=pyo.NonNegativeIntegers)
+        within=pyo.NonNegativeReals)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
     model.PeriodReqsConstraint = pyo.Constraint(
