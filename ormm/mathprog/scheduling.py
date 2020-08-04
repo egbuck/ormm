@@ -50,19 +50,24 @@ def _rental(**kwargs):
 
     def _period_reqs_constraint_rule(model, p):
         """Constraints for having enough workers per period"""
-        first_member = model.Periods.first()
-        last_member = model.Periods.last()
-        next_member = model.Periods.next(p, step=1)
-        index = model.Periods.ord(p)  # 1 based!!
-        set_member = model.Periods[index]  # ?
-        print((first_member, last_member, next_member, index, set_member))
-        if p == min(model.Periods):
-            return (model.PeriodReqs[p],
-                    model.NumWorkers[p] + model.NumWorkers[max(model.Periods)],
-                    None)
-        else:
-            return (model.PeriodReqs[p],
-                    model.NumWorkers[p] + model.NumWorkers[p - 1], None)
+        num_periods = len(model.Periods)
+        my_sum = 0
+        for (period, plan) in model.PlanToPeriod:
+            if period == p:
+                # Get index of current period
+                ind = model.Periods.ord(p)
+                # Get effective periods based on PlanLength
+                periods_in_plan = [
+                    model.Periods[(
+                        (ind - 1 - pl) % num_periods) + 1]
+                    for pl in range(model.PlanLengths[plan])]
+                periods_in_plan = [per for per in periods_in_plan
+                                   if (per, plan) in model.PlanToPeriod]
+                # Sum up how many rented in effective periods
+                my_sum += sum(
+                    [model.NumRent[(p_in_plan, plan)]
+                        for p_in_plan in periods_in_plan])
+        return my_sum >= model.PeriodReqs[p]
 
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()

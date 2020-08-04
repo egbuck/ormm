@@ -19,6 +19,7 @@ param: Plans: PlanCosts  PlanLengths :=  # keeping this in case figure out how t
  AllWeek         200       7;
 
 # Set definition in case figure out how to use it
+# Set: defining the possible starting periods for each plan
 set   PlanToPeriod:  Sat Sun Mon Tue Wed Thu Fri  :=
        DailyWeekDay   -   -   +   +   +   +   +
        DailyWeekend   +   +   -   -   -   -   -
@@ -28,7 +29,6 @@ set   PlanToPeriod:  Sat Sun Mon Tue Wed Thu Fri  :=
             AllWeek   +   -   -   -   -   -   -;
 
 #set Plans := DailyWeekDay DailyWeekend ThreeWeekDay Weekend AllWeekDay AllWeek;
-# Set: defining the possible starting periods for each plan
 # Param: Cost of each plan, with relation to its starting period
 # Here: Different rental rates based on the plans
 #param:   PlanPeriodSet1  Costs :=

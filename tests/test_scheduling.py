@@ -23,8 +23,9 @@ def test_employee_simple():
 def test_rental_simple():
     model = scheduling(prob_class="rental")
     instance1 = model.create_instance(RENTAL_DATA)
+    instance1.pprint()
     instance2 = scheduling(prob_class="rental", filename=RENTAL_DATA)
-    print(instance1, instance2)
+    #print(instance1, instance2)
     # for inst in [instance1, instance2]:
     #     instance, results = solve_instance(inst)
     #     assert instance.OBJ() == 295
