@@ -36,8 +36,8 @@ def test_simple_resource_allocation_with_data():
         for v in instance.component_objects(pyo.Var, active=True):
             if v.name == "NumActivity":
                 assert {index: v[index].value
-                        for index in v} == {"P": 100, "Q": 30}
-        assert instance.OBJ() == 6300
+                        for index in v} == {"Q": 31.25, "W": 75}
+        assert instance.OBJ() == 7343.75
 
 
 def test_complex_resource_allocation_with_data():
@@ -49,8 +49,8 @@ def test_complex_resource_allocation_with_data():
         if v.name == "NumActivity":
             assert {
                 index: round(v[index].value, 2) for index in v} == {
-                "Q": 58.96, "W": 62.63, "E": 0, "R": 10.58, "T": 15.64}
-    assert round(instance.OBJ(), 0) == 2989
+                "Q": 123.08, "W": 0, "E": 0, "R": 0, "T": 46.15, "Y": 0}
+    assert round(instance.OBJ(), 0) == 2692
 
 
 def test_blending():
@@ -63,8 +63,8 @@ def test_blending():
             if v.name == "Blend":
                 assert {
                     index: round(v[index].value, 2) for index in v} == {
-                    "Limestone": 0.03, "Corn": 0.65, "Soybean": 0.32}
-        assert round(instance.OBJ(), 2) == 49.16
+                    "Banana": 0.02, "Milk": 0.76, "Yogurt": 0.22}
+        assert round(instance.OBJ(), 2) == 37.61
 
 
 def test_print_sol_with_data():
@@ -76,10 +76,10 @@ def test_print_sol_with_data():
     print_sol(instance, money_obj=True)
     sys.stdout = sys.__stdout__  # reset stdout
     test_string = (
-        "Objective Value: $6,300.0\n"
+        "Objective Value: $7,343.75\n"
         "Variable component:  NumActivity\n"
-        "    P 100.0\n"
-        "    Q 30.0\n"
+        "    Q 31.25\n"
+        "    W 75.0\n"
     )
     assert captured_output.getvalue() == test_string
 
@@ -90,16 +90,22 @@ def test_sensitivity_analysis():
     instance, results = solve_instance(instance)
     sens_analysis_df = sensitivity_analysis(instance)
     test_df = pd.DataFrame({
-        "Dual Value": [4.819506, 5.201604, 8.963479, 0.363099],
+        "Dual Value": [9.29, 0.00, 5.22, 0.00],
         "Lower": [None, None, None, None],
-        "Upper": [160.0, 200.0, 120.0, 280.0],
-        "Slack": [0, 0, 0, 0],
-        "Active": [True, True, True, True]
+        "Upper": [200.0, 280.0, 160.0, 320.0],
+        "Slack": [0, 113.85, 0, 107.69],
+        "Active": [True, False, True, False]
         }, index=[
             "ResourceConstraint[A]",
             "ResourceConstraint[B]",
             "ResourceConstraint[C]",
             "ResourceConstraint[D]"])
     sens_analysis_df["Dual Value"] = \
-        sens_analysis_df["Dual Value"].round(decimals=6)
+        sens_analysis_df["Dual Value"].round(decimals=2)
+    sens_analysis_df["Slack"] = \
+        sens_analysis_df["Slack"].round(decimals=2)
     assert sens_analysis_df.equals(test_df)
+
+
+if __name__ == "__main__":
+    test_sensitivity_analysis()

@@ -71,8 +71,8 @@ def blending(linear=True, **kwargs):
     model.Properties = pyo.Set()
     model.Cost = pyo.Param(model.Ingredients)
     model.IngredientProperties = pyo.Param(model.Ingredients, model.Properties)
-    model.MinProperty = pyo.Param(model.Properties)
-    model.MaxProperty = pyo.Param(model.Properties)
+    model.MinProperty = pyo.Param(model.Properties, within=pyo.Any)
+    model.MaxProperty = pyo.Param(model.Properties, within=pyo.Any)
     # Define decision variables
     model.Blend = pyo.Var(
         model.Ingredients,
@@ -244,8 +244,8 @@ def sensitivity_analysis(instance):
             is not pyomo.core.expr.numvalue.NumericConstant \
             else con.upper.value
         slack = 0 if math.isclose(con.slack(), 0,
-                                  abs_tol=1e-5) else con.slack
-        active = con.active
+                                  abs_tol=1e-5) else con.slack()
+        active = True if slack == 0 else False
         vals = [lower, upper, slack, active]
         # Add constraint info to dual_dict
         dual_dict[con.name].extend(vals)
