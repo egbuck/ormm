@@ -11,7 +11,7 @@ def scheduling(prob_class="employee", **kwargs):
     Parameters
     ----------
     prob_class : str
-        Choice of "rental", "employee", & "job shop"
+        Choice of "rental" or "employee"
         to return different scheduling models.
 
     Raises
@@ -23,8 +23,6 @@ def scheduling(prob_class="employee", **kwargs):
         return _rental(**kwargs)
     elif prob_class == "employee":
         return _employee(**kwargs)
-    elif prob_class == "job shop":
-        return _job_shop(**kwargs)
     else:
         raise TypeError((
             "Invalid argument value {prob_class}: "
@@ -147,16 +145,3 @@ def _employee(**kwargs):
         return model.create_instance(**kwargs)
     else:
         return model
-
-
-def _job_shop(**kwargs):
-    """
-    Factory method for the Job Shop scheduling problem.
-
-    Parameters
-    ----------
-    **kwargs : optional
-        if any given, returns pyomo concrete model instead, with these passed
-        into pyomo's `create_instance`.
-    """
-    pass
