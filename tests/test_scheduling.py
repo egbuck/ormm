@@ -14,10 +14,10 @@ def test_employee_simple():
     instance2 = scheduling(filename=EMPLOYEE_DATA)
     for inst in [instance1, instance2]:
         instance, results = solve_instance(inst)
-        assert instance.OBJ() == 535
+        assert instance.OBJ() == 215
         for v in instance.component_objects(pyo.Var, active=True):
             assert {index: v[index].value for index in v} == {
-                1: 40, 2: 75, 3: 110, 4: 60, 5: 100, 6: 110, 7: 40}
+                1: 0, 2: 65, 3: 70, 4: 30, 5: 0, 6:  45, 7: 5}
 
 
 def test_rental_simple():

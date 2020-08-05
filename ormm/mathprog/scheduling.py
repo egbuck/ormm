@@ -163,19 +163,23 @@ def _employee(**kwargs):
 
     def _period_reqs_constraint_rule(model, p):
         """Constraints for having enough workers per period"""
-        if p == min(model.Periods):
-            return (model.PeriodReqs[p],
-                    model.NumWorkers[p] + model.NumWorkers[max(model.Periods)],
-                    None)
-        else:
-            return (model.PeriodReqs[p],
-                    model.NumWorkers[p] + model.NumWorkers[p - 1], None)
+        # Get index of current period
+        ind = model.Periods.ord(p)
+        num_periods = len(model.Periods)
+        # Get effective periods based on ShiftLength - loops back
+        effective_periods = [
+            model.Periods[((ind - 1 - shift) % num_periods) + 1]
+            for shift in range(model.ShiftLength.value)]
+        # Sum up how many workers are working this period
+        my_sum = sum([model.NumWorkers[period]
+                      for period in effective_periods])
+        return my_sum >= model.PeriodReqs[p]
 
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
     model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
     # Define sets/params that are always used
-    model.Periods = pyo.Set()
+    model.Periods = pyo.Set(ordered=True)
     model.ShiftLength = pyo.Param()  # num periods a worker works in a row
     model.PeriodReqs = pyo.Param(model.Periods)
     # Define decision variables
