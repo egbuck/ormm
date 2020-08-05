@@ -105,7 +105,3 @@ def test_sensitivity_analysis():
     sens_analysis_df["Slack"] = \
         sens_analysis_df["Slack"].round(decimals=2)
     assert sens_analysis_df.equals(test_df)
-
-
-if __name__ == "__main__":
-    test_sensitivity_analysis()
