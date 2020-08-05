@@ -15,8 +15,8 @@ param       Cost :=
 # NOTE: +/-1000 to avoid setting limit (should be None)
 param:  MinProperty  MaxProperty :=
       Fat  0.009       0.013
-  Protein  0.200        1000
-    Carbs  -1000       0.070;
+  Protein  0.200        .
+    Carbs   .          0.070;
 
 # Params for Properties & Ingredients
 #   - amount of each Property for 1 unit of that Ingredient

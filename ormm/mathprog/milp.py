@@ -71,8 +71,10 @@ def blending(linear=True, **kwargs):
     model.Properties = pyo.Set()
     model.Cost = pyo.Param(model.Ingredients)
     model.IngredientProperties = pyo.Param(model.Ingredients, model.Properties)
-    model.MinProperty = pyo.Param(model.Properties, within=pyo.Any)
-    model.MaxProperty = pyo.Param(model.Properties, within=pyo.Any)
+    model.MinProperty = pyo.Param(model.Properties,
+                                  within=pyo.Any, default=0.0)
+    model.MaxProperty = pyo.Param(model.Properties,
+                                  within=pyo.Any, default=None)
     # Define decision variables
     model.Blend = pyo.Var(
         model.Ingredients,
