@@ -13,28 +13,58 @@ def scheduling(prob_class="employee", **kwargs):
 
     The valid choices are:
 
-    * `employee` (default):  A simple employee scheduling problem to
-    minimize the number of workers employed to meet shift requirements.
-    Currently assumes that a worker works their shifts in a row
-    (determined by `ShiftLenth` parameter).
-    * `rental`:  A type of scheduling problem where there are different
-    plans (with different durations & costs), and the goal is to minimize the
-    total cost of the plans purchased while meeting the period requirements
-    (covering constraints).
+    - `employee` (default):  A simple employee scheduling problem to
+      minimize the number of workers employed to meet period requirements.
+      Currently assumes that a worker works their periods in a row
+      (determined by `ShiftLenth` parameter).
 
-    More details on these model classes can be found in the corresponding
-    section of the :ref:`problem_desc`.
+    - `rental`:  A type of scheduling problem where there are different
+      plans (with different durations & costs), and the goal is to minimize the
+      total cost of the plans purchased while meeting the period requirements
+      (covering constraints).
+
+    More details on these model classes can be found in the Notes section here,
+    as well as the corresponding section of the :ref:`problem_desc`.
 
     Parameters
     ----------
     prob_class : str
         Choice of "rental" or "employee"
         to return different scheduling models.
+    **kwargs
+        Passed into Pyomo Abstract Model's `create_instance`
+        to return Pyomo Concrete Model instead.
 
     Raises
     ------
     TypeError
         Raised if invalid argument value is given for `prob_class`.
+
+    Notes
+    -----
+    The employee model minimizes workers hired with covering constraints:
+
+    .. math::
+
+       \\text{Min}  \\sum_{p \\in P} X_p
+
+       \\text{s.t.} \\sum_{p - SL > M}^p X_p \\geq R_p
+           \\quad \\forall p \\in P
+
+       X_p \\geq 0\\text{, int} \\quad \\forall p \\in P
+
+    The rental model minimizes cost of plans purchased
+    with covering constraints:
+
+    .. math::
+
+       \\text{Min}  \\sum_{n \\in N} C_n
+           \\sum_{p \\in P \\, \\mid \\, (n,p) \\in J} X_{(n,p)}
+
+       \\text{s.t.} \\sum_{j \\in J \\, \\mid \\, e} X_j \\geq R_p
+           \\quad \\forall p \\in P
+
+       X_j \\geq 0\\text{, int} \\quad \\forall j \\in J
     """
     if prob_class == "rental":
         return _rental(**kwargs)
