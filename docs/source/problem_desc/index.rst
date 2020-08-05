@@ -1,3 +1,5 @@
+.. _problem_desc:
+
 Problem Descriptions
 ====================
 

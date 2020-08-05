@@ -8,6 +8,23 @@ def scheduling(prob_class="employee", **kwargs):
     """
     Calls factory methods for different scheduling problems.
 
+    The `prob_class` parameter allows the user to choose from different
+    types of problem classes, which in turn have different model structures.
+
+    The valid choices are:
+
+    * `employee` (default):  A simple employee scheduling problem to
+    minimize the number of workers employed to meet shift requirements.
+    Currently assumes that a worker works their shifts in a row
+    (determined by `ShiftLenth` parameter).
+    * `rental`:  A type of scheduling problem where there are different
+    plans (with different durations & costs), and the goal is to minimize the
+    total cost of the plans purchased while meeting the period requirements
+    (covering constraints).
+
+    More details on these model classes can be found in the corresponding
+    section of the :ref:`problem_desc`.
+
     Parameters
     ----------
     prob_class : str
