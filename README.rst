@@ -5,6 +5,8 @@
     :target: https://travis-ci.com/egbuck/ormm
 .. image:: https://codecov.io/gh/egbuck/ormm/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/egbuck/ormm
+.. image:: https://pepy.tech/badge/ormm
+    :target: https://pepy.tech/project/ormm
 
 ORMM
 ====

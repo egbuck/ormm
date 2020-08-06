@@ -1,0 +1,16 @@
+# Set for Periods
+# Here: days of the week
+# Params for Periods - Required num workers in each
+# Here: num workers needed per shift
+param: Periods: PeriodReqs :=
+1   80
+2  115
+3  185
+4  170
+5  160
+6  210
+7  150;
+
+# General Params - Num periods worker will work in a row
+# Here: number of days they work in a row
+param ShiftLength := 5;

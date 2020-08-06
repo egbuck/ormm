@@ -15,6 +15,7 @@ solution analysis.
 
    blending
    resource_allocation
+   scheduling
    print_sol
    sensitivity_analysis
 
@@ -24,6 +25,8 @@ API Component Documentation
 .. autofunction:: blending
 
 .. autofunction:: resource_allocation
+
+.. autofunction:: scheduling
 
 .. autofunction:: print_sol
 

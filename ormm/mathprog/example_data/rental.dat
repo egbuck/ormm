@@ -1,0 +1,29 @@
+# Set Periods and its Param PeriodReqs - Required num workers in each
+# Here: days of the week & num rental cars needed per day of the week
+param: Periods: PeriodReqs :=
+           Sat   3
+           Sun   4
+           Mon  10
+           Tue   9
+           Wed  12
+           Thu   8
+           Fri  10;
+
+# Set for Plans - Cost of each plan
+param: Plans: PlanCosts  PlanLengths :=  # keeping this in case figure out how to use it
+ DailyWeekDay     40       1
+ DailyWeekend     30       1
+ ThreeWeekDay    110       3
+ Weekend          50       2
+ AllWeekDay      175       5
+ AllWeek         195       7;
+
+# Set definition in case figure out how to use it
+# Set: defining the possible starting periods for each plan
+set   PlanToPeriod:  Sat Sun Mon Tue Wed Thu Fri  :=
+       DailyWeekDay   -   -   +   +   +   +   +
+       DailyWeekend   +   +   -   -   -   -   -
+       ThreeWeekDay   -   -   +   +   +   -   -
+            Weekend   +   -   -   -   -   -   -
+         AllWeekDay   -   -   +   -   -   -   -
+            AllWeek   +   -   -   -   -   -   -;

@@ -1,3 +1,5 @@
+.. _problem_desc:
+
 Problem Descriptions
 ====================
 
@@ -6,3 +8,5 @@ Problem Descriptions
 
    resource_allocation.rst
    blending.rst
+   employee.rst
+   rental.rst

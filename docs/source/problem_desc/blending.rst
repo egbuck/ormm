@@ -14,23 +14,24 @@ A matrix-like parameter shows the numeric properties of each of the ingredients
 (:py:obj:`IngredientProperties`).
 This type of problem arises often in the food, feed, and oil
 refinement industries.
+The diet problem is a well-studied example of an application of this problem class.
 
 Definitions
 -----------
 
 Sets
 """"
-- :py:obj:`Ingredients` - Set of activities that are available to produce
+- :py:obj:`Ingredients` - Set of ingredients that are available for use
 
    - :py:obj:`i in Ingredients` or :math:`i \in I`
 
-- :py:obj:`Properties` - Set of resources that are used to conduct activities
+- :py:obj:`Properties` - Set of properties that exist in the ingredients
 
    - :py:obj:`p in Properties` or :math:`p \in P`
 
 Parameters
 """"""""""
-- :py:obj:`Cost` - measure of value from conducting one unit
+- :py:obj:`Cost` - measure of cost of using one unit
   of :py:obj:`Ingredient i`
 
    - :py:obj:`Cost[i] for i in Ingredients` or :math:`C_i \enspace \forall i \in I`

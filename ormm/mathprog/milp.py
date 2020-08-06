@@ -71,8 +71,10 @@ def blending(linear=True, **kwargs):
     model.Properties = pyo.Set()
     model.Cost = pyo.Param(model.Ingredients)
     model.IngredientProperties = pyo.Param(model.Ingredients, model.Properties)
-    model.MinProperty = pyo.Param(model.Properties)
-    model.MaxProperty = pyo.Param(model.Properties)
+    model.MinProperty = pyo.Param(model.Properties,
+                                  within=pyo.Any, default=0.0)
+    model.MaxProperty = pyo.Param(model.Properties,
+                                  within=pyo.Any, default=None)
     # Define decision variables
     model.Blend = pyo.Var(
         model.Ingredients,
@@ -192,7 +194,7 @@ def resource_allocation(
         return model
 
 
-def print_sol(instance):
+def print_sol(instance, money_obj=False):
     """
     Print the solution to the solved `instance`.
 
@@ -200,12 +202,15 @@ def print_sol(instance):
     ----------
     instance : :py:class:`pyomo.environ.ConcreteModel`
         A solved model to retrieve objective & variable values.
+    money_obj : bool
+        Whether or not the objective is a monetary value (adds $ if True).
 
     Notes
     ----
     Assumes the objective is retrievable by :py:obj:`instance.OBJ()`
     """
-    print(f"Objective Value: ${instance.OBJ():,}")
+    dollar_sign = "$" if money_obj else ""
+    print(f"Objective Value: {dollar_sign}{instance.OBJ():,}")
     for v in instance.component_objects(pyo.Var, active=True):
         print("Variable component: ", v)
         for index in v:
@@ -241,8 +246,8 @@ def sensitivity_analysis(instance):
             is not pyomo.core.expr.numvalue.NumericConstant \
             else con.upper.value
         slack = 0 if math.isclose(con.slack(), 0,
-                                  abs_tol=1e-5) else con.slack
-        active = con.active
+                                  abs_tol=1e-5) else con.slack()
+        active = True if slack == 0 else False
         vals = [lower, upper, slack, active]
         # Add constraint info to dual_dict
         dual_dict[con.name].extend(vals)
