@@ -58,8 +58,8 @@ def scheduling(prob_class="employee", **kwargs):
 
     .. math::
 
-       \\text{Min}  \\sum_{n \\in N} C_n
-           \\sum_{p \\in P \\, \\mid \\, (n,p) \\in J} X_{(n,p)}
+       \\text{Min}  \\sum_{a \\in A} C_a
+           \\sum_{p \\in P \\, \\mid \\, (p,a) \\in J} X_{(p,a)}
 
        \\text{s.t.} \\sum_{j \\in J \\, \\mid \\, e} X_j \\geq R_p
            \\quad \\forall p \\in P

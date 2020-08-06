@@ -20,7 +20,7 @@ Definitions
 
 Sets
 """"
-- :py:obj:`Periods` - Set of periods where workers are needed
+- :py:obj:`Periods` - An ordered set of periods when workers are needed
 
    - :py:obj:`p in Periods` or :math:`p \in P`
 

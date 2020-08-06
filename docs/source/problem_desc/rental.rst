@@ -1,92 +1,100 @@
-Rental Car Problem
+Rental Problem
 ===========================
-The Blending Problem optimizes the mixing of ingredients
-to satisfy restrictions while minimizing cost.
-The restrictions are that certain properties of using the ingredients
-must be within their minimum and maximum values allowed.
-For example, ingredients in food may have nutrional properties,
-and this problem could force Calcium content of the mixture to be within
-a lower and upper bound (in terms of proportions).
-This problem deals with proportions, so it must another constraint to
-ensure that the sum of the decision variables (proportion of each ingredient to use)
-equals 1.
-A matrix-like parameter shows the numeric properties of each of the ingredients
-(:py:obj:`IngredientProperties`).
-This type of problem arises often in the food, feed, and oil
-refinement industries.
-The diet problem is a well-studied example of an application of this problem class.
+The Rental Problem minimizes the cost of the plans purchased
+while satisfying the number of units needed per period (the covering constraints).
+The structure of this problem is very similar to the employee problem,
+except for the addition of these plans, or options.
+These plans can have different effective number of periods, and different costs
+as a result.  Note that the "plan length" would be pseudo-equivalent to the :py:obj:`ShiftLength`
+in the employee problem.  Additionally, these plans may be restricted to only having
+certain start periods - for example, there may be a weekend plan that can only start
+on Saturday (and is effective Saturday and Sunday).
+This requires connecting the plans to the periods which they can start in, which is
+done through the :py:obj:`PlanToPeriod` parameter.
+This type of problem can arise when renting cars or other types of equipment.
 
 Definitions
 -----------
 
 Sets
 """"
-- :py:obj:`Ingredients` - Set of activities that are available to produce
+- :py:obj:`Periods` - An ordered set of periods when the units are needed
 
-   - :py:obj:`i in Ingredients` or :math:`i \in I`
+   - :py:obj:`p in Periods` or :math:`p \in P`
 
-- :py:obj:`Properties` - Set of resources that are used to conduct activities
+- :py:obj:`Plans` - Set of plans that are available to rent units
 
-   - :py:obj:`p in Properties` or :math:`p \in P`
+   - :py:obj:`a in Plans` or :math:`a \in A`
+
+- :py:obj:`PlanToPeriod` - A set that describes which periods a plan can start in.
+  This set is 2 dimensions, consisting of tuples :math:`(p,a)`. Note that not all
+  combinations of :math:`(p,a)` for :math:`p \in P`, :math:`a \in A` may exist
+  in this set.
+
+   - :py:obj:`(period, plan) in PlanToPeriod` or :math:`(p,a) \in J` or :math:`j \in J`
 
 Parameters
 """"""""""
-- :py:obj:`Cost` - measure of value from conducting one unit
-  of :py:obj:`Ingredient i`
+- :py:obj:`PeriodReqs` - measure of number of units needed for :py:obj:`Period p`
 
-   - :py:obj:`Cost[i] for i in Ingredients` or :math:`C_i \enspace \forall i \in I`
+   - :py:obj:`PeriodReqs[p] for p in Periods` or :math:`R_p \enspace \forall p \in P`
 
-- :py:obj:`IngredientProperties` - measure of how much :py:obj:`Property p`
-  is in :py:obj:`Ingredient i`
+- :py:obj:`PlanCosts` - measure of the cost of reunting one unit under :py:obj:`Plan a`
 
-   - :py:obj:`IngredientProperties[i, p] for i in Ingredients for p in Properties`
-     or :math:`N_{i,p} \enspace \forall i \in I, p \in P`
+   - :py:obj:`PeriodReqs[a] for p in Periods` or :math:`C_a \enspace \forall a \in A`
 
-- :py:obj:`MinProperty` - minimum amount of :py:obj:`Property p` needed
-  in the blend
+- :py:obj:`PlanLengths` - measure of how many periods in a row a :py:obj:`Plan a`
+  is effective for
 
-   - :py:obj:`MinProperty[p] for p in Properties` or
-     :math:`Min_p \enspace \forall p \in P`
-
-- :py:obj:`MaxProperty` - maximum amount of :py:obj:`Property p` allowed
-  in the blend
-
-   - :py:obj:`MaxProperty[p] for p in Properties` or
-     :math:`Max_p \enspace \forall p \in P`
+   - :py:obj:`PlanLengths[a] for a in Plans` or :math:`L_a \enspace \forall a \in A`
 
 Decision Variables
 """"""""""""""""""
-- :py:obj:`Blend` - proportion of :py:obj:`Ingredient i` to include in the blend.
+- :py:obj:`NumRent` - number of units that are rented starting 
+  on :py:obj:`Period p` and under :py:obj:`Plan a`
 
-   - :py:obj:`Blend[i] for i in Ingredients` or
-     :math:`X_i \enspace \forall i \in I`
+   - :py:obj:`NumWorkers[(p,a)] for p in Periods for a in Plans` or
+     :math:`X_{(p,a)} \enspace \forall (p,a) \in J` or
+     :math:`X_{j} \enspace \forall j \in J`
 
 Objective
 ---------
-**Minimize** total cost of the ingredients in the blend.
+**Minimize** cost of the purchased plans.  Note that we have to make sure that
+the combination of :py:obj:`Period p` and :py:obj:`Plan a` exists in 
+:py:obj:`PlanToPeriod`, or :math:`(p,a) \in J`.
 
 .. math::
 
-   \text{Min} \sum_{i \in I} C_iX_i
+   \text{Min}  \sum_{a \in A} C_a
+      \sum_{p \in P \, \mid \, (p,a) \in J} X_{(p,a)}
 
 Constraints
 -----------
-- The Blend must have its Properties within the upper and lower bounds,
-  :py:obj:`MinProperty[p]` and :py:obj:`MaxProperty[p]`.
+- The number of workers that are working for each period must be greater than
+  or equal to the minimum required - :py:obj:`PeriodReqs[p]`.  Obtaining the
+  number of workers that are present in each period requires using both the
+  decision variables (what day a worker starts their shift) as well as the
+  :py:obj:`ShiftLength` parameter.  For example, if the :py:obj:`ShiftLength`
+  is 2, and there are 10 workers that start Monday, 15 workers that start Tuesday,
+  and 25 workers that start Wednesday, 40 workers would be present on Wednesday.
+  If we are at the first period given by the data, the model has to go back to the
+  last period given as well - in our example, this would be saying the number of
+  workers present on Sunday (the beginning of the week) is the number of workers
+  that start on Sunday plus the number of workers that start on Saturday
+  (the end of the week).  In mathematical terms, this can be represented by
 
 .. math::
 
-   Min_p \leq \sum_{i \in I}N_{i,p}X_i \leq Max_p \quad \forall p \in P
+   \sum_{p - (L - 1)}^p X_p \leq R_p \quad \forall p \in P
 
-- The Blend decision variables are proportions of the ingredients to include,
-  and thus, the decision variables must add up to 1. Additionally, these
-  decision variables must all be greater than or equal to zero.
+where :math:`P` is a cyclically ordered set (or a cycle) and the start
+of the sum goes back :math:`L - 1` terms in that set.
+
+- The decision variables must be greater than or equal to zero and integer.
 
 .. math::
 
-    \sum_{i \in I} X_i = 1
-
-    X_i \geq 0 \enspace \forall i \in I
+    X_p \geq 0\text{, int} \enspace \forall p \in P
 
 API Reference
 -------------
