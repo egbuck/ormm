@@ -61,7 +61,7 @@ def scheduling(prob_class="employee", **kwargs):
        \\text{Min}  \\sum_{a \\in A} C_a
            \\sum_{p \\in P \\, \\mid \\, (p,a) \\in J} X_{(p,a)}
 
-       \\text{s.t.} \\sum_{j \\in J \\, \\mid \\, e} X_j \\geq R_p
+       \\text{s.t.} \\sum_{j \\in J \\, \\mid \\, f} X_j \\geq R_p
            \\quad \\forall p \\in P
 
        X_j \\geq 0\\text{, int} \\quad \\forall j \\in J

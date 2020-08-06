@@ -70,31 +70,30 @@ the combination of :py:obj:`Period p` and :py:obj:`Plan a` exists in
 
 Constraints
 -----------
-- The number of workers that are working for each period must be greater than
-  or equal to the minimum required - :py:obj:`PeriodReqs[p]`.  Obtaining the
-  number of workers that are present in each period requires using both the
-  decision variables (what day a worker starts their shift) as well as the
-  :py:obj:`ShiftLength` parameter.  For example, if the :py:obj:`ShiftLength`
-  is 2, and there are 10 workers that start Monday, 15 workers that start Tuesday,
-  and 25 workers that start Wednesday, 40 workers would be present on Wednesday.
-  If we are at the first period given by the data, the model has to go back to the
-  last period given as well - in our example, this would be saying the number of
-  workers present on Sunday (the beginning of the week) is the number of workers
-  that start on Sunday plus the number of workers that start on Saturday
-  (the end of the week).  In mathematical terms, this can be represented by
+- The covering constraints require that there are enough units available
+  in each :py:obj:`Period p`.  To obtain the number of units available
+  in each period, we need to use the decision variables :py:obj:`NumRent[(p,a)]`
+  in combination with the plan lengths :py:obj:`PlanLengths[p]`.
+  The number of units available in each period would be the sum of all of
+  the :py:obj:`NumRent[(p,a)]` that are `effective` during the covering contraint's
+  :py:obj:`Period p`.  In other words, we have to look through all of the plans, and
+  see which periods they can start in, and determine whether or not that combination symbol 
+  will be effective in the constraint's :py:obj:`Period p` based on the :py:obj:`PlanLengths[p]`.
+  This `effective` condition will be represented by the math symbol :math:`f`.  
+  In mathematical terms, these constraints can be represented by
 
 .. math::
 
-   \sum_{p - (L - 1)}^p X_p \leq R_p \quad \forall p \in P
+   \sum_{j \in J \, \mid \, f} X_j \geq R_p
+      \quad \forall p \in P
 
-where :math:`P` is a cyclically ordered set (or a cycle) and the start
-of the sum goes back :math:`L - 1` terms in that set.
+where :math:`P` is a cyclically ordered set (or a cycle).
 
 - The decision variables must be greater than or equal to zero and integer.
 
 .. math::
 
-    X_p \geq 0\text{, int} \enspace \forall p \in P
+    X_j \geq 0\text{, int} \enspace \forall j \in J
 
 API Reference
 -------------
