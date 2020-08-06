@@ -48,7 +48,7 @@ def scheduling(prob_class="employee", **kwargs):
 
        \\text{Min}  \\sum_{p \\in P} X_p
 
-       \\text{s.t.} \\sum_{p - SL > M}^p X_p \\geq R_p
+       \\text{s.t.} \\sum_{p - (L - 1)}^p X_p \\geq R_p
            \\quad \\forall p \\in P
 
        X_p \\geq 0\\text{, int} \\quad \\forall p \\in P

@@ -8,3 +8,5 @@ Problem Descriptions
 
    resource_allocation.rst
    blending.rst
+   employee.rst
+   rental.rst

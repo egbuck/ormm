@@ -1,5 +1,5 @@
-Blending Problem
-================
+Rental Car Problem
+===========================
 The Blending Problem optimizes the mixing of ingredients
 to satisfy restrictions while minimizing cost.
 The restrictions are that certain properties of using the ingredients
@@ -21,17 +21,17 @@ Definitions
 
 Sets
 """"
-- :py:obj:`Ingredients` - Set of ingredients that are available for use
+- :py:obj:`Ingredients` - Set of activities that are available to produce
 
    - :py:obj:`i in Ingredients` or :math:`i \in I`
 
-- :py:obj:`Properties` - Set of properties that exist in the ingredients
+- :py:obj:`Properties` - Set of resources that are used to conduct activities
 
    - :py:obj:`p in Properties` or :math:`p \in P`
 
 Parameters
 """"""""""
-- :py:obj:`Cost` - measure of cost of using one unit
+- :py:obj:`Cost` - measure of value from conducting one unit
   of :py:obj:`Ingredient i`
 
    - :py:obj:`Cost[i] for i in Ingredients` or :math:`C_i \enspace \forall i \in I`
