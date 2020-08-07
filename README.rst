@@ -51,10 +51,10 @@ Currently this subpackage list includes
 
 Installation
 ------------
-.. image:: https://pepy.tech/badge/ormm
-    :target: https://pepy.tech/project/ormm
 .. image:: https://img.shields.io/pypi/v/ormm.svg
     :target: https://pypi.org/project/ormm/
+.. image:: https://pepy.tech/badge/ormm
+    :target: https://pepy.tech/project/ormm
 
 .. code:: console
 
