@@ -214,15 +214,26 @@ def aggregate_planning(linear=True, **kwargs):
     """
     def _obj_expression(model):
         """Objective Expression: """
-        return pyo.summation(model.Cost, model.Produce)
+        return (pyo.summation(model.Cost, model.Produce)
+                + model.HoldingCost * pyo.summation(model.InvLevel))
 
-    def _property_constraint_rule(model, p):
+    def _conserve_flow_constraint_rule(model, p):
         """Constraints for """
-        return (model.MinProperty[p], sum(
-            model.IngredientProperties[i, p]
-            * model.Blend[i]
-            for i in model.Ingredients
-            ), model.MaxProperty[p])
+        ind = model.Periods.ord(p)
+        if ind == 1:
+            return (model.InitialInv + model.Produce[p]
+                    - model.InvLevel[p] == model.Demand[p])
+        else:
+            last_p = model.Periods[ind - 1]
+            return (model.InvLevel[last_p] + model.Produce[p]
+                    - model.InvLevel[p] == model.Demand[p])
+
+    def _max_storage_constraint_rule(model, p):
+        return (0, model.InvLevel[p], model.MaxStorage[p])
+
+    def _final_inv_constraint_rule(model):
+        last_period = model.Periods.ord(-1)
+        return model.InvLevel[last_period] == model.FinalInv
 
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
@@ -233,8 +244,8 @@ def aggregate_planning(linear=True, **kwargs):
     model.Demand = pyo.Param(model.Period)
     model.HoldingCost = pyo.Param()
     model.MaxStorage = pyo.Param(within=pyo.Any, default=None)
-    model.InitialInv = pyo.Param(within=pyo.Any, default=None)
-    model.FinalInv = pyo.Param(within=pyo.Any, default=None)
+    model.InitialInv = pyo.Param(default=0)
+    model.FinalInv = pyo.Param(default=0)
     # Define decision variables
     model.Produce = pyo.Var(
         model.Periods,
@@ -244,12 +255,16 @@ def aggregate_planning(linear=True, **kwargs):
         within=pyo.NonNegativeIntegers)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
-    model.PropertyConstraint = pyo.Constraint(
+    model.ConserveFlowConstraint = pyo.Constraint(
         model.Periods,
-        rule=_property_constraint_rule)
+        rule=_conserve_flow_constraint_rule)
+    model.MaxStorageConstraint = pyo.Constraint(
+        model.Periods,
+        rule=_max_storage_constraint_rule)
+    model.FinalInvConstraint = pyo.Constraint(
+        rule=_final_inv_constraint_rule)
     # Check if returning concrete or abstract model
     if kwargs:
         return model.create_instance(**kwargs)
     else:
         return model
-
