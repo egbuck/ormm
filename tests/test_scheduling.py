@@ -1,4 +1,5 @@
 import pyomo.environ as pyo
+import pytest
 
 from ormm.mathprog import scheduling
 from tests.methods import solve_instance
@@ -6,6 +7,11 @@ from tests.methods import solve_instance
 DATA_PATH = "ormm/mathprog/example_data/"
 EMPLOYEE_DATA = DATA_PATH + "employee.dat"
 RENTAL_DATA = DATA_PATH + "rental.dat"
+
+
+def test_scheduling_error():
+    with pytest.raises(TypeError):
+        scheduling("not a scheduling prob class")
 
 
 def test_employee_simple():

@@ -14,18 +14,6 @@ COMPLEX_RES_DATA = MATHPROG_DATA + "mult_resource_allocation.dat"
 BLENDING_DATA = MATHPROG_DATA + "blending.dat"
 
 
-def create_instance_results(model, data_path):
-    instance = model.create_instance(data_path)
-    opt = pyo.SolverFactory("glpk")
-    results = opt.solve(instance)
-    return instance, results
-
-
-def create_blending(data_path, **kwargs):
-    mod = blending(**kwargs)
-    return create_instance_results(mod, data_path)
-
-
 def test_simple_resource_allocation_with_data():
     model = resource_allocation()
     instance1 = model.create_instance(SIMPLE_RES_DATA)

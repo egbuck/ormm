@@ -1,7 +1,7 @@
-Rental Problem
+Rental Scheduling Problem
 ===========================
-The Rental Problem minimizes the cost of the plans purchased
-while satisfying the number of units needed per period (the covering constraints).
+The Rental Scheduling Problem minimizes the cost of the plans purchased
+while satisfying the number of units needed for each period (the covering constraints).
 The structure of this problem is very similar to the employee problem,
 except for the addition of these plans, or options.
 These plans can have different effective number of periods, and different costs
@@ -50,7 +50,7 @@ Parameters
 
 Decision Variables
 """"""""""""""""""
-- :py:obj:`NumRent` - number of units that are rented starting 
+- :py:obj:`NumRent` - number of units that are rented starting
   on :py:obj:`Period p` and under :py:obj:`Plan a`
 
    - :py:obj:`NumWorkers[(p,a)] for p in Periods for a in Plans` or
@@ -60,7 +60,7 @@ Decision Variables
 Objective
 ---------
 **Minimize** cost of the purchased plans.  Note that we have to make sure that
-the combination of :py:obj:`Period p` and :py:obj:`Plan a` exists in 
+the combination of :py:obj:`Period p` and :py:obj:`Plan a` exists in
 :py:obj:`PlanToPeriod`, or :math:`(p,a) \in J`.
 
 .. math::
@@ -77,9 +77,9 @@ Constraints
   The number of units available in each period would be the sum of all of
   the :py:obj:`NumRent[(p,a)]` that are `effective` during the covering contraint's
   :py:obj:`Period p`.  In other words, we have to look through all of the plans, and
-  see which periods they can start in, and determine whether or not that combination symbol 
+  see which periods they can start in, and determine whether or not that combination symbol
   will be effective in the constraint's :py:obj:`Period p` based on the :py:obj:`PlanLengths[p]`.
-  This `effective` condition will be represented by the math symbol :math:`f`.  
+  This `effective` condition will be represented by the math symbol :math:`f`.
   In mathematical terms, these constraints can be represented by
 
 .. math::
