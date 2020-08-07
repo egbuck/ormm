@@ -64,13 +64,14 @@ Usage
 -----
 The `mathprog` subpackage currently has 4 problem classes, as well as functions for
 printing the solution of a solved concrete model and for returning a pandas dataframe
-containing information for sensitivity analysis.  The four problem classes are:
+containing information for sensitivity analysis.  The four problem classes are
 
 1. Resource Allocation: Optimize using scarce resources for valued activities.
 
 .. code:: python
 
    from ormm.mathprog import resource_allocation
+   model = resource_allocation()
 
 2. Blending Problem: Optimize the mixing of ingredients to satisfy requirements
    while minimizing cost.
@@ -78,6 +79,7 @@ containing information for sensitivity analysis.  The four problem classes are:
 .. code:: python
 
    from ormm.mathprog import blending
+   model = blending()
 
 3. Employee Scheduling: Minimize the number of workers hired while meeting
    the minimum number of workers required for each period.
@@ -96,7 +98,7 @@ containing information for sensitivity analysis.  The four problem classes are:
    from ormm.mathprog import scheduling
    model = scheduling(prob_class="rental")
 
-For more details on usage and the problem descriptions, see the
+For more details on optional parameters, usage, and the problem descriptions, see the
 `documentation <https://ormm.readthedocs.io/en/stable/>`_.
 
 Developer Environment
