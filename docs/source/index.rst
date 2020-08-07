@@ -31,7 +31,7 @@ add-ins did, mainly to
 This repository contains subpackages for grouping the different types of OR Models & Methods.
 Currently this subpackage list includes
 
-1. `mathprog`: A subpackage for mathematical programs, including linear programs, mixed
+1. :py:obj:`mathprog`: A subpackage for mathematical programs, including linear programs, mixed
    integer linear programs, nonlinear programs, and stochastic programs.  Note for this
    subpackage that models and methods are not necessarily implemented in their abstract
    form, like Paul Jensen did - there are many python libraries that accomplish this task
