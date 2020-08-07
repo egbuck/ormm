@@ -22,9 +22,6 @@ His Excel packages were last updated in 2011, and while I believe they do still 
   `here <https://www.me.utexas.edu/~jensen/ORMM/>`_, some sections are/may become unusable.
   The animations rely on Flash, which is being phased out in google chrome and other web
   browsers.
-- His work is not nearly as visible as I believe it deserves - any OR practitioner can find
-  value in studying his examples of applications, and use his model implementations to great
-  effect.
 
 This python package aims to accomplish some of the same goals as Paul Jensen's website and
 add-ins did, mainly to
@@ -35,7 +32,7 @@ add-ins did, mainly to
    and problem classes so a user can more easily see how they may be able to frame
    their business problem/objective through the lens of Operations Research.
 
-This repository contains subpackages for grouping the different types of OR models & methods.
+This repository contains subpackages for grouping the different types of OR Models & Methods.
 Currently this subpackage list includes
 
 1. `mathprog`: A subpackage for mathematical programs, including linear programs, mixed
