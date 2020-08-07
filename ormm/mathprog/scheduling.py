@@ -196,3 +196,60 @@ def _employee(**kwargs):
         return model.create_instance(**kwargs)
     else:
         return model
+
+
+def aggregate_planning(linear=True, **kwargs):
+    """
+    Factory method returning Pyomo Abstract/Concrete Model
+    for the Aggregate Planning Problem
+
+    Parameters
+    ----------
+    **kwargs
+        Passed into Pyomo Abstract Model's `create_instance`
+        to return Pyomo Concrete Model instead.
+
+    Notes
+    -----
+    """
+    def _obj_expression(model):
+        """Objective Expression: """
+        return pyo.summation(model.Cost, model.Produce)
+
+    def _property_constraint_rule(model, p):
+        """Constraints for """
+        return (model.MinProperty[p], sum(
+            model.IngredientProperties[i, p]
+            * model.Blend[i]
+            for i in model.Ingredients
+            ), model.MaxProperty[p])
+
+    # Create the abstract model & dual suffix
+    model = pyo.AbstractModel()
+    model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
+    # Define sets/params that are always used
+    model.Periods = pyo.Set(ordered=True)
+    model.Cost = pyo.Param(model.Period)
+    model.Demand = pyo.Param(model.Period)
+    model.HoldingCost = pyo.Param()
+    model.MaxStorage = pyo.Param(within=pyo.Any, default=None)
+    model.InitialInv = pyo.Param(within=pyo.Any, default=None)
+    model.FinalInv = pyo.Param(within=pyo.Any, default=None)
+    # Define decision variables
+    model.Produce = pyo.Var(
+        model.Periods,
+        within=pyo.NonNegativeIntegers)
+    model.InvLevel = pyo.Var(
+        model.Periods,
+        within=pyo.NonNegativeIntegers)
+    # Define objective & constraints
+    model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
+    model.PropertyConstraint = pyo.Constraint(
+        model.Periods,
+        rule=_property_constraint_rule)
+    # Check if returning concrete or abstract model
+    if kwargs:
+        return model.create_instance(**kwargs)
+    else:
+        return model
+
