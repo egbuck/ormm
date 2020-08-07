@@ -1,5 +1,5 @@
-.. image:: https://readthedocs.org/projects/ormm/badge/?version=latest
-    :target: https://ormm.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/ormm/badge/?version=stable
+    :target: https://ormm.readthedocs.io/en/stable/?badge=stable
     :alt: Documentation Status
 .. image:: https://img.shields.io/travis/com/egbuck/ormm/master?logo=travis
     :target: https://travis-ci.com/egbuck/ormm
@@ -96,24 +96,8 @@ containing information for sensitivity analysis.  The four problem classes are:
    from ormm.mathprog import scheduling
    model = scheduling(prob_class="rental")
 
-An example with using these to solve a concrete model is below (the file
-"my_data.dat" is an AMPL style data file with the parameters for the model).
-
-.. code:: python
-
-   from ormm.mathprog import resource_allocation, print_sol, sensitivity_analysis
-   import pyomo.environ as pyo
-   instance = resource_allocation(filename="my_data.dat")
-   opt = pyo.SolverFactory("glpk")  # Note: need glpk solver in this case
-   results = opt.solve(instance)
-   print_sol(instance)
-   Objective Value: $7,343.75
-   Variable component:  NumActivity
-       Q 31.25
-       W 75.0
-    sensitivity_analysis(instance)
-
-
+For more details on usage and the problem descriptions, see the
+`documentation <https://ormm.readthedocs.io/en/stable/>`_.
 
 Developer Environment
 ---------------------
