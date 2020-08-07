@@ -5,8 +5,6 @@
     :target: https://travis-ci.com/egbuck/ormm
 .. image:: https://codecov.io/gh/egbuck/ormm/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/egbuck/ormm
-.. image:: https://pepy.tech/badge/ormm
-    :target: https://pepy.tech/project/ormm
 
 ORMM
 ====
@@ -50,6 +48,72 @@ Currently this subpackage list includes
    class of problems.  Note that the abstract models can be built upon based on a
    unique business problem that may have more or fewer constraints, or a more complex
    objective to maximize/minimize.
+
+Installation
+------------
+.. image:: https://pepy.tech/badge/ormm
+    :target: https://pepy.tech/project/ormm
+.. image:: https://img.shields.io/pypi/v/ormm.svg
+    :target: https://pypi.org/project/ormm/
+
+.. code:: console
+
+   $ pip install ormm
+
+Usage
+-----
+The `mathprog` subpackage currently has 4 problem classes, as well as functions for
+printing the solution of a solved concrete model and for returning a pandas dataframe
+containing information for sensitivity analysis.  The four problem classes are:
+
+1. Resource Allocation: Optimize using scarce resources for valued activities.
+
+.. code:: python
+
+   from ormm.mathprog import resource_allocation
+
+2. Blending Problem: Optimize the mixing of ingredients to satisfy requirements
+   while minimizing cost.
+
+.. code:: python
+
+   from ormm.mathprog import blending
+
+3. Employee Scheduling: Minimize the number of workers hired while meeting
+   the minimum number of workers required for each period.
+
+.. code:: python
+
+   from ormm.mathprog import scheduling
+   model = scheduling(prob_class="employee")
+
+4. Rental Scheduling:  Minimize the cost of the plans purchased (which rent
+   units for different amounts of time) while satisfying the number of units
+   needed for each period.
+
+.. code:: python
+
+   from ormm.mathprog import scheduling
+   model = scheduling(prob_class="rental")
+
+An example with using these to solve a concrete model is below (the file
+"my_data.dat" is an AMPL style data file with the parameters for the model).
+
+.. code:: python
+
+   from ormm.mathprog import resource_allocation, print_sol, sensitivity_analysis
+   import pyomo.environ as pyo
+   instance = resource_allocation(filename="my_data.dat")
+   opt = pyo.SolverFactory("glpk")  # Note: need glpk solver in this case
+   results = opt.solve(instance)
+   print_sol(instance)
+   Objective Value: $7,343.75
+   Variable component:  NumActivity
+       Q 31.25
+       W 75.0
+    sensitivity_analysis(instance)
+
+
 
 Developer Environment
 ---------------------

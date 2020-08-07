@@ -66,9 +66,9 @@ def scheduling(prob_class="employee", **kwargs):
 
        X_j \\geq 0\\text{, int} \\quad \\forall j \\in J
     """
-    if prob_class == "rental":
+    if prob_class.lower() == "rental":
         return _rental(**kwargs)
-    elif prob_class == "employee":
+    elif prob_class.lower() == "employee":
         return _employee(**kwargs)
     else:
         raise TypeError((
