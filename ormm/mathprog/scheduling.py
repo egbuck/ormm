@@ -29,7 +29,7 @@ def scheduling(prob_class="employee", **kwargs):
     Parameters
     ----------
     prob_class : str
-        Choice of "rental" or "employee"
+        Choice of "employee", "rental", or "agg_planning"
         to return different scheduling models.
     **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
@@ -70,6 +70,8 @@ def scheduling(prob_class="employee", **kwargs):
         return _rental(**kwargs)
     elif prob_class.lower() == "employee":
         return _employee(**kwargs)
+    elif prob_class.lower() == "agg_planning":
+        return _aggregate_planning(**kwargs)
     else:
         raise TypeError((
             "Invalid argument value {prob_class}: "
@@ -198,7 +200,7 @@ def _employee(**kwargs):
         return model
 
 
-def aggregate_planning(linear=True, **kwargs):
+def _aggregate_planning(linear=True, **kwargs):
     """
     Factory method returning Pyomo Abstract/Concrete Model
     for the Aggregate Planning Problem
