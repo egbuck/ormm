@@ -4,7 +4,7 @@
 import pyomo.environ as pyo
 
 
-def scheduling(prob_class="employee", **kwargs):
+def scheduling(prob_class="employee", linear=False, **kwargs):
     """
     Calls factory methods for different scheduling problems.
 
@@ -13,12 +13,12 @@ def scheduling(prob_class="employee", **kwargs):
 
     The valid choices are:
 
-    - `employee` (default):  A simple employee scheduling problem to
+    - :py:obj:`employee` (default):  A simple employee scheduling problem to
       minimize the number of workers employed to meet period requirements.
       Currently assumes that a worker works their periods in a row
       (determined by `ShiftLenth` parameter).
 
-    - `rental`:  A type of scheduling problem where there are different
+    - :py:obj:`rental`:  A type of scheduling problem where there are different
       plans (with different durations & costs), and the goal is to minimize the
       total cost of the plans purchased while meeting the period requirements
       (covering constraints).
@@ -28,9 +28,12 @@ def scheduling(prob_class="employee", **kwargs):
 
     Parameters
     ----------
-    prob_class : str
+    prob_class : :py:obj:`str`, optional
         Choice of "employee", "rental", or "agg_planning"
         to return different scheduling models.
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
     **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
@@ -78,12 +81,15 @@ def scheduling(prob_class="employee", **kwargs):
             "must be 'rental', 'employee', or 'job shop'.\n"))
 
 
-def _rental(**kwargs):
+def _rental(linear=False, **kwargs):
     """
     Factory method for the Rental scheduling problem.
 
     Parameters
     ----------
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
     **kwargs : optional
         if any given, returns pyomo concrete model instead, with these passed
         into pyomo's `create_instance`.
@@ -132,7 +138,7 @@ def _rental(**kwargs):
     # Define decision variables
     model.NumRent = pyo.Var(
         model.PlanToPeriod,
-        within=pyo.NonNegativeReals)
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
     model.PeriodReqsConstraint = pyo.Constraint(
@@ -145,12 +151,15 @@ def _rental(**kwargs):
         return model
 
 
-def _employee(**kwargs):
+def _employee(linear=False, **kwargs):
     """
     Factory method for the Employee scheduling problem.
 
     Parameters
     ----------
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
     **kwargs : optional
         if any given, returns pyomo concrete model instead, with these passed
         into pyomo's `create_instance`.
@@ -187,7 +196,7 @@ def _employee(**kwargs):
     # Define decision variables
     model.NumWorkers = pyo.Var(
         model.Periods,
-        within=pyo.NonNegativeIntegers)
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
     model.PeriodReqsConstraint = pyo.Constraint(
@@ -200,7 +209,7 @@ def _employee(**kwargs):
         return model
 
 
-def _aggregate_planning(linear=True, **kwargs):
+def _aggregate_planning(linear=False, **kwargs):
     """
     Factory method returning Pyomo Abstract/Concrete Model
     for the Aggregate Planning Problem
@@ -251,10 +260,10 @@ def _aggregate_planning(linear=True, **kwargs):
     # Define decision variables
     model.Produce = pyo.Var(
         model.Periods,
-        within=pyo.NonNegativeIntegers)
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
     model.InvLevel = pyo.Var(
         model.Periods,
-        within=pyo.NonNegativeIntegers)
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
     model.ConserveFlowConstraint = pyo.Constraint(
