@@ -68,6 +68,24 @@ def scheduling(prob_class="employee", linear=False, **kwargs):
            \\quad \\forall p \\in P
 
        X_j \\geq 0\\text{, int} \\quad \\forall j \\in J
+
+    The aggregate planning model minimizes production & holding costs
+    while meeting demand over a number of periods:
+
+    .. math::
+
+       \\text{Min}  \\sum_{p \\in P} C_pX_p &+ H_pY_p
+
+       \\text{s.t.} \\enspace Y_{p-1} + X_p - Y_p &= D_p
+       &\\forall p \\in P
+
+       Y_p &\\leq M_p &\\forall p \\in P
+
+       Y_{\\min(p)-1} &= I_F
+
+       Y_{\\max(p)} &= I_L
+
+       X_p, \\, Y_p &\\geq 0\\text{, int} &\\forall p \\in P
     """
     if prob_class.lower() == "rental":
         return _rental(**kwargs)
