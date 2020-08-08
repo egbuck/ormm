@@ -231,10 +231,10 @@ def _aggregate_planning(linear=True, **kwargs):
                     - model.InvLevel[p] == model.Demand[p])
 
     def _max_storage_constraint_rule(model, p):
-        return (0, model.InvLevel[p], model.MaxStorage[p])
+        return (0, model.InvLevel[p], model.MaxStorage)
 
     def _final_inv_constraint_rule(model):
-        last_period = model.Periods.ord(-1)
+        last_period = model.Periods[-1]
         return model.InvLevel[last_period] == model.FinalInv
 
     # Create the abstract model & dual suffix
@@ -242,8 +242,8 @@ def _aggregate_planning(linear=True, **kwargs):
     model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
     # Define sets/params that are always used
     model.Periods = pyo.Set(ordered=True)
-    model.Cost = pyo.Param(model.Period)
-    model.Demand = pyo.Param(model.Period)
+    model.Cost = pyo.Param(model.Periods)
+    model.Demand = pyo.Param(model.Periods)
     model.HoldingCost = pyo.Param()
     model.MaxStorage = pyo.Param(within=pyo.Any, default=None)
     model.InitialInv = pyo.Param(default=0)
