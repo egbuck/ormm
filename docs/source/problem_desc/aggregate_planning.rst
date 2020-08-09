@@ -35,22 +35,22 @@ Parameters
 - :py:obj:`HoldingCost` - measure of the cost of holding one extra unit
   from one period to the next
 
-   - :py:obj:`HoldingCost` or :math:`H`
+   - :py:obj:`HoldingCost` or :math:`h`
 
 - :py:obj:`MaxStorage` - maximum number of units that can be held over
   from one period to the next
 
-   - :py:obj:`MaxStorage` or :math:`M`
+   - :py:obj:`MaxStorage` or :math:`m`
 
 - :py:obj:`InitialInv` - initial number of units in inventory, before the
   first period begins
 
-   - :py:obj:`InitialInv` or :math:`I_F`
+   - :py:obj:`InitialInv` or :math:`I_I`
 
 - :py:obj:`FinalInv` - desired number of units in inventory to end up with, 
   after the last period ends
 
-   - :py:obj:`FinalInv` or :math:`I_L`
+   - :py:obj:`FinalInv` or :math:`I_F`
 
 Decision Variables
 """"""""""""""""""
@@ -72,34 +72,42 @@ Objective
 
 .. math::
 
-   \text{Min}  \sum_{p \in P} C_pX_p + HY_p
+   \text{Min}  \sum_{p \in P} C_pX_p + hY_p
 
 Constraints
 -----------
-- The covering constraints require that there are enough units available
-  in each :py:obj:`Period p`.  To obtain the number of units available
-  in each period, we need to use the decision variables :py:obj:`NumRent[(p,a)]`
-  in combination with the plan lengths :py:obj:`PlanLengths[p]`.
-  The number of units available in each period would be the sum of all of
-  the :py:obj:`NumRent[(p,a)]` that are `effective` during the covering contraint's
-  :py:obj:`Period p`.  In other words, we have to look through all of the plans, and
-  see which periods they can start in, and determine whether or not that combination symbol
-  will be effective in the constraint's :py:obj:`Period p` based on the :py:obj:`PlanLengths[p]`.
-  This `effective` condition will be represented by the math symbol :math:`f`.
+- The conservation of flow constraints enforce the relationships between the
+  production, inventory levels, and the demand for each period.  
   In mathematical terms, these constraints can be represented by
 
 .. math::
 
-   \sum_{j \in J \, \mid \, f} X_j \geq R_p
+   Y_{p-1} + X_p - Y_{p} = D_p
       \quad \forall p \in P
 
-where :math:`P` is a cyclically ordered set (or a cycle).
+where :math:`Y_{p-1}` is defined to be :math:`I_I` when :math:`p` is the first period.
+
+- The amount stored at the end of each period cannot be more than the maximum
+  amount allowed, :math:`m`.
+
+.. math::
+
+   Y_p \leq m \quad \forall p \in P
+
+- We define constraints to enforce the definition of :math:`Y_{p-1}` when :math:`p`
+  is the first period, as well as the last period's inventory level to be :math:`I_F`.
+
+.. math::
+
+   Y_{\min(P)-1} &= I_I
+
+   Y_{\max(P)} &= I_F
 
 - The decision variables must be greater than or equal to zero and integer.
 
 .. math::
 
-    X_j \geq 0\text{, int} \enspace \forall j \in J
+    X_p, \, Y_p \geq 0\text{, int} \enspace \forall p \in P
 
 API Reference
 -------------

@@ -74,16 +74,16 @@ def scheduling(prob_class="employee", linear=False, **kwargs):
 
     .. math::
 
-       \\text{Min}  \\sum_{p \\in P} C_pX_p &+ HY_p
+       \\text{Min}  \\sum_{p \\in P} C_pX_p &+ hY_p
 
        \\text{s.t.} \\enspace Y_{p-1} + X_p - Y_p &= D_p
        &\\forall p \\in P
 
-       Y_p &\\leq M &\\forall p \\in P
+       Y_p &\\leq m &\\forall p \\in P
 
-       Y_{\\min(p)-1} &= I_F
+       Y_{\\min(P)-1} &= I_I
 
-       Y_{\\max(p)} &= I_L
+       Y_{\\max(P)} &= I_F
 
        X_p, \\, Y_p &\\geq 0\\text{, int} &\\forall p \\in P
     """
