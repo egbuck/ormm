@@ -30,7 +30,7 @@ def transportation(linear=False, **kwargs):
 
     def _demand_constraint_rule(model, j):
         return sum(model.Flows[i, j]
-                   for i in model.Supply) == model.Destinations[j]
+                   for i in model.Supply) == model.Demand[j]
 
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
@@ -40,7 +40,7 @@ def transportation(linear=False, **kwargs):
     model.Destinations = pyo.Set()
     model.Supply = pyo.Param(model.Sources)
     model.Demand = pyo.Param(model.Destinations)
-    model.ShippingCosts = pyo.Param(model.Ingredients, model.Properties)
+    model.ShippingCosts = pyo.Param(model.Sources, model.Destinations)
     # Define decision variables
     model.Flows = pyo.Var(
         model.Sources,
