@@ -1,7 +1,15 @@
 from setuptools import setup, find_packages
+import re
 
 with open("README.rst", "r") as fh:
     long_description = fh.read()
+
+long_description = re.sub(
+    r"(.. image:: https://|    :target: https://|    :alt:)(.*)(\n)",
+    "", long_description)
+long_description = re.sub(r"\nORMM", "ORMM", long_description)
+long_description = re.sub(r"\n\.\. code:: console",
+                          r".. code:: console", long_description)
 
 PROJECT_URLS = {
     "Documentation": "https://ormm.readthedocs.io/en/stable/",
