@@ -95,6 +95,14 @@ containing information for sensitivity analysis.  The four problem classes are
    from ormm.mathprog import scheduling
    model = scheduling(prob_class="rental")
 
+5. Aggregate Planning: Minimize the production and holding costs while
+   meeting the demand for each period.
+
+.. code:: python
+
+   from ormm.mathprog import scheduling
+   model = scheduling(prob_class="agg_planning")
+
 For more details on optional parameters, usage, and the problem descriptions, see the
 `documentation <https://ormm.readthedocs.io/en/stable/>`_.
 
