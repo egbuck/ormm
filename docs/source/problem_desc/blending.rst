@@ -46,13 +46,13 @@ Parameters
   in the blend
 
    - :py:obj:`MinProperty[p] for p in Properties` or
-     :math:`Min_p \enspace \forall p \in P`
+     :math:`L_p \enspace \forall p \in P`
 
 - :py:obj:`MaxProperty` - maximum amount of :py:obj:`Property p` allowed
   in the blend
 
    - :py:obj:`MaxProperty[p] for p in Properties` or
-     :math:`Max_p \enspace \forall p \in P`
+     :math:`U_p \enspace \forall p \in P`
 
 Decision Variables
 """"""""""""""""""
@@ -76,7 +76,7 @@ Constraints
 
 .. math::
 
-   Min_p \leq \sum_{i \in I}N_{i,p}X_i \leq Max_p \quad \forall p \in P
+   L_p \leq \sum_{i \in I}N_{i,p}X_i \leq U_p \quad \forall p \in P
 
 - The Blend decision variables are proportions of the ingredients to include,
   and thus, the decision variables must add up to 1. Additionally, these

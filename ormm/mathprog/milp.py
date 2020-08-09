@@ -32,8 +32,8 @@ def blending(linear=True, **kwargs):
 
        \\text{Min}  \\sum_{i \\in I} C_iX_i
 
-       \\text{s.t.} \\enspace Min_p \\leq \\sum_{i \\in I} N_{i,p}X_i
-            \\leq Max_p \\quad \\forall p \\in P
+       \\text{s.t.} \\enspace L_p \\leq \\sum_{i \\in I} N_{i,p}X_i
+            \\leq U_p \\quad \\forall p \\in P
 
        \\sum_{i \\in I} X_i = 1
 
