@@ -10,3 +10,4 @@ Problem Descriptions
    blending.rst
    employee.rst
    rental.rst
+   aggregate_planning.rst

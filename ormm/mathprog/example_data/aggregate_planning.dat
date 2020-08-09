@@ -1,0 +1,21 @@
+# Set Periods and its Params Cost & Demand
+#   - Cost per unit in Period p & Demand in units in Period p
+# Here: months & above definitions
+param: Periods: Cost  Demand :=
+           Jan   100   1300
+           Feb   105   1400
+           Mar   110   1000
+           Apr   115    800
+           May   110   1700
+           Jun   110   1900;
+
+# Holding cost per unit per period
+param HoldingCost := 4;
+
+# Max amount of storage, or max amount of units
+#   that can be held from one period to next
+param MaxStorage := 250;
+
+# Initial & Final inventory level
+param InitialInv := 200;
+param FinalInv := 100;

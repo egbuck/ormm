@@ -4,7 +4,7 @@
 import pyomo.environ as pyo
 
 
-def scheduling(prob_class="employee", **kwargs):
+def scheduling(prob_class="employee", linear=False, **kwargs):
     """
     Calls factory methods for different scheduling problems.
 
@@ -13,12 +13,12 @@ def scheduling(prob_class="employee", **kwargs):
 
     The valid choices are:
 
-    - `employee` (default):  A simple employee scheduling problem to
+    - :py:obj:`employee` (default):  A simple employee scheduling problem to
       minimize the number of workers employed to meet period requirements.
       Currently assumes that a worker works their periods in a row
       (determined by `ShiftLenth` parameter).
 
-    - `rental`:  A type of scheduling problem where there are different
+    - :py:obj:`rental`:  A type of scheduling problem where there are different
       plans (with different durations & costs), and the goal is to minimize the
       total cost of the plans purchased while meeting the period requirements
       (covering constraints).
@@ -28,9 +28,12 @@ def scheduling(prob_class="employee", **kwargs):
 
     Parameters
     ----------
-    prob_class : str
-        Choice of "rental" or "employee"
+    prob_class : :py:obj:`str`, optional
+        Choice of "employee", "rental", or "agg_planning"
         to return different scheduling models.
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
     **kwargs
         Passed into Pyomo Abstract Model's `create_instance`
         to return Pyomo Concrete Model instead.
@@ -65,23 +68,46 @@ def scheduling(prob_class="employee", **kwargs):
            \\quad \\forall p \\in P
 
        X_j \\geq 0\\text{, int} \\quad \\forall j \\in J
+
+    The aggregate planning model minimizes production & holding costs
+    while meeting demand over a number of periods:
+
+    .. math::
+
+       \\text{Min}  \\sum_{p \\in P} C_pX_p &+ hY_p
+
+       \\text{s.t.} \\enspace Y_{p-1} + X_p - Y_p &= D_p
+       &\\forall p \\in P
+
+       Y_p &\\leq m &\\forall p \\in P
+
+       Y_{\\min(P)-1} &= I_I
+
+       Y_{\\max(P)} &= I_F
+
+       X_p, \\, Y_p &\\geq 0\\text{, int} &\\forall p \\in P
     """
     if prob_class.lower() == "rental":
         return _rental(**kwargs)
     elif prob_class.lower() == "employee":
         return _employee(**kwargs)
+    elif prob_class.lower() == "agg_planning":
+        return _aggregate_planning(**kwargs)
     else:
         raise TypeError((
             "Invalid argument value {prob_class}: "
             "must be 'rental', 'employee', or 'job shop'.\n"))
 
 
-def _rental(**kwargs):
+def _rental(linear=False, **kwargs):
     """
     Factory method for the Rental scheduling problem.
 
     Parameters
     ----------
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
     **kwargs : optional
         if any given, returns pyomo concrete model instead, with these passed
         into pyomo's `create_instance`.
@@ -130,7 +156,7 @@ def _rental(**kwargs):
     # Define decision variables
     model.NumRent = pyo.Var(
         model.PlanToPeriod,
-        within=pyo.NonNegativeReals)
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
     model.PeriodReqsConstraint = pyo.Constraint(
@@ -143,12 +169,15 @@ def _rental(**kwargs):
         return model
 
 
-def _employee(**kwargs):
+def _employee(linear=False, **kwargs):
     """
     Factory method for the Employee scheduling problem.
 
     Parameters
     ----------
+    linear : :py:obj:`bool`, optional
+        Determines whether decision variables will be
+        Reals (True) or Integer (False).
     **kwargs : optional
         if any given, returns pyomo concrete model instead, with these passed
         into pyomo's `create_instance`.
@@ -185,12 +214,84 @@ def _employee(**kwargs):
     # Define decision variables
     model.NumWorkers = pyo.Var(
         model.Periods,
-        within=pyo.NonNegativeIntegers)
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
     model.PeriodReqsConstraint = pyo.Constraint(
         model.Periods,
         rule=_period_reqs_constraint_rule)
+    # Check if returning concrete or abstract model
+    if kwargs:
+        return model.create_instance(**kwargs)
+    else:
+        return model
+
+
+def _aggregate_planning(linear=False, **kwargs):
+    """
+    Factory method returning Pyomo Abstract/Concrete Model
+    for the Aggregate Planning Problem
+
+    Parameters
+    ----------
+    **kwargs
+        Passed into Pyomo Abstract Model's `create_instance`
+        to return Pyomo Concrete Model instead.
+
+    Notes
+    -----
+    """
+    def _obj_expression(model):
+        """Objective Expression: """
+        return (pyo.summation(model.Cost, model.Produce)
+                + model.HoldingCost * pyo.summation(model.InvLevel))
+
+    def _conserve_flow_constraint_rule(model, p):
+        """Constraints for """
+        ind = model.Periods.ord(p)
+        if ind == 1:
+            return (model.InitialInv + model.Produce[p]
+                    - model.InvLevel[p] == model.Demand[p])
+        else:
+            last_p = model.Periods[ind - 1]
+            return (model.InvLevel[last_p] + model.Produce[p]
+                    - model.InvLevel[p] == model.Demand[p])
+
+    def _max_storage_constraint_rule(model, p):
+        return (0, model.InvLevel[p], model.MaxStorage)
+
+    def _final_inv_constraint_rule(model):
+        last_period = model.Periods[-1]
+        return model.InvLevel[last_period] == model.FinalInv
+
+    # Create the abstract model & dual suffix
+    model = pyo.AbstractModel()
+    model.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
+    # Define sets/params that are always used
+    model.Periods = pyo.Set(ordered=True)
+    model.Cost = pyo.Param(model.Periods)
+    model.Demand = pyo.Param(model.Periods)
+    model.HoldingCost = pyo.Param()
+    model.MaxStorage = pyo.Param(within=pyo.Any, default=None)
+    model.InitialInv = pyo.Param(default=0)
+    model.FinalInv = pyo.Param(default=0)
+    # Define decision variables
+    model.Produce = pyo.Var(
+        model.Periods,
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
+    model.InvLevel = pyo.Var(
+        model.Periods,
+        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers)
+    # Define objective & constraints
+    model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
+    model.ConserveFlowConstraint = pyo.Constraint(
+        model.Periods,
+        rule=_conserve_flow_constraint_rule)
+    model.MaxStorageConstraint = pyo.Constraint(
+        model.Periods,
+        rule=_max_storage_constraint_rule)
+    model.FinalInvConstraint = pyo.Constraint(
+        rule=_final_inv_constraint_rule)
     # Check if returning concrete or abstract model
     if kwargs:
         return model.create_instance(**kwargs)

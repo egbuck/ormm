@@ -7,6 +7,7 @@ from tests.methods import solve_instance
 DATA_PATH = "ormm/mathprog/example_data/"
 EMPLOYEE_DATA = DATA_PATH + "employee.dat"
 RENTAL_DATA = DATA_PATH + "rental.dat"
+AGG_PLANNING_DATA = DATA_PATH + "aggregate_planning.dat"
 
 
 def test_scheduling_error():
@@ -48,3 +49,24 @@ def test_rental_simple():
                 ('Sat', 'Weekend'): 0.0,
                 ('Mon', 'AllWeekDay'): 4.0,
                 ('Sat', 'AllWeek'): 4.0}
+
+
+def test_agg_planning():
+    model = scheduling(prob_class="agg_planning")
+    instance1 = model.create_instance(AGG_PLANNING_DATA)
+    instance2 = scheduling(prob_class="agg_planning",
+                           filename=AGG_PLANNING_DATA)
+    for inst in [instance1, instance2]:
+        instance, results = solve_instance(inst)
+        assert instance.OBJ() == 865_650
+        for v in instance.component_objects(pyo.Var, active=True):
+            if v.name == "Produce":
+                assert {index: v[index].value
+                        for index in v} == {'Jan': 1350.0, 'Feb': 1400.0,
+                                            'Mar': 1000.0, 'Apr': 550.0,
+                                            'May': 1700.0, 'Jun': 2000.0}
+            else:
+                assert {index: v[index].value
+                        for index in v} == {'Jan': 250.0, 'Feb': 250.0,
+                                            'Mar': 250.0, 'Apr': 0.0,
+                                            'May': 0.0, 'Jun': 100.0}
