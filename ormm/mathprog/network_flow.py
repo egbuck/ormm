@@ -5,6 +5,9 @@ def transportation(linear=False, **kwargs):
     """
     Factory method for the transportation problem class
 
+    This is a bipartite network with m supply nodes, n destination nodes
+    If not possible to ship from i to j, a large cost M should be passed
+
     Assumes the feasibility property holds
         (total supply equals total demand)
         then becomes balanced TP
@@ -18,18 +21,16 @@ def transportation(linear=False, **kwargs):
     """
     def _obj_expression(model):
         """Objective Expression: Maximizing Value"""
-        return pyo.summation(model.Cost, model.Blend)
+        return pyo.summation(model.ShippingCosts, model.Flows)
 
-    def _property_constraint_rule(model, p):
+    def _supply_constraint_rule(model, i):
         """Constraints for Scarce Resources"""
-        return (model.MinProperty[p], sum(
-            model.IngredientProperties[i, p]
-            * model.Blend[i]
-            for i in model.Ingredients
-            ), model.MaxProperty[p])
+        return sum(model.Flows[i, j]
+                   for j in model.Destinations) == model.Supply[i]
 
-    def _conservation_constraint_rule(model):
-        return pyo.summation(model.Blend) == 1
+    def _demand_constraint_rule(model, j):
+        return sum(model.Flows[i, j]
+                   for i in model.Supply) == model.Destinations[j]
 
     # Create the abstract model & dual suffix
     model = pyo.AbstractModel()
@@ -41,18 +42,19 @@ def transportation(linear=False, **kwargs):
     model.Demand = pyo.Param(model.Destinations)
     model.ShippingCosts = pyo.Param(model.Ingredients, model.Properties)
     # Define decision variables
-    model.Flow = pyo.Var(
+    model.Flows = pyo.Var(
         model.Sources,
         model.Destinations,
         within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
         bounds=(0, None))
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
-    model.PropertyConstraint = pyo.Constraint(
-        model.Properties,
-        rule=_property_constraint_rule)
-    model.ConservationConstraint = pyo.Constraint(
-        rule=_conservation_constraint_rule)
+    model.SupplyConstraint = pyo.Constraint(
+        model.Sources,
+        rule=_supply_constraint_rule)
+    model.DemandConstraint = pyo.Constraint(
+        model.Destinations,
+        rule=_demand_constraint_rule)
     # Check if returning concrete or abstract model
     if kwargs:
         return model.create_instance(**kwargs)
