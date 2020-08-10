@@ -68,3 +68,39 @@ def transportation(**kwargs):
         return model.create_instance(**kwargs)
     else:
         return model
+
+
+def assignment(**kwargs):
+    """
+    Factory method for the assignment problem class.
+
+    This is really just special case of transportation model...
+
+    5 workers that are to be assigned to 5 jobs
+    c_{ij}: cost of worker i doing job j
+    costs of M are disallowed assignments
+    match workers and jobs at minimum cost
+    similar to transportation, except all flows are 1 and -1
+    also has the bipartite structure
+    binary decision variables
+    """
+    model = transportation()
+    for comp in model.component_objects():
+        # rename model components here
+        pass
+    if kwargs:
+        return model.create_instance(**kwargs)
+    else:
+        return model
+
+
+def shortest_path(**kwargs):
+    """
+    Factory method for the shortest path problem class.
+
+    only relevant arc parameter is cost
+    length of a path: sum of arc costs along the path
+    find the shortest path from some specified node to another
+        or perhaps all other nodes
+    """
+    pass
