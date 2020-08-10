@@ -3,8 +3,33 @@ import pyomo.environ as pyo
 
 def transportation(**kwargs):
     """
-    Factory method for the transportation problem class.
+    Factory method for the BALANCED transportation problem class.
 
+    By balanced, we mean that this implementation currently requires the data
+    to have the same number of source nodes as destination nodes. Your data
+    can be easily changed to meet this requirement; see the notes section.
+
+    This network flow problem has a set of source nodes and
+    destination nodes, with shipping costs between each of them.
+    There are demands at the destinations, and supply limits at the
+    sources.  The objective is to minimize the shipping costs while
+    meeting the demands.
+
+    Parameters
+    ----------
+    **kwargs
+        Passed into Pyomo Abstract Model's `create_instance`
+        to return Pyomo Concrete Model instead.
+
+    Returns
+    -------
+    pyomo.environ.AbstractModel
+        Abstract Model with the sets, parameters, decision variables,
+        objective, and constraints for the transportation problem.
+        Returns a Concrete Model instead if any kwargs passed.
+
+    Notes
+    -----
     This is a bipartite network with m supply nodes and n destination nodes.
     If not possible to ship from i to j, a large cost M should be passed.
 
@@ -18,8 +43,6 @@ def transportation(**kwargs):
         Add a dummy demand to the data with index n + 1 if supply > demand.
             :math:`d_{n+1} = \\delta\\text{ ; }c_{i,n+1}=0 \\forall i`
 
-    Notes
-    -----
     .. math::
         \\text{Min} \\sum_{i \\in I}\\sum_{j \\in J}C_{i,j}X_{i,j}
         \\text{s.t. } \\sum_{j \\in J} X_{i,j} = S_i \\quad \\forall i \\in I
@@ -70,7 +93,7 @@ def transportation(**kwargs):
         return model
 
 
-def shortest_path_tree(**kwargs):
+def _shortest_path_tree(**kwargs):
     """
     Factory method for the shortest path problem class.
 

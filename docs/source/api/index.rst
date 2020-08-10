@@ -18,6 +18,7 @@ solution analysis.
    scheduling
    print_sol
    sensitivity_analysis
+   transportation
 
 
 API Component Documentation
@@ -27,6 +28,8 @@ API Component Documentation
 .. autofunction:: resource_allocation
 
 .. autofunction:: scheduling
+
+.. autofunction:: transportation
 
 .. autofunction:: print_sol
 
