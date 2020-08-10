@@ -1,7 +1,7 @@
 import pyomo.environ as pyo
 
 
-def transportation(linear=False, **kwargs):
+def transportation(**kwargs):
     """
     Factory method for the transportation problem class
 
@@ -45,7 +45,7 @@ def transportation(linear=False, **kwargs):
     model.Flows = pyo.Var(
         model.Sources,
         model.Destinations,
-        within=pyo.NonNegativeReals if linear else pyo.NonNegativeIntegers,
+        within=pyo.NonNegativeReals,
         bounds=(0, None))
     # Define objective & constraints
     model.OBJ = pyo.Objective(rule=_obj_expression, sense=pyo.minimize)
