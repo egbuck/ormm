@@ -98,17 +98,3 @@ def transportation(**kwargs):
         return model.create_instance(**kwargs)
     else:
         return model
-
-
-def _shortest_path_tree(**kwargs):
-    """
-    Factory method for the shortest path problem class.
-
-    only relevant arc parameter is cost
-    length of a path: sum of arc costs along the path
-    find the shortest path from some specified node to all other nodes
-
-    Greedy algo: Dijkstra's - optimal if no negative cost flows
-    Primal Simplex if no negative cycles exist
-    """
-    pass
