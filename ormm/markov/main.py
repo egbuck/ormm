@@ -1,4 +1,5 @@
-def markov(state="discrete", time="discrete"):
+def markov(activities, events, random_vars={}, transition_function=None,
+           state="discrete", time="discrete"):
     """
     type of stochastic process that is memoryless
         time: stochastic process has sequence of events that occur over time
@@ -41,5 +42,52 @@ def markov(state="discrete", time="discrete"):
       states prior to the current state.  A system that has this property
       is said to be memoryless because the future realization depends only
       on the current state and in no way on the past.
+     -------------Discrete markov defs-------------------
+    - Let S = {0, 1, ...} be the state space for a discrete-time Markov chain
+      and let p_{i,j} be the probability of going from stae i to state j in
+      one transition.  Then the state-transition matrix for the markov chain
+      is P = (p_{ij}), where
+      :math:`\\sum_{j \\in S} p_{ij} = 1 \\forall i \\in S
+             \\text{ and } 0 \\leq p_{ij} \\leq 1 \\forall i,j \\in S`
+
+    - A discrete-time Markov Chain (or Markov chain, for short) is a
+      stochastic process with the following characteristics:
+      1. A discrete state space
+      2. Markovian property
+      3. The one-step transition probabilities p_{ij}, from time n to
+         time n+1 remain constant over time (termed stationary trainsition
+         probabilities).
     """
-    pass
+    X = (e for e in events)
+    if random_vars == {}:
+        random_vars = {a: ((0.75, 0), (0.15, 0.6), (None, 1))
+                       for a in activities}
+    if transition_function is None:
+        transition_function = default_transition
+    return X, random_vars
+
+
+def markov_discrete_time(
+        activities, events, random_vars,
+        transition_matrix, state="discrete"):
+    """
+    Discrete time version of markov chain
+    """
+    # n \in N is used for discrete time
+    N = [0, 1, 2, 3, 4, 5]
+    X = {n: 0 for n in N}
+    random_vars = {a: ((0.75, 0), (0.15, 0.6), (None, 1))
+                   for a in activities}
+    transition_matrix = [[0.6, 0.3, 0.1],
+                         [0.8, 0.2, 0.0],
+                         [1.0, 0.0, 0.0]]
+    return X, random_vars, transition_matrix
+
+
+def default_transition(s, x):
+    if x == 'a':
+        return s + 1
+    elif x == 'd':
+        return s - 1
+    else:
+        raise ValueError
