@@ -3,7 +3,7 @@ import pyomo.environ as pyo
 
 def transportation(**kwargs):
     """
-    Factory method for the BALANCED transportation problem class.
+    Factory method for the balanced transportation problem.
 
     By balanced, we mean that this implementation currently requires the data
     to have the same number of source nodes as destination nodes. Your data
@@ -23,7 +23,7 @@ def transportation(**kwargs):
 
     Returns
     -------
-    pyomo.environ.AbstractModel
+    pyomo.environ.AbstractModel or pyomo.environ.ConcreteModel
         Abstract Model with the sets, parameters, decision variables,
         objective, and constraints for the transportation problem.
         Returns a Concrete Model instead if any kwargs passed.
@@ -33,20 +33,27 @@ def transportation(**kwargs):
     This is a bipartite network with m supply nodes and n destination nodes.
     If not possible to ship from i to j, a large cost M should be passed.
 
-    Assumes the feasibility property holds
-        (total supply equals total demand) -
-        then becomes balanced TP.
-    You can modify data so this requirement is satisfied.
-        Let :math:`\\delta` be the excess amount (positive).
-        Add  a dummy source to the data with index m + 1 if demand > supply.
-            :math:`s_{m+1} = \\delta\\text{ ; }c_{m+1,j}=0 \\forall j`
-        Add a dummy demand to the data with index n + 1 if supply > demand.
-            :math:`d_{n+1} = \\delta\\text{ ; }c_{i,n+1}=0 \\forall i`
+    Assumes the feasibility property holds (total supply equals total demand) -
+    then becomes balanced TP. You can modify data so this requirement is
+    satisfied.
+
+    Let :math:`\\delta` be the excess amount (positive).  Add  a dummy source
+    to the data with index m + 1 if demand > supply.
+
+    :math:`s_{m+1} = \\delta\\text{ ; }c_{m+1,j}=0 \\quad \\forall j \\in J`
+
+    Add a dummy demand to the data with index n + 1 if supply > demand.
+
+    :math:`d_{n+1} = \\delta\\text{ ; }c_{i,n+1}=0 \\quad \\forall i \\in I`
 
     .. math::
+
         \\text{Min} \\sum_{i \\in I}\\sum_{j \\in J}C_{i,j}X_{i,j}
+
         \\text{s.t. } \\sum_{j \\in J} X_{i,j} = S_i \\quad \\forall i \\in I
+
         \\sum_{i \\in I} X_{i,j} = D_j \\quad \\forall j \\in J
+
         X_{i,j} \\geq 0\\text{, int} \\quad \\forall i \\in I\\text{, }j \\in J
     """
     def _obj_expression(model):
