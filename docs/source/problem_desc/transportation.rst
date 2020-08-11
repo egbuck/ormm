@@ -51,12 +51,6 @@ Decision Variables
    - :py:obj:`Flow[i, j] for i in Sources for j in Destinations`
      or :math:`X_{i,j} \enspace \forall i \in I\text{, }j \in J`
 
-- :py:obj:`InvLevel` - number of units left in inventory
-  at the end of :py:obj:`Period p`
-
-   - :py:obj:`InvLevel[p] for p in Periods` or
-     :math:`Y_{p} \enspace \forall p \in P`
-
 Objective
 ---------
 **Minimize** shipping costs from sources to destinations.
@@ -67,38 +61,27 @@ Objective
 
 Constraints
 -----------
-- The conservation of flow constraints enforce the relationships between the
-  production, inventory levels, and the demand for each period.  
-  In mathematical terms, these constraints can be represented by
+- The total supply must be equal to the total demand.  Currently, this constraint
+  must be met by the user changing their data.  See the Notes section of the API
+  docs for more details.
+
+- All of the supply at each node must be shipped to the destination nodes.
 
 .. math::
 
-   Y_{p-1} + X_p - Y_{p} = D_p
-      \quad \forall p \in P
+   \sum_{j \in J}X_{i,j} = S_i \quad \forall i \in I
 
-where :math:`Y_{p-1}` is defined to be :math:`I_I` when :math:`p` is the first period.
-
-- The amount stored at the end of each period cannot be more than the maximum
-  amount allowed, :math:`m`.
+- All of the demand at each node must be met by the source nodes.
 
 .. math::
 
-   Y_p \leq m \quad \forall p \in P
-
-- We define constraints to enforce the definition of :math:`Y_{p-1}` when :math:`p`
-  is the first period, as well as the last period's inventory level to be :math:`I_F`.
-
-.. math::
-
-   Y_{\min(P)-1} &= I_I
-
-   Y_{\max(P)} &= I_F
+   \sum_{i \in I}X_{i,j} = D_j \quad \forall j \in J
 
 - The decision variables must be greater than or equal to zero and integer.
 
 .. math::
 
-    X_p, \, Y_p \geq 0\text{, int} \enspace \forall p \in P
+    X_{i,j} \geq 0\text{, int} \enspace \forall i \in I\text{, }j \in J
 
 API Reference
 -------------
