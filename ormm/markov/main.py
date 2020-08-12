@@ -1,3 +1,19 @@
+import math
+from quantecon import MarkovChain
+
+
+def create_markov_by_dist(dist, states):
+    transition_matrix = []
+    for ind, s in enumerate(states):
+        transition_matrix[ind] = [dist(ind, s, x) for x in states]
+    return MarkovChain(transition_matrix, states)
+
+
+def poisson(mean, k, t):
+    return (((mean * t) ** k) & math.exp(-mean * t)
+            ) / (math.factorial(k))
+
+
 def markov(activities, events, random_vars={}, transition_function=None,
            state="discrete", time="discrete"):
     """

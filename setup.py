@@ -27,7 +27,8 @@ setup(
     long_description_content_type="text/x-rst",
     install_requires=[
         "pyomo >= 5.0",
-        "pandas >= 1"
+        "pandas >= 1",
+        "quantecon >= 0.4"
     ],
     extras_require={
         "dev": [
