@@ -1,5 +1,6 @@
 from quantecon.markov import MarkovChain
 import scipy.stats
+import numpy as np
 
 
 def income_tax_audit():
@@ -32,14 +33,22 @@ def students_at_university():
 
 
 def computer_repair():
+    """
+    One worker requires 2 days to repair a machine, and there are 2 of them.
+    They fail as independent events: 0.2 to fail, 0.8 to not fail within
+        the day.
+    We use the binomial distribution to model the event of 0, 1, or 2 failures.
+    There are 5 possible states, which we will define as (s_1, s_2):
+        s_1 = num days first machine been in shop
+        s_2 = num days second has been in shop
+        s_1 = 0 if machine not failed, 1 if in first day of repair, 2 if second
+        The 5 possible states: (0,0), (1,0), (2,0), (1,1), (2,1)
+    """
     # Failure of computers is binomial
     #   p = 0.2 and n = 2
     pmf = scipy.stats.binom.pmf(k=[0, 1, 2], n=2, p=0.2)
     p_0, p_1, p_2 = pmf[0], pmf[1], pmf[2]
-    # s_1 = num days first machine been in shop
-    # s_2 = num days second has been in shop
-    # s_1 = 0 if machine not failed, 1 if in first day of repair, 2 if second
-    # 5 possible states - (0,0), (1,0), (2,0), (1,1), (2,1)
+    # Define trainsition matrix
     transition_matrix = [[p_0, p_1, 0.0, p_2, 0.0],
                          [0.0, 0.0, 0.8, 0.0, 0.2],
                          [0.8, 0.2, 0.0, 0.0, 0.0],
@@ -51,5 +60,30 @@ def computer_repair():
     print(markov)
 
 
+def light_bulb_replace():
+    """
+    How many of the bulbs on average will have to be replaced each month?
+        How much the budget for the repairs should be?
+    Time of fauliure is uncertain
+        variety of maintenance optioins
+    failed bulbs are replaced monthly - use this for time intervals for dist
+    """
+    # Define state space, the age of the bulb
+    state_space = [0, 1, 2, 3, 4]  # new, 1 month, 2 month, etc.
+    num_states = len(state_space)
+    # probability of bulb failing based on age of bulb in months
+    prob = [0.5, 0.1, 0.1, 0.1, 0.2]
+    cdf = np.cumsum(prob)
+    cond_prob = [p / (1 - cdf[ind - 1])
+                 if ind > 0 else p for ind, p in enumerate(prob)]
+    cond_prob[-1] = 1  # roundoff error overriding
+    transition_matrix = np.zeros(shape=(num_states, num_states))
+    transition_matrix[:, 0] = cond_prob
+    for row in range(num_states - 1):
+        transition_matrix[row, row + 1] = 1 - transition_matrix[row, 0]
+    print(state_space)
+    print(transition_matrix)
+
+
 if __name__ == "__main__":
-    students_at_university()
+    light_bulb_replace()
