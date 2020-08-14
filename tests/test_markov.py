@@ -123,6 +123,18 @@ def light_bulb_replace():
     markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
     print(f"Stationary probs: {markov_obj.stationary_distributions[0]}")
 
+    # Evaluate Alternatives
+    # burn-in bulbs: cost $2.50 each
+    #    one less month of life, but eliminate first precarious month
+    new_transition = np.copy(transition_matrix[1:, :])
+    new_transition[:, 1] = new_transition[:, 0]
+    new_transition = np.delete(new_transition, 0, 1)
+    print(new_transition)
+    new_state_space = [1, 2, 3, 4]
+    new_markov = MarkovChain(new_transition, new_state_space)
+    new_steady_state = new_markov.stationary_distributions[0]
+    print(f"Burn-in Bulbs Stationary Probs: {new_steady_state}")
+
 
 if __name__ == "__main__":
     light_bulb_replace()
