@@ -61,56 +61,21 @@ Usage
 -----
 The `mathprog` subpackage currently has 6 problem classes, as well as functions for
 printing the solution of a solved concrete model and for returning a pandas dataframe
-containing information for sensitivity analysis.  The four problem classes are
+containing information for sensitivity analysis.  The problem classes are
 
 - Resource Allocation: Optimize using scarce resources for valued activities.
-
-.. code:: python
-
-   from ormm.mathprog import resource_allocation
-   model = resource_allocation()
-
 - Blending Problem: Optimize the mixing of ingredients to satisfy requirements
-   while minimizing cost.
-
-.. code:: python
-
-   from ormm.mathprog import blending
-   model = blending()
-
+  while minimizing cost.
 - Employee Scheduling: Minimize the number of workers hired while meeting
-   the minimum number of workers required for each period.
-
-.. code:: python
-
-   from ormm.mathprog import scheduling
-   model = scheduling(prob_class="employee")
-
+  the minimum number of workers required for each period.
 - Rental Scheduling:  Minimize the cost of the plans purchased (which rent
-   units for different amounts of time) while satisfying the number of units
-   needed for each period.
-
-.. code:: python
-
-   from ormm.mathprog import scheduling
-   model = scheduling(prob_class="rental")
-
+  units for different amounts of time) while satisfying the number of units
+  needed for each period.
 - Aggregate Planning: Minimize the production and holding costs while
-   meeting the demand for each period.
-
-.. code:: python
-
-   from ormm.mathprog import scheduling
-   model = scheduling(prob_class="agg_planning")
-
+  meeting the demand for each period.
 - Transportation: Minimize the shipping costs from source to destination
   nodes while meeting the demand at each destination node.  Only a certain
   number of units are available at each source node (the supply).
-
-.. code:: python
-
-   from ormm.mathprog import transportation
-   model = transportation()
 
 For more details on optional parameters, usage, and the problem descriptions, see the
 `documentation <https://ormm.readthedocs.io/en/stable/>`_.
