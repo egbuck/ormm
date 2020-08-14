@@ -71,6 +71,7 @@ def light_bulb_replace():
     # Define state space, the age of the bulb
     state_space = [0, 1, 2, 3, 4]  # new, 1 month, 2 month, etc.
     num_states = len(state_space)
+    num_bulbs = 1_000
     # probability of bulb failing based on age of bulb in months
     prob = [0.5, 0.1, 0.1, 0.1, 0.2]
     cdf = np.cumsum(prob)
@@ -81,8 +82,33 @@ def light_bulb_replace():
     transition_matrix[:, 0] = cond_prob
     for row in range(num_states - 1):
         transition_matrix[row, row + 1] = 1 - transition_matrix[row, 0]
-    print(state_space)
+    print("Transition Matrix:")
     print(transition_matrix)
+
+    # Costs of inspecting & replacing light bulbs
+    inspect_cost = 0.10
+    replace_cost = 2
+    cost_vector = [inspect_cost + replace_cost * transition_matrix[x, 0]
+                   for x in range(num_states)]
+    print("Cost Vector:")
+    print(cost_vector)
+
+    # Transient probabilities
+    #  all bulbs start at age 0 (new sign)
+    #  estimate how many bulbs will be replaced during each of first 12 months?
+    # q(n): probability dist for age of bulb at time n
+    q = np.array([[1, 0, 0, 0, 0]])  # row 0 is q(0), row 1 is q(1), etc.
+    # q_n = q_(n-1) * P
+    for _ in range(1, 13):  # for the 12 months
+        q = np.vstack((q, np.matmul(q[-1], transition_matrix)))
+    # Calculate expected transient costs - don't include month 0
+    exp_trans_cost = np.delete(np.matmul(q, cost_vector), 0)
+    total_trans_cost = sum(exp_trans_cost) * num_bulbs
+    num_replaced = int(sum(q[1:, 0]) * num_bulbs)
+    print("Transient Probabilities:")
+    print(q)
+    print(f"Expected Total Transient Cost: ${total_trans_cost:,.2f}")
+    print(f"Expected # of Replacements: {num_replaced:,d}")
 
 
 if __name__ == "__main__":
