@@ -110,6 +110,19 @@ def light_bulb_replace():
     print(f"Expected Total Transient Cost: ${total_trans_cost:,.2f}")
     print(f"Expected # of Replacements: {num_replaced:,d}")
 
+    # Steady state probabilities
+    # for discrete-time markov chains, as long as each state can be
+    #  reached from every other state, the transient probabilities
+    #  will approach equilibrium.
+    # Solve set of equations for pi:
+    #   pi = pi %*% P
+    #   sum(pi) = 1 where pi is m-dim row vector
+    # I think here is where I need to just use quantecon....
+    #   but I would have to add the ability to solve transient probs
+    #   maybe just an additional function
+    markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
+    print(f"Stationary probs: {markov_obj.stationary_distributions[0]}")
+
 
 if __name__ == "__main__":
     light_bulb_replace()
