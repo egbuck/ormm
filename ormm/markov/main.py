@@ -1,4 +1,5 @@
 from quantecon import MarkovChain
+import numpy as np
 
 
 def markov_analysis(P, state_values=None, sim_kwargs=None,
@@ -39,31 +40,46 @@ def markov_analysis(P, state_values=None, sim_kwargs=None,
         print(f"Simulation of length {sim_kwargs['ts_length']}:")
         print(markov.simulate(**sim_kwargs))
     if trans_kwargs:
-        trans_probs = _transient_probs(**trans_kwargs)
+        trans_probs = _transient_probs(P, **trans_kwargs)
+        print("Transient Probabilities:")
         print(trans_probs)
     if cost_kwargs:
         if "num" not in cost_kwargs:
             cost_kwargs["num"] = 1
         # Cost of steady state
         cost = _cost_analysis(steady_state, **cost_kwargs)
-        print(cost)
+        print(f"Expected Total Steady State Cost: ${cost:,.2f}")
         # Cost of transient analysis
         if trans_kwargs:
             cost = _cost_analysis(trans_probs, **cost_kwargs)
-            print(cost)
+            print(f"Expected Total Transient Cost: ${cost:,.2f}")
 
 
-def _cost_analysis(probs, state, transition, num):
+def _cost_analysis(P, probs, state, transition, num):
     """
     Cost analysis for markov process
 
     probs could be transient or steady state
     """
-    pass
+    # Get cost vector
+    cost_vector = [state + transition * P[x, 0]
+                   for x in range(transition.shape[0])]
+
+    # Calculate expected transient costs - don't include month 0
+    exp_trans_cost = np.delete(np.matmul(probs, cost_vector), 0)
+    total_trans_cost = sum(exp_trans_cost) * num
+    return total_trans_cost
 
 
-def _transient_probs(ts_length, init):
+def _transient_probs(P, ts_length, init):
     """
     Calculate transient probabilities
+
+    q(n): probability dist at time n
+        q(n) = q(n-1) * P
     """
-    pass
+    q = np.array(init)
+    # q_n = q_(n-1) * P
+    for _ in range(1, ts_length + 1):
+        q = np.vstack((q, np.matmul(q[-1], P)))
+    return q
