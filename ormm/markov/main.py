@@ -31,28 +31,65 @@ def markov_analysis(P, state_values=None, sim_kwargs=None,
         costs of being in each state), transition (matrix of costs of
         transitioning from one state to another), and num (number of
         these processes - total cost multiplied by this, default 1).
+
+    Returns
+    -------
+    analysis : dict
+        Dictionary with results of markov analysis
+
+    Raises
+    ------
+    ValueError
+        If sim_kwargs, trans_kwargs, or cost_kwargs is given, but their
+        required arguments are not passed.  These are
+
+        - sim_kwargs: `ts_length` is required, the length of the sim.
+        - trans_kwargs: `ts_length` is required, the number of periods
+          to analyze
+        - cost_kwargs: `state` and `transition` are required, which are the
+          costs of being in any state and the costs of transitioning from one
+          state to another.
     """
+    analysis = {}
     markov = MarkovChain(P, state_values)
-    print(f"Cdfs: {markov.cdfs}")
+    analysis["cdfs"] = markov.cdfs
     steady_state = markov.stationary_distributions
-    print(f"Steady State Probs: {steady_state}")
+    analysis["steady_state"] = steady_state
     if sim_kwargs:
-        print(f"Simulation of length {sim_kwargs['ts_length']}:")
-        print(markov.simulate(**sim_kwargs))
+        if "ts_length" not in sim_kwargs:
+            raise ValueError(("Required argument `ts_length` in sim_kwargs! "
+                              "None was given."))
+        if "init" not in sim_kwargs:
+            sim_kwargs["init"] = None
+        analysis["sim"] = {"kwargs": sim_kwargs,
+                           "output": markov.simulate(**sim_kwargs)}
     if trans_kwargs:
-        trans_probs = _transient_probs(P, **trans_kwargs)
-        print("Transient Probabilities:")
-        print(trans_probs)
+        if "ts_length" not in trans_kwargs:
+            raise ValueError(("Required argument `ts_length` in trans_kwargs! "
+                              "None was given."))
+        if "init" not in trans_kwargs:
+            trans_kwargs["init"] = None
+        trans_probs = _transient_probs(P, state_values, **trans_kwargs)
+        analysis["transient"] = {"kwargs": trans_kwargs,
+                                 "output": trans_probs}
     if cost_kwargs:
+        if "state" not in cost_kwargs:
+            raise ValueError(("Required argument `state` in trans_kwargs! "
+                              "None was given."))
+        if "transition" not in cost_kwargs:
+            raise ValueError(("Required argument `transition` in trans_kwargs!"
+                              " None was given."))
         if "num" not in cost_kwargs:
             cost_kwargs["num"] = 1
         # Cost of steady state
         cost = _cost_analysis(steady_state, **cost_kwargs)
         print(f"Expected Total Steady State Cost: ${cost:,.2f}")
         # Cost of transient analysis
+        analysis["cost"] = {"kwargs": cost_kwargs, "steady_state": cost}
         if trans_kwargs:
             cost = _cost_analysis(trans_probs, **cost_kwargs)
-            print(f"Expected Total Transient Cost: ${cost:,.2f}")
+            analysis["cost"]["transient"] = cost
+    return analysis
 
 
 def _cost_analysis(P, probs, state, transition, num):
@@ -71,15 +108,57 @@ def _cost_analysis(P, probs, state, transition, num):
     return total_trans_cost
 
 
-def _transient_probs(P, ts_length, init):
+def _transient_probs(P, state_values, ts_length, init=None):
     """
     Calculate transient probabilities
 
     q(n): probability dist at time n
         q(n) = q(n-1) * P
     """
+    if init is None:
+        init = np.random.choice(state_values, size=P.shape[0])
     q = np.array(init)
     # q_n = q_(n-1) * P
     for _ in range(1, ts_length + 1):
         q = np.vstack((q, np.matmul(q[-1], P)))
     return q
+
+
+def print_markov(analysis):
+    """
+    Print analysis from markov analysis
+
+    Parameters
+    ----------
+    analysis : dict
+        dictionary returned from markov_analysis() containing
+        cdfs, steady state probs, etc.
+    """
+    print("CDFs:")
+    print(analysis["cdfs"])
+    print()
+    print("Steady State Probs:")
+    print({analysis["steady_state"]})
+    print()
+    if "sim" in analysis:
+        print(("Simulation of length "
+               f"{analysis['sim']['kwargs']['ts_length']}"))
+        print("Initial Conditions:")
+        print(analysis["sim"]["kwarg"]["init"])
+        print("Output:")
+        print(analysis["sim"]["output"])
+        print()
+    if "transient" in analysis:
+        print(("Transient Probabilities (length "
+              f"{analysis['transient']['kwargs']['ts_length']})"))
+        print("Initial Conditions:")
+        print(analysis["transient"]["kwargs"]["init"])
+        print("Output:")
+        print(analysis["transient"]["output"])
+        print()
+    if "cost" in analysis:
+        print(("Expected Total Steady State Cost: $"
+              f"{analysis['cost']['steady_state']:,.2f}"))
+        if "transient" in analysis:
+            print(("Expected Total Transient Cost: $"
+                  f"{analysis['cost']['transient']:,.2f}"))

@@ -1,6 +1,16 @@
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
+# from ormm.markov import markov_analysis
+
+
+def test_income_audit():
+    """A simple example of markov chain"""
+    # Define MarkovChain object - P is transition matrix
+    P = [[0.6, 0.4], [0.5, 0.5]]
+    state_values = [0, 1]
+    # markov_analysis(P, state_values, sim_kwargs={"ts_length": 25})
+    assert P != state_values
 
 
 def income_tax_audit():
@@ -137,4 +147,6 @@ def light_bulb_replace():
 
 
 if __name__ == "__main__":
-    light_bulb_replace()
+    test_income_audit()
+    print("-----------------------")
+    income_tax_audit()
