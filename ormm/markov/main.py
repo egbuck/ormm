@@ -138,13 +138,13 @@ def print_markov(analysis):
     print(analysis["cdfs"])
     print()
     print("Steady State Probs:")
-    print({analysis["steady_state"]})
+    print(analysis["steady_state"])
     print()
     if "sim" in analysis:
         print(("Simulation of length "
                f"{analysis['sim']['kwargs']['ts_length']}"))
         print("Initial Conditions:")
-        print(analysis["sim"]["kwarg"]["init"])
+        print(analysis["sim"]["kwargs"]["init"])
         print("Output:")
         print(analysis["sim"]["output"])
         print()

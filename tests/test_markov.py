@@ -1,7 +1,7 @@
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
-# from ormm.markov import markov_analysis
+from ormm.markov import markov_analysis  # , print_markov
 
 
 def test_income_audit():
@@ -9,8 +9,29 @@ def test_income_audit():
     # Define MarkovChain object - P is transition matrix
     P = [[0.6, 0.4], [0.5, 0.5]]
     state_values = [0, 1]
-    # markov_analysis(P, state_values, sim_kwargs={"ts_length": 25})
-    assert P != state_values
+    analysis = markov_analysis(P, state_values,
+                               sim_kwargs={"ts_length": 25,
+                                           "random_state": 42})
+    analysis["steady_state"] = analysis["steady_state"].round(3)
+    test = {
+        'cdfs': np.array([[0.6, 1.],
+                          [0.5, 1.]]),
+        'steady_state': np.array([[0.556, 0.444]]),
+        'sim': {'kwargs': {'ts_length': 25, 'init': None, "random_state": 42},
+                'output': np.array([0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1,
+                                    0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0])}}
+    # Assert that numpy arrays are the same (except sim output)
+    assert all([np.allclose(analysis[k], test[k])
+                for k in analysis if k != "sim"])
+    # assert sim kwargs values are the same
+    assert all([test["sim"]["kwargs"][k] == analysis["sim"]["kwargs"][k]
+                for k in analysis["sim"]["kwargs"]])
+    # Assert that sim output numpy arrays are the same (fixed random state)
+    assert np.allclose(analysis["sim"]["output"], test["sim"]["output"])
+    # Assert that both have the same keys
+    assert test.keys() == analysis.keys()
+    assert test['sim'].keys() == analysis["sim"].keys()
+    assert test['sim']["kwargs"].keys() == analysis["sim"]["kwargs"].keys()
 
 
 def income_tax_audit():
@@ -144,9 +165,3 @@ def light_bulb_replace():
     new_markov = MarkovChain(new_transition, new_state_space)
     new_steady_state = new_markov.stationary_distributions[0]
     print(f"Burn-in Bulbs Stationary Probs: {new_steady_state}")
-
-
-if __name__ == "__main__":
-    test_income_audit()
-    print("-----------------------")
-    income_tax_audit()
