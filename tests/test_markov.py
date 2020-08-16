@@ -1,7 +1,10 @@
+import io
+import sys
+
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
-from ormm.markov import markov_analysis  # , print_markov
+from ormm.markov import markov_analysis, print_markov
 
 
 def test_income_audit():
@@ -34,36 +37,7 @@ def test_income_audit():
     assert test['sim']["kwargs"].keys() == analysis["sim"]["kwargs"].keys()
 
 
-def income_tax_audit():
-    """A simple example of markov chain"""
-    # Define MarkovChain object - P is transition matrix
-    income_tax_audit = MarkovChain(
-        P=[[0.6, 0.4],
-           [0.5, 0.5]], state_values=[0, 1])
-    # Show useful attributes/methods
-    print("cdfs()")
-    print(income_tax_audit.cdfs)
-    print("Simulate")
-    print(income_tax_audit.simulate(ts_length=25))
-    print("Stationary Distributions")
-    print(income_tax_audit.stationary_distributions)
-
-
-def students_at_university():
-    """A simple example of markov chain"""
-    # Define MarkovChain object - P is transition matrix
-    # Data - this would be more like data from a simulation
-    #    or perhaps for later, the steady state probabilities
-    data = {0: 10, 1: 20, 2: 30, 3: 15, 4: 15, 5: 10}
-    # Average arrival rate
-    arrival_rate = sum(hour * count for hour, count in data.items())
-    print(arrival_rate)
-    # Average interarrival time in minutes
-    interarrival_time = (1 / arrival_rate)
-    print(interarrival_time * 60)
-
-
-def computer_repair():
+def test_computer_repair():
     """
     One worker requires 2 days to repair a machine, and there are 2 of them.
     They fail as independent events: 0.2 to fail, 0.8 to not fail within
@@ -85,10 +59,22 @@ def computer_repair():
                          [0.8, 0.2, 0.0, 0.0, 0.0],
                          [0.0, 0.0, 0.0, 0.0, 1.0],
                          [0.0, 1.0, 0.0, 0.0, 0.0]]
-    markov = MarkovChain(
-        P=transition_matrix,
-        state_values=[(0, 0), (1, 0), (2, 0), (1, 1), (2, 1)])
-    print(markov)
+    states = [(0, 0), (1, 0), (2, 0), (1, 1), (2, 1)]
+    analysis = markov_analysis(P=transition_matrix, state_values=states)
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    print_markov(analysis)
+    sys.stdout = sys.__stdout__  # reset stdout
+    test_str = ("CDFs:\n"
+                "[[0.64 0.96 0.96 1.   1.  ]\n"
+                " [0.   0.   0.8  0.8  1.  ]\n"
+                " [0.8  1.   1.   1.   1.  ]\n"
+                " [0.   0.   0.   0.   1.  ]\n"
+                " [0.   1.   1.   1.   1.  ]]\n\n"
+                "Steady State Probs:\n"
+                "[[0.45351474 0.25510204 0.20408163 0.01814059"
+                " 0.069161  ]]\n\n")
+    assert captured_output.getvalue() == test_str
 
 
 def light_bulb_replace():
@@ -165,3 +151,7 @@ def light_bulb_replace():
     new_markov = MarkovChain(new_transition, new_state_space)
     new_steady_state = new_markov.stationary_distributions[0]
     print(f"Burn-in Bulbs Stationary Probs: {new_steady_state}")
+
+
+if __name__ == "__main__":
+    test_computer_repair()
