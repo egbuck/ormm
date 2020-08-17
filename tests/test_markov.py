@@ -99,59 +99,43 @@ def light_bulb_replace():
     transition_matrix[:, 0] = cond_prob
     for row in range(num_states - 1):
         transition_matrix[row, row + 1] = 1 - transition_matrix[row, 0]
-    print("Transition Matrix:")
-    print(transition_matrix)
 
     # Costs of inspecting & replacing light bulbs
     inspect_cost = 0.10
     replace_cost = 2
-    cost_vector = [inspect_cost + replace_cost * transition_matrix[x, 0]
-                   for x in range(num_states)]
-    print("Cost Vector:")
-    print(cost_vector)
+    test_cost_vector = [inspect_cost + replace_cost * transition_matrix[x, 0]
+                        for x in range(num_states)]
+    inspect_vector = [inspect_cost] * num_states
+    replace_matrix = np.array([[replace_cost] * num_states]
+                              + ([[0] * num_states] * (num_states - 1))).T
+    print(inspect_vector)
+    print(replace_matrix)
 
     # Transient probabilities
     #  all bulbs start at age 0 (new sign)
     #  estimate how many bulbs will be replaced during each of first 12 months?
     # q(n): probability dist for age of bulb at time n
-    q = np.array([[1, 0, 0, 0, 0]])  # row 0 is q(0), row 1 is q(1), etc.
+    test_q = np.array([[1, 0, 0, 0, 0]])  # row 0 is q(0), row 1 is q(1), etc.
     # q_n = q_(n-1) * P
     for _ in range(1, 13):  # for the 12 months
-        q = np.vstack((q, np.matmul(q[-1], transition_matrix)))
+        test_q = np.vstack((test_q, np.matmul(test_q[-1], transition_matrix)))
     # Calculate expected transient costs - don't include month 0
-    exp_trans_cost = np.delete(np.matmul(q, cost_vector), 0)
-    total_trans_cost = sum(exp_trans_cost) * num_bulbs
-    num_replaced = int(sum(q[1:, 0]) * num_bulbs)
+    exp_trans_cost = np.delete(np.matmul(test_q, test_cost_vector), 0)
+    test_trans_cost = sum(exp_trans_cost) * num_bulbs
+    num_replaced = int(sum(test_q[1:, 0]) * num_bulbs)
     print("Transient Probabilities:")
-    print(q)
-    print(f"Expected Total Transient Cost: ${total_trans_cost:,.2f}")
+    print(test_q)
+    print(f"Expected Total Transient Cost: ${test_trans_cost:,.2f}")
     print(f"Expected # of Replacements: {num_replaced:,d}")
 
     # Steady state probabilities
     # for discrete-time markov chains, as long as each state can be
     #  reached from every other state, the transient probabilities
     #  will approach equilibrium.
-    # Solve set of equations for pi:
-    #   pi = pi %*% P
-    #   sum(pi) = 1 where pi is m-dim row vector
-    # I think here is where I need to just use quantecon....
-    #   but I would have to add the ability to solve transient probs
-    #   maybe just an additional function
     markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
-    print(f"Stationary probs: {markov_obj.stationary_distributions[0]}")
-
-    # Evaluate Alternatives
-    # burn-in bulbs: cost $2.50 each
-    #    one less month of life, but eliminate first precarious month
-    new_transition = np.copy(transition_matrix[1:, :])
-    new_transition[:, 1] = new_transition[:, 0]
-    new_transition = np.delete(new_transition, 0, 1)
-    print(new_transition)
-    new_state_space = [1, 2, 3, 4]
-    new_markov = MarkovChain(new_transition, new_state_space)
-    new_steady_state = new_markov.stationary_distributions[0]
-    print(f"Burn-in Bulbs Stationary Probs: {new_steady_state}")
+    test_steady_state = markov_obj.stationary_distributions
+    print(f"Stationary probs: {test_steady_state[0]}")
 
 
 if __name__ == "__main__":
-    test_computer_repair()
+    light_bulb_replace()

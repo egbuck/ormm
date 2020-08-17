@@ -82,13 +82,15 @@ def markov_analysis(P, state_values=None, sim_kwargs=None,
         if "num" not in cost_kwargs:
             cost_kwargs["num"] = 1
         # Cost of steady state
-        cost = _cost_analysis(steady_state, **cost_kwargs)
-        print(f"Expected Total Steady State Cost: ${cost:,.2f}")
+        cost_vector, cost_total = _cost_analysis(steady_state, **cost_kwargs)
         # Cost of transient analysis
-        analysis["cost"] = {"kwargs": cost_kwargs, "steady_state": cost}
+        analysis["cost"] = {"kwargs": cost_kwargs, "steady_state":
+                            {"total": cost_total, "vector": cost_vector}}
         if trans_kwargs:
-            cost = _cost_analysis(trans_probs, **cost_kwargs)
-            analysis["cost"]["transient"] = cost
+            cost_vector, cost_total = _cost_analysis(trans_probs,
+                                                     **cost_kwargs)
+            analysis["cost"]["transient"] = {"total": cost_total,
+                                             "vector": cost_vector}
     return analysis
 
 
@@ -102,10 +104,10 @@ def _cost_analysis(P, probs, state, transition, num):
     cost_vector = [state + transition * P[x, 0]
                    for x in range(transition.shape[0])]
 
-    # Calculate expected transient costs - don't include month 0
-    exp_trans_cost = np.delete(np.matmul(probs, cost_vector), 0)
-    total_trans_cost = sum(exp_trans_cost) * num
-    return total_trans_cost
+    # Calculate expected costs
+    exp_cost = np.matmul(probs, cost_vector)
+    total_cost = sum(exp_cost) * num
+    return exp_cost, total_cost
 
 
 def _transient_probs(P, state_values, ts_length, init=None):
@@ -157,8 +159,12 @@ def print_markov(analysis):
         print(analysis["transient"]["output"])
         print()
     if "cost" in analysis:
+        print("Expected Steady State Cost:")
+        print(analysis['cost']['steady_state']['vector'])
         print(("Expected Total Steady State Cost: $"
-              f"{analysis['cost']['steady_state']:,.2f}"))
+              f"{analysis['cost']['steady_state']['total']:,.2f}"))
         if "transient" in analysis:
+            print("Expected Transient Cost:")
+            print(analysis['cost']['transient']['vector'])
             print(("Expected Total Transient Cost: $"
-                  f"{analysis['cost']['transient']:,.2f}"))
+                  f"{analysis['cost']['transient']['total']:,.2f}"))
