@@ -136,6 +136,14 @@ def light_bulb_replace():
     test_steady_state = markov_obj.stationary_distributions
     print(f"Stationary probs: {test_steady_state[0]}")
 
+    analysis = markov_analysis(transition_matrix, state_space,
+                               trans_kwargs={"ts_length": 12,
+                                             "init": [1, 0, 0, 0, 0]},
+                               cost_kwargs={"state": inspect_vector,
+                                            "transition": replace_matrix,
+                                            "num": num_bulbs})
+    print_markov(analysis)
+
 
 if __name__ == "__main__":
     light_bulb_replace()
