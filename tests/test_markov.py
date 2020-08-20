@@ -108,8 +108,10 @@ def light_bulb_replace():
     inspect_vector = [inspect_cost] * num_states
     replace_matrix = np.array([[replace_cost] * num_states]
                               + ([[0] * num_states] * (num_states - 1))).T
-    print(inspect_vector)
-    print(replace_matrix)
+    print(inspect_cost)
+    print(replace_cost)
+    print(transition_matrix)
+    print(test_cost_vector)
 
     # Transient probabilities
     #  all bulbs start at age 0 (new sign)
@@ -125,6 +127,10 @@ def light_bulb_replace():
     num_replaced = int(sum(test_q[1:, 0]) * num_bulbs)
     print("Transient Probabilities:")
     print(test_q)
+    print("test cost vector")
+    print(test_cost_vector)
+    print("exp trans cost vector?")
+    print(exp_trans_cost)
     print(f"Expected Total Transient Cost: ${test_trans_cost:,.2f}")
     print(f"Expected # of Replacements: {num_replaced:,d}")
 
@@ -142,7 +148,8 @@ def light_bulb_replace():
                                cost_kwargs={"state": inspect_vector,
                                             "transition": replace_matrix,
                                             "num": num_bulbs})
-    print(analysis)
+    # print(analysis)
+    print("---------------------------")
     print_markov(analysis)
 
 

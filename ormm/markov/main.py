@@ -53,7 +53,7 @@ def markov_analysis(P, state_values=None, sim_kwargs=None,
     analysis = {}
     markov = MarkovChain(P, state_values)
     analysis["cdfs"] = markov.cdfs
-    steady_state = markov.stationary_distributions
+    steady_state = markov.stationary_distributions[0]
     analysis["steady_state"] = {"output": steady_state}
     if sim_kwargs:
         if "ts_length" not in sim_kwargs:
@@ -103,13 +103,12 @@ def _cost_analysis(P, probs, state, transition, num):
 
     probs could be transient or steady state
     """
-    # Get cost vector
-    cost_vector = [state + transition * P[x, 0]
-                   for x in range(transition.shape[0])]
+    # Get cost vector - element wise mult, sum across cols
+    cost_vector = state + np.sum(transition * P, 1)
 
     # Calculate expected costs
     exp_cost = np.matmul(probs, cost_vector)
-    total_cost = sum(exp_cost) * num
+    total_cost = np.sum(exp_cost) * num
     return exp_cost, total_cost
 
 
@@ -161,13 +160,15 @@ def print_markov(analysis):
         print("Output:")
         print(analysis["transient"]["output"])
         print()
-    if "cost" in analysis:
+    if "cost" in analysis['steady_state']:
+        print("Cost kwargs:")
+        print(analysis['steady_state']['cost']['kwargs'])
         print("Expected Steady State Cost:")
         print(analysis['steady_state']['cost']['vector'])
         print(("Expected Total Steady State Cost: $"
               f"{analysis['steady_state']['cost']['total']:,.2f}"))
-        if "transient" in analysis:
-            print("Expected Transient Cost:")
-            print(analysis["transient"]['cost']['vector'])
-            print(("Expected Total Transient Cost: $"
-                  f"{analysis['transient']['cost']['total']:,.2f}"))
+    if "cost" in analysis['transient']:
+        print("Expected Transient Cost:")
+        print(analysis["transient"]['cost']['vector'])
+        print(("Expected Total Transient Cost: $"
+              f"{analysis['transient']['cost']['total']:,.2f}"))
