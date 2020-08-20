@@ -1,5 +1,6 @@
 import io
 import sys
+from pprint import pprint
 
 from quantecon.markov import MarkovChain
 import scipy.stats
@@ -15,22 +16,26 @@ def test_income_audit():
     analysis = markov_analysis(P, state_values,
                                sim_kwargs={"ts_length": 25,
                                            "random_state": 42})
-    analysis["steady_state"] = analysis["steady_state"].round(3)
+    analysis["steady_state"]['output'] = \
+        analysis["steady_state"]['output'].round(3)
     test = {
         'cdfs': np.array([[0.6, 1.],
                           [0.5, 1.]]),
-        'steady_state': np.array([[0.556, 0.444]]),
+        'steady_state': {'output': np.array([[0.556, 0.444]])},
         'sim': {'kwargs': {'ts_length': 25, 'init': None, "random_state": 42},
                 'output': np.array([0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1,
                                     0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0])}}
-    # Assert that numpy arrays are the same (except sim output)
+    # Assert that numpy arrays are the same (except sim & stdy state output)
     assert all([np.allclose(analysis[k], test[k])
-                for k in analysis if k != "sim"])
+                for k in analysis if k not in ['sim', 'steady_state']])
     # assert sim kwargs values are the same
     assert all([test["sim"]["kwargs"][k] == analysis["sim"]["kwargs"][k]
                 for k in analysis["sim"]["kwargs"]])
     # Assert that sim output numpy arrays are the same (fixed random state)
     assert np.allclose(analysis["sim"]["output"], test["sim"]["output"])
+    # Assert that steady state output numpy arrays are the same
+    assert np.allclose(analysis["steady_state"]["output"],
+                       test["steady_state"]["output"])
     # Assert that both have the same keys
     assert test.keys() == analysis.keys()
     assert test['sim'].keys() == analysis["sim"].keys()
@@ -72,8 +77,8 @@ def test_computer_repair():
                 " [0.   0.   0.   0.   1.  ]\n"
                 " [0.   1.   1.   1.   1.  ]]\n\n"
                 "Steady State Probs:\n"
-                "[[0.45351474 0.25510204 0.20408163 0.01814059"
-                " 0.069161  ]]\n\n")
+                "[0.45351474 0.25510204 0.20408163 0.01814059"
+                " 0.069161  ]\n\n")
     assert captured_output.getvalue() == test_str
 
 
@@ -148,7 +153,56 @@ def light_bulb_replace():
                                cost_kwargs={"state": inspect_vector,
                                             "transition": replace_matrix,
                                             "num": num_bulbs})
-    # print(analysis)
+    test_analysis = {
+        'cdfs': np.array(
+            [[0.5, 1., 1., 1., 1.],
+             [0.2, 0.2, 1., 1.],
+             [0.25, 0.25, 0.25, 1., 1.],
+             [0.33333333, 0.33333333, 0.33333333, 0.33333333, 1.],
+             [1., 1., 1., 1., 1.]]),
+        'steady_state': {
+            'cost': {'kwargs': {'num': 1000,
+                                'state': [0.1, 0.1, 0.1, 0.1, 0.1],
+                                'transition': np.array([[2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0]])},
+                     'total': 933.3333333333333,
+                     'vector': 0.9333333333333332},
+            'output': np.array(
+                [0.41666667, 0.20833333, 0.16666667, 0.125, 0.08333333])},
+        'transient': {
+            'cost': {'kwargs': {'num': 1000,
+                                'state': [0.1, 0.1, 0.1, 0.1, 0.1],
+                                'transition': np.array([[2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0],
+                                                        [2, 0, 0, 0, 0]])},
+                     'total': 12009.303421875004,
+                     'vector': np.array([1.1, 0.8, 0.75, 0.795, 1.0825,
+                                         0.99575, 0.920625, 0.8976375,
+                                         0.90770625, 0.95175438,
+                                         0.94762406, 0.93364684,
+                                         0.92705939])},
+            'kwargs': {'init': [1, 0, 0, 0, 0], 'ts_length': 12},
+            'output': np.array(
+                [[1., 0., 0., 0., 0.],
+                 [0.5, 0.5, 0., 0., 0.],
+                 [0.35, 0.25, 0.4, 0., 0.],
+                 [0.325, 0.175, 0.2, 0.3, 0.],
+                 [0.3475, 0.1625, 0.14, 0.15, 0.2],
+                 [0.49125, 0.17375, 0.13, 0.105, 0.1],
+                 [0.447875, 0.245625, 0.139, 0.0975, 0.07],
+                 [0.4103125, 0.2239375, 0.1965, 0.10425, 0.065],
+                 [0.39881875, 0.20515625, 0.17915, 0.147375, 0.0695],
+                 [0.40385313, 0.19940938, 0.164125, 0.1343625, 0.09825],
+                 [0.42587719, 0.20192656, 0.1595275, 0.12309375, 0.089575],
+                 [0.42381203, 0.21293859, 0.16154125, 0.11964563, 0.0820625],
+                 [0.41682342, 0.21190602, 0.17035088, 0.12115594, 0.07976375]]
+                )}}
+    # assert analysis == test_analysis
     print("---------------------------")
     print_markov(analysis)
 

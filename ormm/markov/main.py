@@ -167,8 +167,9 @@ def print_markov(analysis):
         print(analysis['steady_state']['cost']['vector'])
         print(("Expected Total Steady State Cost: $"
               f"{analysis['steady_state']['cost']['total']:,.2f}"))
-    if "cost" in analysis['transient']:
-        print("Expected Transient Cost:")
-        print(analysis["transient"]['cost']['vector'])
-        print(("Expected Total Transient Cost: $"
-              f"{analysis['transient']['cost']['total']:,.2f}"))
+    if "transient" in analysis:
+        if "cost" in analysis['transient']:
+            print("Expected Transient Cost:")
+            print(analysis["transient"]['cost']['vector'])
+            print(("Expected Total Transient Cost: $"
+                  f"{analysis['transient']['cost']['total']:,.2f}"))
