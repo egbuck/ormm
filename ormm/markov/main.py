@@ -82,12 +82,13 @@ def markov_analysis(P, state_values=None, sim_kwargs=None,
         if "num" not in cost_kwargs:
             cost_kwargs["num"] = 1
         # Cost of steady state
-        cost_vector, cost_total = _cost_analysis(steady_state, **cost_kwargs)
+        cost_vector, cost_total = _cost_analysis(P, steady_state,
+                                                 **cost_kwargs)
         # Cost of transient analysis
         analysis["cost"] = {"kwargs": cost_kwargs, "steady_state":
                             {"total": cost_total, "vector": cost_vector}}
         if trans_kwargs:
-            cost_vector, cost_total = _cost_analysis(trans_probs,
+            cost_vector, cost_total = _cost_analysis(P, trans_probs,
                                                      **cost_kwargs)
             analysis["cost"]["transient"] = {"total": cost_total,
                                              "vector": cost_vector}
@@ -118,8 +119,8 @@ def _transient_probs(P, state_values, ts_length, init=None):
         q(n) = q(n-1) * P
     """
     if init is None:
-        init = np.random.choice(state_values, size=P.shape[0])
-    q = np.array(init)
+        init = [np.random.choice(state_values, size=P.shape[0])]
+    q = np.array([init])
     # q_n = q_(n-1) * P
     for _ in range(1, ts_length + 1):
         q = np.vstack((q, np.matmul(q[-1], P)))

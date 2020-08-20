@@ -142,6 +142,7 @@ def light_bulb_replace():
                                cost_kwargs={"state": inspect_vector,
                                             "transition": replace_matrix,
                                             "num": num_bulbs})
+    print(analysis)
     print_markov(analysis)
 
 
