@@ -1,6 +1,5 @@
 import io
 import sys
-from pprint import pprint
 
 from quantecon.markov import MarkovChain
 import scipy.stats
@@ -153,10 +152,10 @@ def light_bulb_replace():
                                cost_kwargs={"state": inspect_vector,
                                             "transition": replace_matrix,
                                             "num": num_bulbs})
-    test_analysis = {
+    test = {
         'cdfs': np.array(
             [[0.5, 1., 1., 1., 1.],
-             [0.2, 0.2, 1., 1.],
+             [0.2, 0.2, 1., 1., 1.],
              [0.25, 0.25, 0.25, 1., 1.],
              [0.33333333, 0.33333333, 0.33333333, 0.33333333, 1.],
              [1., 1., 1., 1., 1.]]),
@@ -202,7 +201,38 @@ def light_bulb_replace():
                  [0.42381203, 0.21293859, 0.16154125, 0.11964563, 0.0820625],
                  [0.41682342, 0.21190602, 0.17035088, 0.12115594, 0.07976375]]
                 )}}
-    # assert analysis == test_analysis
+    # Assert that numpy arrays are the same (except sim & stdy state output)
+    assert all([np.allclose(analysis[k], test[k])
+                for k in analysis if k not in ['transient', 'steady_state']])
+    # Assert cost totals are the same
+    assert all([analysis[k]['cost']['total'] ==
+               test[k]['cost']['total']
+               for k in ['transient', 'steady_state']])
+    # assert transient kwargs values are the same
+    assert all([test["transient"]["kwargs"][k] ==
+               analysis["transient"]["kwargs"][k]
+               for k in analysis["transient"]["kwargs"]])
+    # Assert that transient output numpy arrays are the same
+    assert np.allclose(analysis["transient"]["output"],
+                       test["transient"]["output"])
+    # Assert that steady state output numpy arrays are the same
+    assert np.allclose(analysis["steady_state"]["output"],
+                       test["steady_state"]["output"])
+    # Assert that both have the same keys
+    assert test.keys() == analysis.keys()
+    assert test['steady_state'].keys() == analysis["steady_state"].keys()
+    assert test['steady_state']['cost'].keys() == \
+        analysis['steady_state']['cost'].keys()
+    assert test['steady_state']['cost']['kwargs'].keys() == \
+        analysis['steady_state']['cost']['kwargs'].keys()
+
+    assert test['transient'].keys() == analysis["transient"].keys()
+    assert test['transient']["kwargs"].keys() == \
+        analysis["transient"]["kwargs"].keys()
+    assert test['transient']['cost'].keys() == \
+        analysis['transient']['cost'].keys()
+    assert test['transient']['cost']['kwargs'].keys() == \
+        analysis['transient']['cost']['kwargs'].keys()
     print("---------------------------")
     print_markov(analysis)
 
