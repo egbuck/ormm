@@ -41,14 +41,21 @@ def markov_analysis(P, state_values=None, sim_kwargs=None,
     ------
     ValueError
         If sim_kwargs, trans_kwargs, or cost_kwargs is given, but their
-        required arguments are not passed.  These are
+        required arguments are not passed.  These are described in the
+        Notes section.
 
-        - sim_kwargs: `ts_length` is required, the length of the sim.
-        - trans_kwargs: `ts_length` is required, the number of periods
-          to analyze
-        - cost_kwargs: `state` and `transition` are required, which are the
-          costs of being in any state and the costs of transitioning from one
-          state to another.
+    Notes
+    -----
+    The required arguments if the kwargs are passed are:
+
+    * sim_kwargs: `ts_length` is required, the length of the sim.
+
+    * trans_kwargs: `ts_length` is required, the number of periods
+      to analyze
+
+    * cost_kwargs: `state` and `transition` are required, which are the
+      costs of being in any state and the costs of transitioning from one
+      state to another.
     """
     analysis = {}
     markov = MarkovChain(P, state_values)
