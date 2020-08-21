@@ -264,7 +264,9 @@ def is_analysis_equal(analysis, test):
     for k in analysis:
         if type(analysis[k]) is dict:
             is_equal.extend(is_analysis_equal(analysis[k], test[k]))
-        elif type(analysis[k]) in [np.float64, float, int, str]:
+        elif type(analysis[k]) in [np.float64, float, int]:
+            is_equal.append(round(analysis[k], 5) == round(test[k], 5))
+        elif type(analysis[k]) is str:
             is_equal.append(analysis[k] == test[k])
         elif type(analysis[k]) is np.ndarray:
             is_equal.append(np.allclose(analysis[k], test[k]))
