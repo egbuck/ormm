@@ -124,7 +124,9 @@ def test_light_bulb_replacement():
     # Calculate expected transient costs - don't include month 0
     exp_trans_cost = np.delete(np.matmul(test_q, test_cost_vector), 0)
     test_trans_cost = sum(exp_trans_cost) * num_bulbs
+    print("test trans cost: ", test_trans_cost)
     num_replaced = int(sum(test_q[1:, 0]) * num_bulbs)
+    print("Num Replaced: ", num_replaced)
 
     # Steady state probabilities
     # for discrete-time markov chains, as long as each state can be
@@ -132,6 +134,7 @@ def test_light_bulb_replacement():
     #  will approach equilibrium.
     markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
     test_steady_state = markov_obj.stationary_distributions
+    print('steady state: ', test_steady_state)
 
     analysis = markov_analysis(transition_matrix, state_space,
                                trans_kwargs={"ts_length": 12,
@@ -205,6 +208,55 @@ def test_light_bulb_replacement():
         analysis['transient']['cost'].keys()
     assert test['transient']['cost']['kwargs'].keys() == \
         analysis['transient']['cost']['kwargs'].keys()
+
+    # Test print_markov
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    print_markov(analysis)
+    sys.stdout = sys.__stdout__  # reset stdout
+    test_str = ("CDFs:\n"
+                "[[0.5        1.         1.         1.         1.        ]\n"
+                " [0.2        0.2        1.         1.         1.        ]\n"
+                " [0.25       0.25       0.25       1.         1.        ]\n"
+                " [0.33333333 0.33333333 0.33333333 0.33333333 1.        ]\n"
+                " [1.         1.         1.         1.         1.        ]]\n"
+                "\nSteady State Probs:\n"
+                "[0.41666667 0.20833333 0.16666667 0.125      0.08333333]\n\n"
+                "Transient Probabilities (length 12)\n"
+                "Initial Conditions:\n"
+                "[1, 0, 0, 0, 0]\n"
+                "Output:\n"
+                "[[1.         0.         0.         0.         0.        ]\n"
+                " [0.5        0.5        0.         0.         0.        ]\n"
+                " [0.35       0.25       0.4        0.         0.        ]\n"
+                " [0.325      0.175      0.2        0.3        0.        ]\n"
+                " [0.3475     0.1625     0.14       0.15       0.2       ]\n"
+                " [0.49125    0.17375    0.13       0.105      0.1       ]\n"
+                " [0.447875   0.245625   0.139      0.0975     0.07      ]\n"
+                " [0.4103125  0.2239375  0.1965     0.10425    0.065     ]\n"
+                " [0.39881875 0.20515625 0.17915    0.147375   0.0695    ]\n"
+                " [0.40385313 0.19940938 0.164125   0.1343625  0.09825   ]\n"
+                " [0.42587719 0.20192656 0.1595275  0.12309375 0.089575  ]\n"
+                " [0.42381203 0.21293859 0.16154125 0.11964563 0.0820625 ]\n"
+                " [0.41682342 0.21190602 0.17035088 0.12115594 0.07976375]]\n"
+                "\nCost kwargs:\n"
+                "{'state': [0.1, 0.1, 0.1, 0.1, 0.1], 'transition': "
+                "array([[2, 0, 0, 0, 0],\n"
+                "       [2, 0, 0, 0, 0],\n"
+                "       [2, 0, 0, 0, 0],\n"
+                "       [2, 0, 0, 0, 0],\n"
+                "       [2, 0, 0, 0, 0]]), 'num': 1000}\n"
+                "Expected Steady State Cost:\n"
+                "0.9333333333333332\n"
+                "Expected Total Steady State Cost: $933.33\n"
+                "Expected Transient Cost:\n"
+                "[1.1        0.8        0.75       0.795      1.0825"
+                "     0.99575\n"
+                " 0.920625   0.8976375  0.90770625 0.95175438 0.94762406"
+                " 0.93364684\n"
+                " 0.92705939]\n"
+                "Expected Total Transient Cost: $12,009.30\n")
+    assert captured_output.getvalue() == test_str
 
 
 def is_analysis_equal(analysis, test):
