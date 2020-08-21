@@ -247,7 +247,7 @@ def test_light_bulb_replacement():
                 "       [2, 0, 0, 0, 0],\n"
                 "       [2, 0, 0, 0, 0]]), 'num': 1000}\n"
                 "Expected Steady State Cost:\n"
-                "0.9333333333333332\n"
+                "$0.93\n"
                 "Expected Total Steady State Cost: $933.33\n"
                 "Expected Transient Cost:\n"
                 "[1.1        0.8        0.75       0.795      1.0825"

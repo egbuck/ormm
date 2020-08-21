@@ -164,7 +164,7 @@ def print_markov(analysis):
         print("Cost kwargs:")
         print(analysis['steady_state']['cost']['kwargs'])
         print("Expected Steady State Cost:")
-        print(analysis['steady_state']['cost']['vector'])
+        print(f"${analysis['steady_state']['cost']['vector']:,.2f}")
         print(("Expected Total Steady State Cost: $"
               f"{analysis['steady_state']['cost']['total']:,.2f}"))
     if "transient" in analysis:
