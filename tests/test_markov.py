@@ -81,7 +81,7 @@ def test_computer_repair():
     assert captured_output.getvalue() == test_str
 
 
-def light_bulb_replace():
+def test_light_bulb_replacement():
     """
     How many of the bulbs on average will have to be replaced each month?
         How much the budget for the repairs should be?
@@ -112,10 +112,6 @@ def light_bulb_replace():
     inspect_vector = [inspect_cost] * num_states
     replace_matrix = np.array([[replace_cost] * num_states]
                               + ([[0] * num_states] * (num_states - 1))).T
-    print(inspect_cost)
-    print(replace_cost)
-    print(transition_matrix)
-    print(test_cost_vector)
 
     # Transient probabilities
     #  all bulbs start at age 0 (new sign)
@@ -129,14 +125,6 @@ def light_bulb_replace():
     exp_trans_cost = np.delete(np.matmul(test_q, test_cost_vector), 0)
     test_trans_cost = sum(exp_trans_cost) * num_bulbs
     num_replaced = int(sum(test_q[1:, 0]) * num_bulbs)
-    print("Transient Probabilities:")
-    print(test_q)
-    print("test cost vector")
-    print(test_cost_vector)
-    print("exp trans cost vector?")
-    print(exp_trans_cost)
-    print(f"Expected Total Transient Cost: ${test_trans_cost:,.2f}")
-    print(f"Expected # of Replacements: {num_replaced:,d}")
 
     # Steady state probabilities
     # for discrete-time markov chains, as long as each state can be
@@ -144,7 +132,6 @@ def light_bulb_replace():
     #  will approach equilibrium.
     markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
     test_steady_state = markov_obj.stationary_distributions
-    print(f"Stationary probs: {test_steady_state[0]}")
 
     analysis = markov_analysis(transition_matrix, state_space,
                                trans_kwargs={"ts_length": 12,
@@ -201,23 +188,8 @@ def light_bulb_replace():
                  [0.42381203, 0.21293859, 0.16154125, 0.11964563, 0.0820625],
                  [0.41682342, 0.21190602, 0.17035088, 0.12115594, 0.07976375]]
                 )}}
-    # Assert that numpy arrays are the same (except sim & stdy state output)
-    assert all([np.allclose(analysis[k], test[k])
-                for k in analysis if k not in ['transient', 'steady_state']])
-    # Assert cost totals are the same
-    assert all([analysis[k]['cost']['total'] ==
-               test[k]['cost']['total']
-               for k in ['transient', 'steady_state']])
-    # assert transient kwargs values are the same
-    assert all([test["transient"]["kwargs"][k] ==
-               analysis["transient"]["kwargs"][k]
-               for k in analysis["transient"]["kwargs"]])
-    # Assert that transient output numpy arrays are the same
-    assert np.allclose(analysis["transient"]["output"],
-                       test["transient"]["output"])
-    # Assert that steady state output numpy arrays are the same
-    assert np.allclose(analysis["steady_state"]["output"],
-                       test["steady_state"]["output"])
+    # Assert two dictionaries have equal values
+    assert all(is_analysis_equal(analysis, test))
     # Assert that both have the same keys
     assert test.keys() == analysis.keys()
     assert test['steady_state'].keys() == analysis["steady_state"].keys()
@@ -233,9 +205,17 @@ def light_bulb_replace():
         analysis['transient']['cost'].keys()
     assert test['transient']['cost']['kwargs'].keys() == \
         analysis['transient']['cost']['kwargs'].keys()
-    print("---------------------------")
-    print_markov(analysis)
 
 
-if __name__ == "__main__":
-    light_bulb_replace()
+def is_analysis_equal(analysis, test):
+    is_equal = []
+    for k in analysis:
+        if type(analysis[k]) is dict:
+            is_equal.extend(is_analysis_equal(analysis[k], test[k]))
+        elif type(analysis[k]) in [np.float64, float, int, str]:
+            is_equal.append(analysis[k] == test[k])
+        elif type(analysis[k]) is np.ndarray:
+            is_equal.append(np.allclose(analysis[k], test[k]))
+        elif type(analysis[k]) is list:
+            is_equal.append(all(a == b for a, b in zip(analysis[k], test[k])))
+    return is_equal
