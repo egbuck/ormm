@@ -87,7 +87,7 @@ containing information for sensitivity analysis.  The four problem classes are
    model = scheduling(prob_class="rental")
 
 For more details on optional parameters and usage, see the :ref:`api_reference`.
-For more details on the problem descriptions, see the :ref:`problem_desc`.
+For more details on the MathProg problem descriptions, see the :ref:`math_prog`.
 
 Developer Environment
 ---------------------
@@ -105,6 +105,11 @@ and add to the documentation.
    :maxdepth: 2
 
    problem_desc/index
+
+.. toctree::
+   :maxdepth: 2
+
+   markov/index
 
 .. toctree::
    :maxdepth: 2
