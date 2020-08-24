@@ -1,4 +1,4 @@
-Discrete State Analysis
+Discrete Time Analysis
 =======================
 
 Usage Example
