@@ -1,7 +1,7 @@
-.. _problem_desc:
+.. _math_prog:
 
-Problem Descriptions
-====================
+Mathematical Programming
+========================
 
 .. toctree::
    :maxdepth: 2

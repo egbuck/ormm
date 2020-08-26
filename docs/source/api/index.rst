@@ -5,10 +5,14 @@
 API Library Reference
 =====================
 
-The current models are implemented under :py:mod:`ormm.mathprog`, containing
+The current models are implemented under :py:mod:`ormm.mathprog` and
+:py:mod:`ormm.markov`.  MathProg contains
 factory methods to implement problem classes and other useful functions for
-solution analysis.
+solution analysis.  Markov contains functions to perform markov analysis on
+discrete state and time processes, as well as printing those results nicely.
 
+ORMM MathProg
+-------------
 .. currentmodule:: ormm.mathprog
 
 .. autosummary::
@@ -20,9 +24,6 @@ solution analysis.
    sensitivity_analysis
    transportation
 
-
-API Component Documentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. autofunction:: blending
 
 .. autofunction:: resource_allocation
@@ -34,3 +35,16 @@ API Component Documentation
 .. autofunction:: print_sol
 
 .. autofunction:: sensitivity_analysis
+
+ORMM Markov
+-----------
+.. currentmodule:: ormm.markov
+
+.. autosummary::
+
+   markov_analysis
+   print_markov
+
+.. autofunction:: markov_analysis
+
+.. autofunction:: print_markov

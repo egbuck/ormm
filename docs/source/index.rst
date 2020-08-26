@@ -14,10 +14,9 @@ His Excel packages were last updated in 2011, and while I believe they do still 
   or other modeling software are not available.
 - From what I understand, Microsoft has been trying to phase out VBA and move to Javascript.
   If this happens, this could significantly impact whether or not his packages will work.
-- While his website and packages are still available
-  `here <https://www.me.utexas.edu/~jensen/ORMM/>`_, some sections are/may become unusable.
-  The animations rely on Flash, which is being phased out in google chrome and other web
-  browsers.
+- His website and packages used to be available
+  `here <https://www.me.utexas.edu/~jensen/ORMM/>`_, but currently I at least have not
+  been able to load this webpage anymore - I'm not sure if UTexas took it down or not.
 
 This python package aims to accomplish some of the same goals as Paul Jensen's website and
 add-ins did, mainly to
@@ -50,9 +49,10 @@ Installation
 
 Usage
 -----
-The :py:obj:`mathprog` subpackage currently has 4 problem classes, as well as functions for
+The :py:obj:`mathprog` subpackage has multiple problem classes, as well as functions for
 printing the solution of a solved concrete model and for returning a pandas dataframe
-containing information for sensitivity analysis.  The four problem classes are
+containing information for sensitivity analysis. Following are some examples of a
+few of these problem classes.
 
 1. Resource Allocation: Optimize using scarce resources for valued activities.
 
@@ -87,7 +87,7 @@ containing information for sensitivity analysis.  The four problem classes are
    model = scheduling(prob_class="rental")
 
 For more details on optional parameters and usage, see the :ref:`api_reference`.
-For more details on the problem descriptions, see the :ref:`problem_desc`.
+For more details on the MathProg problem descriptions, see the :ref:`math_prog`.
 
 Developer Environment
 ---------------------
@@ -105,6 +105,11 @@ and add to the documentation.
    :maxdepth: 2
 
    problem_desc/index
+
+.. toctree::
+   :maxdepth: 2
+
+   markov/index
 
 .. toctree::
    :maxdepth: 2

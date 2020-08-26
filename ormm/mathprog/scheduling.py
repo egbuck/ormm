@@ -24,7 +24,7 @@ def scheduling(prob_class="employee", linear=False, **kwargs):
       (covering constraints).
 
     More details on these model classes can be found in the Notes section here,
-    as well as the corresponding section of the :ref:`problem_desc`.
+    as well as the corresponding section of the :ref:`math_prog`.
 
     Parameters
     ----------
