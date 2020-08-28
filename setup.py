@@ -1,15 +1,39 @@
 from setuptools import setup, find_packages
-import re
 
-with open("README.rst", "r") as fh:
-    long_description = fh.read()
+LONG_DESCRIPTION = """
+Operations Research Models & Methods (ORMM) is inspired by Paul A. Jensen's
+Excel Add-ins.  His Excel packages were last updated in 2011, and while I
+believe they do still work, his work may become outdated in a couple of ways:
 
-long_description = re.sub(
-    r"(.. image:: https://|    :target: https://|    :alt:)(.*)(\n)",
-    "", long_description)
-long_description = re.sub(r"\nORMM", "ORMM", long_description)
-long_description = re.sub(r"\n\.\. code:: console",
-                          r".. code:: console", long_description)
+- Excel is not as commonly used for OR, except in settings where security is
+  of the utmost concern and/or modern languages like Python, R, Julia, C, C++,
+  MATLAB, AMPL, or other modeling software are not available.
+- From what I understand, Microsoft has been trying to phase out VBA and move
+  to Javascript.  If this happens, this could significantly impact whether or
+  not his packages will work.
+- While his website and packages are still available
+  `here <https://www.me.utexas.edu/~jensen/ORMM/>`_, some sections are/may
+  become unusable.  The animations rely on Flash, which is being phased out
+  in google chrome and other web browsers.
+
+This python package aims to accomplish some of the same goals as Paul
+Jensen's website and add-ins did, mainly to
+
+1. Be an educational tool that shows how abstract models (linear programs,
+   integer programs, nonlinear programs, etc.) can be applied to real-life
+   scenarios to solve complex problems.
+2. Help the practitioner by providing modeling frameworks, methods for solving
+   these models, and problem classes so a user can more easily see how they
+   may be able to frame their business problem/objective through the lens of
+   Operations Research.
+
+This repository contains subpackages for grouping the different types of OR
+Models & Methods.  Currently this subpackage list includes
+
+1. `mathprog`: A subpackage for mathematical programs, including linear
+   programs and mixed integer linear programs.
+2. `markov`: A subpackage for discrete state markov analysis.
+"""
 
 PROJECT_URLS = {
     "Documentation": "https://ormm.readthedocs.io/en/stable/",
@@ -23,7 +47,7 @@ setup(
     author="Ethan Buck",
     author_email="egbuck96@gmail.com",
     packages=find_packages(include=["ormm", "ormm.*"]),
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type="text/x-rst",
     install_requires=[
         "pyomo >= 5.0",
