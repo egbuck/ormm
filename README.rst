@@ -64,8 +64,8 @@ Installation
 
    $ pip install ormm
 
-Capabilities
-------------
+Examples
+--------
 The `mathprog` subpackage has multiple problem classes, as well as functions for
 printing the solution of a solved concrete model and for returning a pandas dataframe
 containing information for sensitivity analysis.  Some of the problem classes are
