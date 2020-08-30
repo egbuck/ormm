@@ -273,3 +273,14 @@ def is_analysis_equal(analysis, test):
         elif type(analysis[k]) is list:
             is_equal.append(all(a == b for a, b in zip(analysis[k], test[k])))
     return is_equal
+
+
+def cont_time_markov():
+    states = [1, 2, 3, 4]
+    time = (0, 10)  # range of time
+    print(states)
+    print(time)
+
+
+if __name__ == "__main__":
+    cont_time_markov()
