@@ -40,6 +40,13 @@ Currently this subpackage list includes
    class of problems.  Note that the abstract models can be built upon based on a
    unique business problem that may have more or fewer constraints, or a more complex
    objective to maximize/minimize.
+2. `markov`: A subpackage for discrete state markov analysis.  Currently this only
+   has implementations for discrete time markov processes, but continous time will
+   be added in the near future.  This includes the main function `markov_analysis`,
+   which returns a dictionary of the results, as well as a `print_markov` function.
+   The main method requires a transition matrix, but can then run simulations,
+   analyze steady state and transient probabilities, and run cost analyses if
+   additional arguments are passed.
 
 Installation
 ------------
@@ -47,8 +54,8 @@ Installation
 
    $ pip install ormm
 
-Usage
------
+Examples
+--------
 The :py:obj:`mathprog` subpackage has multiple problem classes, as well as functions for
 printing the solution of a solved concrete model and for returning a pandas dataframe
 containing information for sensitivity analysis. Following are some examples of a

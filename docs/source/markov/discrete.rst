@@ -24,7 +24,6 @@ The code below will return a dictionary with the results of this analysis.
 .. code-block:: python
 
    >>> from ormm.markov import markov_analysis, print_markov
-   >>> import pyomo.environ as pyo
    >>> import numpy as np
    >>>
    >>> # Probability of bulb failing based on age of bulb in months
