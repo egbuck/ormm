@@ -275,12 +275,26 @@ def is_analysis_equal(analysis, test):
     return is_equal
 
 
-def cont_time_markov():
-    states = [1, 2, 3, 4]
-    time = (0, 10)  # range of time
-    print(states)
-    print(time)
+def atm_example():
+    # all activity durations are exponentially distributed
+    # ex: M/M/s queue
+    # markovian property must hold true for all future times, not
+    #    just 1 step
+    # mean times for amount of time work
+    arrival_rate = 2  # per minute
+    service_rate = 2.5  # per minute
+    states = [0, 1, 2, 3, 4, 5]
+    rate_matrix = []
+    for row in states:
+        this_row = [arrival_rate if col == row + 1 else 0 for col in states]
+        if row >= 1:
+            this_row[row - 1] = service_rate
+        rate_matrix.append(this_row)
+    rate_matrix = np.array(rate_matrix)
+    print(arrival_rate)
+    print(service_rate)
+    print(rate_matrix)
 
 
 if __name__ == "__main__":
-    cont_time_markov()
+    atm_example()
