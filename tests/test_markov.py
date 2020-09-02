@@ -294,6 +294,10 @@ def atm_example():
     print(arrival_rate)
     print(service_rate)
     print(rate_matrix)
+    # transient solutions
+    # have to use numerical approcaches, no closed form in general
+    # QuantEcon only has finite state discrete time MarkovChain
+    # DTMC approximation (not embedded here)
 
 
 if __name__ == "__main__":
