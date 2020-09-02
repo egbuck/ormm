@@ -294,10 +294,35 @@ def atm_example():
     print(arrival_rate)
     print(service_rate)
     print(rate_matrix)
+
     # transient solutions
     # have to use numerical approcaches, no closed form in general
     # QuantEcon only has finite state discrete time MarkovChain
     # DTMC approximation (not embedded here)
+    d = 0.05  # small time interval, a parameter
+    t = 1  # want to approx. transient probs at this time, a parameter
+    n = t / d  # number of steps - determines accuracy of approx.
+    print(n)
+    # alpha_i is sum of transition rates out of state i
+    alpha = rate_matrix.sum(axis=1)  # sum across cols
+    print(alpha)
+    # P is state-transition matrix determined from rate matrix & d
+    P = [[1 - d*alpha[col] if row == col else d * rate_matrix[row, col]
+          for col in states] for row in states]
+    P = np.array(P)
+    print(P)
+    # prob that system in state i at time t: q_i(t)
+    # q(t) = [q_0(t), q_1(t), ..., q_(m-1)(t)]
+    # Note sum(q_t) == 1
+    # Initial probability vector:
+    q_init = [1, 0, 0, 0, 0, 0]
+    q_step = np.matmul(q_init, np.linalg.matrix_power(P, int(n)))
+    print(q_init)
+    print(q_step)
+    # transient sol. approx. at time t = n*d with DTMC
+    #   by solving following equation:
+    # eq = q(n*d) == q(0)P^(n)
+    # or q(n*d + d) == q(n*d)P
 
 
 if __name__ == "__main__":
