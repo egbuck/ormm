@@ -284,6 +284,7 @@ def atm_example():
     arrival_rate = 2  # per minute
     service_rate = 2.5  # per minute
     states = [0, 1, 2, 3, 4, 5]
+    num_states = len(states)
     rate_matrix = []
     for row in states:
         this_row = [arrival_rate if col == row + 1 else 0 for col in states]
@@ -291,8 +292,6 @@ def atm_example():
             this_row[row - 1] = service_rate
         rate_matrix.append(this_row)
     rate_matrix = np.array(rate_matrix)
-    print(arrival_rate)
-    print(service_rate)
     print(rate_matrix)
 
     # transient solutions
@@ -301,7 +300,7 @@ def atm_example():
     # DTMC approximation (not embedded here)
     d = 0.05  # small time interval, a parameter
     t = 1  # want to approx. transient probs at this time, a parameter
-    n = t / d  # number of steps - determines accuracy of approx.
+    n = int(t / d)  # number of steps - determines accuracy of approx.
     print(n)
     # alpha_i is sum of transition rates out of state i
     alpha = rate_matrix.sum(axis=1)  # sum across cols
@@ -316,13 +315,29 @@ def atm_example():
     # Note sum(q_t) == 1
     # Initial probability vector:
     q_init = [1, 0, 0, 0, 0, 0]
-    q_step = np.matmul(q_init, np.linalg.matrix_power(P, int(n)))
-    print(q_init)
-    print(q_step)
     # transient sol. approx. at time t = n*d with DTMC
     #   by solving following equation:
     # eq = q(n*d) == q(0)P^(n)
     # or q(n*d + d) == q(n*d)P
+    q_step = np.matmul(q_init, np.linalg.matrix_power(P, n))
+    print(q_init)
+    print(q_step)
+
+    # Steady State probabilities
+    # limit of q(t) as t goes to infinity
+    # generator matrix
+    gen_matrix = [[-alpha[row] if row == col else rate_matrix[row, col]
+                   for col in states] for row in states]
+    gen_matrix = np.array(gen_matrix)
+    print(gen_matrix)
+    # augmented generator matrix - replace first col with 1s
+    gen_matrix[:, 0] = np.ones(num_states)
+    # Solve linear equations for steady state probs
+    unit_vector = np.zeros(num_states)
+    unit_vector[0] = 1
+    print(unit_vector)
+    steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
+    print(steady_state)
 
 
 if __name__ == "__main__":
