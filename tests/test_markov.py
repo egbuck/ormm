@@ -4,7 +4,7 @@ import sys
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
-from ormm.markov import markov_analysis, print_markov
+from ormm.markov import analyze_dtmc, print_markov
 
 
 def test_income_audit():
@@ -12,9 +12,9 @@ def test_income_audit():
     # Define MarkovChain object - P is transition matrix
     P = [[0.6, 0.4], [0.5, 0.5]]
     state_values = [0, 1]
-    analysis = markov_analysis(P, state_values,
-                               sim_kwargs={"ts_length": 25,
-                                           "random_state": 42})
+    analysis = analyze_dtmc(P, state_values,
+                            sim_kwargs={"ts_length": 25,
+                                        "random_state": 42})
     analysis["steady_state"]['output'] = \
         analysis["steady_state"]['output'].round(3)
     test = {
@@ -64,7 +64,7 @@ def test_computer_repair():
                          [0.0, 0.0, 0.0, 0.0, 1.0],
                          [0.0, 1.0, 0.0, 0.0, 0.0]]
     states = [(0, 0), (1, 0), (2, 0), (1, 1), (2, 1)]
-    analysis = markov_analysis(P=transition_matrix, state_values=states)
+    analysis = analyze_dtmc(P=transition_matrix, state_values=states)
     captured_output = io.StringIO()
     sys.stdout = captured_output
     print_markov(analysis)
@@ -136,12 +136,12 @@ def test_light_bulb_replacement():
     test_steady_state = markov_obj.stationary_distributions
     print('steady state: ', test_steady_state)
 
-    analysis = markov_analysis(transition_matrix, state_space,
-                               trans_kwargs={"ts_length": 12,
-                                             "init": [1, 0, 0, 0, 0]},
-                               cost_kwargs={"state": inspect_vector,
-                                            "transition": replace_matrix,
-                                            "num": num_bulbs})
+    analysis = analyze_dtmc(transition_matrix, state_space,
+                            trans_kwargs={"ts_length": 12,
+                                          "init": [1, 0, 0, 0, 0]},
+                            cost_kwargs={"state": inspect_vector,
+                                         "transition": replace_matrix,
+                                         "num": num_bulbs})
     test = {
         'cdfs': np.array(
             [[0.5, 1., 1., 1., 1.],
