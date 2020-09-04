@@ -2,10 +2,71 @@ from quantecon import MarkovChain
 import numpy as np
 
 
-def markov_analysis(P, state_values=None, sim_kwargs=None,
-                    trans_kwargs=None, cost_kwargs=None):
+def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     """
-    Perform Markov Analysis of costs, steady state, & transient probabilities.
+    Perform Markov Analysis of continuous time markov chain (CTMC) system.
+    """
+    num_states = len(states)
+    if t is not None:
+        # transient solutions
+        # have to use numerical approcaches, no closed form in general
+        # DTMC approximation (not embedded here)
+        if (d is not None) and (n is None):
+            n = int(t / d)
+        if (d is None) and (n is not None):
+            d = t / n
+        else:
+            raise ValueError("Argument 't' was provided without 'd' or 'n'."
+                             " Transient analysis also requires either"
+                             " 'd' (delta) or 'n' (num steps) argument.")
+        if init is None:
+            raise ValueError("Argument 't' was provided without 'init'."
+                             " Transient analysis requires 'init' for"
+                             " the initial state vector.")
+    if ((d is not None) or (n is not None) or
+            (init is not None)) and (t is None):
+        raise ValueError("Argument 't' was not provided, but other"
+                         " Transient analysis arguments were."
+                         " 't' is required for Transient analysis.")
+    # alpha_i is sum of transition rates out of state i
+    alpha = rate_matrix.sum(axis=1)  # sum across cols
+    if t is not None:
+        # P is state-transition matrix determined from rate matrix & d
+        P = np.array([[1 - d*alpha[col] if row == col
+                     else d * rate_matrix[row, col]
+                     for col in states] for row in states])
+        # prob that system in state i at time t: q_i(t)
+        # q(t) = [q_0(t), q_1(t), ..., q_(m-1)(t)]
+        # Note sum(q_t) == 1
+        # transient sol. approx. at time t = n*d with DTMC
+        #   by solving following equation:
+        # eq = q(n*d) == q(0)P^(n)
+        # or q(n*d + d) == q(n*d)P
+        q_step = np.matmul(init, np.linalg.matrix_power(P, n))
+
+    # Steady State probabilities
+    # limit of q(t) as t goes to infinity
+    # generator matrix
+    gen_matrix = np.array([[-alpha[row] if row == col
+                          else rate_matrix[row, col]
+                          for col in states] for row in states])
+    # augmented generator matrix - replace first col with 1s
+    gen_matrix[:, 0] = np.ones(num_states)
+    # Solve linear equations for steady state probs
+    unit_vector = np.zeros(num_states)
+    unit_vector[0] = 1
+    steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
+    analysis = {'alpha': alpha, 'P': P, 'init': init,
+                'transient': q_step,
+                'generator_matrix': gen_matrix,
+                'steady_state': steady_state}
+    return analysis
+
+
+def analyze_dtmc(P, state_values=None, sim_kwargs=None,
+                 trans_kwargs=None, cost_kwargs=None):
+    """
+    Perform Markov Analysis of discrete time markov chain (DTMC) system.
 
     Parameters
     ----------

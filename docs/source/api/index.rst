@@ -42,9 +42,9 @@ ORMM Markov
 
 .. autosummary::
 
-   markov_analysis
+   analyze_dtmc
    print_markov
 
-.. autofunction:: markov_analysis
+.. autofunction:: analyze_dtmc
 
 .. autofunction:: print_markov
