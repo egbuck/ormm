@@ -5,6 +5,42 @@ import numpy as np
 def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     """
     Perform Markov Analysis of continuous time markov chain (CTMC) system.
+
+    Parameters
+    ----------
+    states : array-like
+        Vector-like of length n containing the values associated with the
+        states, which must be homogeneous in type. If None, the values
+        default to integers 0 through n-1.
+    t : int
+        Integer for the end time period for the transient probability analysis.
+        If this is given, then either d or n must be given, and init must be
+        given as well.
+    d : float
+        Float for the small delta (amount of time per step) for numerically
+        solving the transient probabilities.  Either this or n (number of
+        steps) must be given (one can be inferred from the other and 't').
+    n : int
+        Integer of the number of steps to take for numerically solving the
+        transient probabilities.  Either this or 'd' must be given.
+        If both are given and they do not coincide with t (d*n = t), an error
+        will be raised.
+    init : array-like
+        Vector-like of length n containing the initial state values for
+        the transient probability analyis.  This must be given if 't', 'd', or
+        'n' is given.
+
+    Returns
+    -------
+    analysis : dict
+        Dictionary with results of markov analysis
+
+    Raises
+    ------
+    ValueError
+        If some but not all of the required transient probability analysis
+        arguments are given, or if t, d, and n are given, but their values are
+        invalid (t = n * d).
     """
     num_states = len(states)
     if t is not None:
@@ -13,8 +49,14 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
         # DTMC approximation (not embedded here)
         if (d is not None) and (n is None):
             n = int(t / d)
-        if (d is None) and (n is not None):
+        elif (d is None) and (n is not None):
             d = t / n
+        elif (d is not None) and (n is not None):
+            true_t = n * d
+            if true_t != t:
+                raise ValueError("Given values for arguments 't', 'd', and"
+                                 " 'n' are not compatible.  t must be equal"
+                                 " to n * d.")
         else:
             raise ValueError("Argument 't' was provided without 'd' or 'n'."
                              " Transient analysis also requires either"
@@ -63,7 +105,7 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     return analysis
 
 
-def analyze_dtmc(P, state_values=None, sim_kwargs=None,
+def analyze_dtmc(P, states=None, sim_kwargs=None,
                  trans_kwargs=None, cost_kwargs=None):
     """
     Perform Markov Analysis of discrete time markov chain (DTMC) system.
@@ -72,7 +114,7 @@ def analyze_dtmc(P, state_values=None, sim_kwargs=None,
     ----------
     P : array-like
         The transition matrix.  Must be of shape n x n.
-    state_values : array-like
+    states : array-like
         Array_like of length n containing the values associated with the
         states, which must be homogeneous in type. If None, the values
         default to integers 0 through n-1.
@@ -119,7 +161,7 @@ def analyze_dtmc(P, state_values=None, sim_kwargs=None,
       state to another.
     """
     analysis = {}
-    markov = MarkovChain(P, state_values)
+    markov = MarkovChain(P, states)
     analysis["cdfs"] = markov.cdfs
     steady_state = markov.stationary_distributions[0]
     analysis["steady_state"] = {"output": steady_state}
@@ -137,7 +179,7 @@ def analyze_dtmc(P, state_values=None, sim_kwargs=None,
                               "None was given."))
         if "init" not in trans_kwargs:
             trans_kwargs["init"] = None
-        trans_probs = _transient_probs(P, state_values, **trans_kwargs)
+        trans_probs = _transient_probs(P, states, **trans_kwargs)
         analysis["transient"] = {"kwargs": trans_kwargs,
                                  "output": trans_probs}
     if cost_kwargs:
@@ -180,7 +222,7 @@ def _cost_analysis(P, probs, state, transition, num):
     return exp_cost, total_cost
 
 
-def _transient_probs(P, state_values, ts_length, init=None):
+def _transient_probs(P, states, ts_length, init=None):
     """
     Calculate transient probabilities
 
@@ -188,7 +230,7 @@ def _transient_probs(P, state_values, ts_length, init=None):
         q(n) = q(n-1) * P
     """
     if init is None:
-        init = [np.random.choice(state_values, size=P.shape[0])]
+        init = [np.random.choice(states, size=P.shape[0])]
     q = np.array([init])
     # q_n = q_(n-1) * P
     for _ in range(1, ts_length + 1):

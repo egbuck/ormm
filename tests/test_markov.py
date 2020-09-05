@@ -64,7 +64,7 @@ def test_computer_repair():
                          [0.0, 0.0, 0.0, 0.0, 1.0],
                          [0.0, 1.0, 0.0, 0.0, 0.0]]
     states = [(0, 0), (1, 0), (2, 0), (1, 1), (2, 1)]
-    analysis = analyze_dtmc(P=transition_matrix, state_values=states)
+    analysis = analyze_dtmc(P=transition_matrix, states=states)
     captured_output = io.StringIO()
     sys.stdout = captured_output
     print_markov(analysis)
@@ -132,7 +132,7 @@ def test_light_bulb_replacement():
     # for discrete-time markov chains, as long as each state can be
     #  reached from every other state, the transient probabilities
     #  will approach equilibrium.
-    markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
+    markov_obj = MarkovChain(P=transition_matrix, states=state_space)
     test_steady_state = markov_obj.stationary_distributions
     print('steady state: ', test_steady_state)
 
