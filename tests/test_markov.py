@@ -132,7 +132,7 @@ def test_light_bulb_replacement():
     # for discrete-time markov chains, as long as each state can be
     #  reached from every other state, the transient probabilities
     #  will approach equilibrium.
-    markov_obj = MarkovChain(P=transition_matrix, states=state_space)
+    markov_obj = MarkovChain(P=transition_matrix, state_values=state_space)
     test_steady_state = markov_obj.stationary_distributions
     print('steady state: ', test_steady_state)
 
