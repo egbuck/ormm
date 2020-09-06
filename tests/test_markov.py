@@ -292,7 +292,6 @@ def atm_example():
             this_row[row - 1] = service_rate
         rate_matrix.append(this_row)
     rate_matrix = np.array(rate_matrix)
-    print(rate_matrix)
 
     # transient solutions
     # have to use numerical approcaches, no closed form in general

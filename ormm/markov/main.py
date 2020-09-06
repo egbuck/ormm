@@ -53,7 +53,7 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
             d = t / n
         elif (d is not None) and (n is not None):
             true_t = n * d
-            if true_t != t:
+            if round(true_t) != t:
                 raise ValueError("Given values for arguments 't', 'd', and"
                                  " 'n' are not compatible.  t must be equal"
                                  " to n * d.")
@@ -238,48 +238,62 @@ def _transient_probs(P, states, ts_length, init=None):
     return q
 
 
-def print_markov(analysis):
+def print_markov(analysis, mtype="dtmc"):
     """
-    Print analysis from markov analysis
+    Print results of markov analysis.
 
     Parameters
     ----------
     analysis : dict
         dictionary returned from markov_analysis() containing
         cdfs, steady state probs, etc.
+    mtype : str
+        Type of markov analysis that is being passed.  Must be
+        'dtmc' or 'ctmc'.
+
+    Raises
+    ------
+    ValueError
+        If invalid value is passed for 'mtype'.
     """
-    print("CDFs:")
-    print(analysis["cdfs"])
-    print()
-    print("Steady State Probs:")
-    print(analysis["steady_state"]['output'])
-    print()
-    if "sim" in analysis:
-        print(("Simulation of length "
-               f"{analysis['sim']['kwargs']['ts_length']}"))
-        print("Initial Conditions:")
-        print(analysis["sim"]["kwargs"]["init"])
-        print("Output:")
-        print(analysis["sim"]["output"])
+    if mtype == "dtmc":
+        print("CDFs:")
+        print(analysis["cdfs"])
         print()
-    if "transient" in analysis:
-        print(("Transient Probabilities (length "
-              f"{analysis['transient']['kwargs']['ts_length']})"))
-        print("Initial Conditions:")
-        print(analysis["transient"]["kwargs"]["init"])
-        print("Output:")
-        print(analysis["transient"]["output"])
+        print("Steady State Probs:")
+        print(analysis["steady_state"]['output'])
         print()
-    if "cost" in analysis['steady_state']:
-        print("Cost kwargs:")
-        print(analysis['steady_state']['cost']['kwargs'])
-        print("Expected Steady State Cost:")
-        print(f"${analysis['steady_state']['cost']['vector']:,.2f}")
-        print(("Expected Total Steady State Cost: $"
-              f"{analysis['steady_state']['cost']['total']:,.2f}"))
-    if "transient" in analysis:
-        if "cost" in analysis['transient']:
-            print("Expected Transient Cost:")
-            print(analysis["transient"]['cost']['vector'])
-            print(("Expected Total Transient Cost: $"
-                  f"{analysis['transient']['cost']['total']:,.2f}"))
+        if "sim" in analysis:
+            print(("Simulation of length "
+                   f"{analysis['sim']['kwargs']['ts_length']}"))
+            print("Initial Conditions:")
+            print(analysis["sim"]["kwargs"]["init"])
+            print("Output:")
+            print(analysis["sim"]["output"])
+            print()
+        if "transient" in analysis:
+            print(("Transient Probabilities (length "
+                  f"{analysis['transient']['kwargs']['ts_length']})"))
+            print("Initial Conditions:")
+            print(analysis["transient"]["kwargs"]["init"])
+            print("Output:")
+            print(analysis["transient"]["output"])
+            print()
+        if "cost" in analysis['steady_state']:
+            print("Cost kwargs:")
+            print(analysis['steady_state']['cost']['kwargs'])
+            print("Expected Steady State Cost:")
+            print(f"${analysis['steady_state']['cost']['vector']:,.2f}")
+            print(("Expected Total Steady State Cost: $"
+                  f"{analysis['steady_state']['cost']['total']:,.2f}"))
+        if "transient" in analysis:
+            if "cost" in analysis['transient']:
+                print("Expected Transient Cost:")
+                print(analysis["transient"]['cost']['vector'])
+                print(("Expected Total Transient Cost: $"
+                      f"{analysis['transient']['cost']['total']:,.2f}"))
+    elif mtype == "ctmc":
+        pass
+    else:
+        raise ValueError(f"Invalid value for mtype: {mtype}.  Must be "
+                         "'dtmc' or 'ctmc'.")
