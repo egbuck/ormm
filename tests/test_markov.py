@@ -4,7 +4,7 @@ import sys
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
-from ormm.markov import analyze_dtmc, print_markov
+from ormm.markov import analyze_dtmc, print_markov, analyze_ctmc
 
 
 def test_income_audit():
@@ -276,11 +276,6 @@ def is_analysis_equal(analysis, test):
 
 
 def atm_example():
-    # all activity durations are exponentially distributed
-    # ex: M/M/s queue
-    # markovian property must hold true for all future times, not
-    #    just 1 step
-    # mean times for amount of time work
     arrival_rate = 2  # per minute
     service_rate = 2.5  # per minute
     states = [0, 1, 2, 3, 4, 5]
@@ -300,15 +295,12 @@ def atm_example():
     d = 0.05  # small time interval, a parameter
     t = 1  # want to approx. transient probs at this time, a parameter
     n = int(t / d)  # number of steps - determines accuracy of approx.
-    print(n)
     # alpha_i is sum of transition rates out of state i
     alpha = rate_matrix.sum(axis=1)  # sum across cols
-    print(alpha)
     # P is state-transition matrix determined from rate matrix & d
     P = [[1 - d*alpha[col] if row == col else d * rate_matrix[row, col]
           for col in states] for row in states]
     P = np.array(P)
-    print(P)
     # prob that system in state i at time t: q_i(t)
     # q(t) = [q_0(t), q_1(t), ..., q_(m-1)(t)]
     # Note sum(q_t) == 1
@@ -319,8 +311,13 @@ def atm_example():
     # eq = q(n*d) == q(0)P^(n)
     # or q(n*d + d) == q(n*d)P
     q_step = np.matmul(q_init, np.linalg.matrix_power(P, n))
-    print(q_init)
+
+    # My analysis
+    analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
+                            t=t, d=d, init=q_init)
     print(q_step)
+    print(analysis['transient'])
+    assert (analysis['transient'] == q_step).all()
 
     # Steady State probabilities
     # limit of q(t) as t goes to infinity
@@ -328,15 +325,15 @@ def atm_example():
     gen_matrix = [[-alpha[row] if row == col else rate_matrix[row, col]
                    for col in states] for row in states]
     gen_matrix = np.array(gen_matrix)
-    print(gen_matrix)
     # augmented generator matrix - replace first col with 1s
     gen_matrix[:, 0] = np.ones(num_states)
     # Solve linear equations for steady state probs
     unit_vector = np.zeros(num_states)
     unit_vector[0] = 1
-    print(unit_vector)
     steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
     print(steady_state)
+    print(analysis['steady_state'])
+    assert (analysis['steady_state'] == steady_state).all()
 
 
 if __name__ == "__main__":
