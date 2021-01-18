@@ -4,14 +4,18 @@ import numpy as np
 
 def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     """
-    Perform Markov Analysis of continuous time markov chain (CTMC) system.
+    Perform Markov Analysis of continuous time discrete state markov chain
+    (CTMC) process.
 
     Parameters
     ----------
     states : array-like
-        Vector-like of length n containing the values associated with the
+        Vector-like of length M containing the values associated with the
         states, which must be homogeneous in type. If None, the values
-        default to integers 0 through n-1.
+        default to integers 0 through M-1.
+    rate_matrix : array-like
+        matrix of size MxM detailing the stationary probabilities of moving
+        from one state to another.
     t : int
         Integer for the end time period for the transient probability analysis.
         If this is given, then either d or n must be given, and init must be
@@ -45,7 +49,7 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     num_states = len(states)
     if t is not None:
         # transient solutions
-        # have to use numerical approcaches, no closed form in general
+        # have to use numerical approaches, no closed form in general
         # DTMC approximation (not embedded here)
         if (d is not None) and (n is None):
             n = int(t / d)
@@ -70,6 +74,7 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
         raise ValueError("Argument 't' was not provided, but other"
                          " Transient analysis arguments were."
                          " 't' is required for Transient analysis.")
+
     # alpha_i is sum of transition rates out of state i
     alpha = rate_matrix.sum(axis=1)  # sum across cols
     if t is not None:
@@ -108,7 +113,8 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
 def analyze_dtmc(P, states=None, sim_kwargs=None,
                  trans_kwargs=None, cost_kwargs=None):
     """
-    Perform Markov Analysis of discrete time markov chain (DTMC) system.
+    Perform Markov Analysis of discrete time discrete state markov chain
+    (DTMC) process.
 
     Parameters
     ----------

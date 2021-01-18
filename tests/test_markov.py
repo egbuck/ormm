@@ -275,7 +275,7 @@ def is_analysis_equal(analysis, test):
     return is_equal
 
 
-def atm_example():
+def test_atm_example():
     arrival_rate = 2  # per minute
     service_rate = 2.5  # per minute
     states = [0, 1, 2, 3, 4, 5]
@@ -315,8 +315,7 @@ def atm_example():
     # My analysis
     analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
                             t=t, d=d, init=q_init)
-    print(q_step)
-    print(analysis['transient'])
+    print(analysis)
     assert (analysis['transient'] == q_step).all()
 
     # Steady State probabilities
@@ -331,10 +330,8 @@ def atm_example():
     unit_vector = np.zeros(num_states)
     unit_vector[0] = 1
     steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
-    print(steady_state)
-    print(analysis['steady_state'])
     assert (analysis['steady_state'] == steady_state).all()
 
 
 if __name__ == "__main__":
-    atm_example()
+    test_atm_example()
