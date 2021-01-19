@@ -332,6 +332,36 @@ def test_atm_example():
     steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
     assert (analysis['steady_state'] == steady_state).all()
 
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    print_markov(analysis, mtype="ctmc")
+    sys.stdout = sys.__stdout__  # reset stdout
+    test_str = ("Alpha:\n"
+                "[2.  4.5 4.5 4.5 4.5 2.5]\n"
+                "P:\n"
+                "[[0.9   0.1   0.    0.    0.    0.   ]\n"
+                " [0.125 0.775 0.1   0.    0.    0.   ]\n"
+                " [0.    0.125 0.775 0.1   0.    0.   ]\n"
+                " [0.    0.    0.125 0.775 0.1   0.   ]\n"
+                " [0.    0.    0.    0.125 0.775 0.1  ]\n"
+                " [0.    0.    0.    0.    0.125 0.875]]\n"
+                "Steady State:\n"
+                "[0.2710556  0.21684448 0.17347558 0.13878047 0.11102437"
+                " 0.0888195 ]\n"
+                "Initial States:\n"
+                "[1, 0, 0, 0, 0, 0]\n"
+                "transient probabilities:\n"
+                "[0.43253628 0.29099199 0.16203962 0.0745227  0.02883399"
+                " 0.01107543]\n"
+                "generator matrix:\n"
+                "[[ 1.   2.   0.   0.   0.   0. ]\n"
+                " [ 1.  -4.5  2.   0.   0.   0. ]\n"
+                " [ 1.   2.5 -4.5  2.   0.   0. ]\n"
+                " [ 1.   0.   2.5 -4.5  2.   0. ]\n"
+                " [ 1.   0.   0.   2.5 -4.5  2. ]\n"
+                " [ 1.   0.   0.   0.   2.5 -2.5]]\n")
+    assert captured_output.getvalue() == test_str
+
 
 if __name__ == "__main__":
     test_atm_example()

@@ -299,7 +299,19 @@ def print_markov(analysis, mtype="dtmc"):
                 print(("Expected Total Transient Cost: $"
                       f"{analysis['transient']['cost']['total']:,.2f}"))
     elif mtype == "ctmc":
-        pass
+        print("Alpha:")
+        print(analysis["alpha"])
+        print("P:")
+        print(analysis["P"])
+        print("Steady State:")
+        print(analysis["steady_state"])
+        if "transient" in analysis:
+            print("Initial States:")
+            print(analysis["init"])
+            print("transient probabilities:")
+            print(analysis["transient"])
+            print("generator matrix:")
+            print(analysis["generator_matrix"])
     else:
         raise ValueError(f"Invalid value for mtype: {mtype}.  Must be "
                          "'dtmc' or 'ctmc'.")
