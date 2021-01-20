@@ -39,6 +39,7 @@ corresponding to the eigenvalue 1.
    :maxdepth: 2
 
    discrete.rst
+   continuous.rst
 
 .. [1] Jensen, P. A., & Bard, J. F. (2002). Operations Research Models
    and Methods. Wiley.

@@ -75,11 +75,11 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
                          " Transient analysis arguments were."
                          " 't' is required for Transient analysis.")
 
-    # alpha_i is sum of transition rates out of state i
-    alpha = rate_matrix.sum(axis=1)  # sum across cols
+    # transition_rates_i is sum of transition rates out of state i
+    transition_rates = rate_matrix.sum(axis=1)  # sum across cols
     if t is not None:
         # P is state-transition matrix determined from rate matrix & d
-        P = np.array([[1 - d*alpha[col] if row == col
+        P = np.array([[1 - d * transition_rates[col] if row == col
                      else d * rate_matrix[row, col]
                      for col in states] for row in states])
         # prob that system in state i at time t: q_i(t)
@@ -94,7 +94,7 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     # Steady State probabilities
     # limit of q(t) as t goes to infinity
     # generator matrix
-    gen_matrix = np.array([[-alpha[row] if row == col
+    gen_matrix = np.array([[-transition_rates[row] if row == col
                           else rate_matrix[row, col]
                           for col in states] for row in states])
     # augmented generator matrix - replace first col with 1s
@@ -103,7 +103,7 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
     unit_vector = np.zeros(num_states)
     unit_vector[0] = 1
     steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
-    analysis = {'alpha': alpha, 'P': P, 'init': init,
+    analysis = {'transition_rates': transition_rates, 'P': P, 'init': init,
                 'transient': q_step,
                 'generator_matrix': gen_matrix,
                 'steady_state': steady_state}
@@ -299,8 +299,8 @@ def print_markov(analysis, mtype="dtmc"):
                 print(("Expected Total Transient Cost: $"
                       f"{analysis['transient']['cost']['total']:,.2f}"))
     elif mtype == "ctmc":
-        print("Alpha:")
-        print(analysis["alpha"])
+        print("Transition Rates:")
+        print(analysis["transition_rates"])
         print("P:")
         print(analysis["P"])
         print("Steady State:")
@@ -308,9 +308,9 @@ def print_markov(analysis, mtype="dtmc"):
         if "transient" in analysis:
             print("Initial States:")
             print(analysis["init"])
-            print("transient probabilities:")
+            print("Transient Probabilities:")
             print(analysis["transient"])
-            print("generator matrix:")
+            print("Generator Matrix:")
             print(analysis["generator_matrix"])
     else:
         raise ValueError(f"Invalid value for mtype: {mtype}.  Must be "

@@ -336,7 +336,7 @@ def test_atm_example():
     sys.stdout = captured_output
     print_markov(analysis, mtype="ctmc")
     sys.stdout = sys.__stdout__  # reset stdout
-    test_str = ("Alpha:\n"
+    test_str = ("Transition Rates:\n"
                 "[2.  4.5 4.5 4.5 4.5 2.5]\n"
                 "P:\n"
                 "[[0.9   0.1   0.    0.    0.    0.   ]\n"
@@ -350,10 +350,10 @@ def test_atm_example():
                 " 0.0888195 ]\n"
                 "Initial States:\n"
                 "[1, 0, 0, 0, 0, 0]\n"
-                "transient probabilities:\n"
+                "Transient Probabilities:\n"
                 "[0.43253628 0.29099199 0.16203962 0.0745227  0.02883399"
                 " 0.01107543]\n"
-                "generator matrix:\n"
+                "Generator Matrix:\n"
                 "[[ 1.   2.   0.   0.   0.   0. ]\n"
                 " [ 1.  -4.5  2.   0.   0.   0. ]\n"
                 " [ 1.   2.5 -4.5  2.   0.   0. ]\n"
