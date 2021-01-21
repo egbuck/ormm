@@ -4,6 +4,8 @@ import sys
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
+import pytest
+
 from ormm.markov import analyze_dtmc, print_markov, analyze_ctmc
 
 
@@ -39,6 +41,34 @@ def test_income_audit():
     assert test.keys() == analysis.keys()
     assert test['sim'].keys() == analysis["sim"].keys()
     assert test['sim']["kwargs"].keys() == analysis["sim"]["kwargs"].keys()
+
+    # Assert print_markov works correctly with sim kwarg
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    print_markov(analysis)
+    sys.stdout = sys.__stdout__  # reset stdout
+    test_str = ("CDFs:\n"
+                "[[0.6 1. ]\n"
+                " [0.5 1. ]]\n\n"
+                "Steady State Probs:\n"
+                "[0.556 0.444]\n\n"
+                "Simulation of length 25\n"
+                "Initial Conditions:\n"
+                "None\n"
+                "Output:\n"
+                "[0 1 0 1 1 0 0 0 0 0 1 0 1 1 0 1 1 1 0 0 0 0 0 1 0]\n\n")
+    assert captured_output.getvalue() == test_str
+
+    # Assert ValueErrors are raised
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values, sim_kwargs={"no_ts_len": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values, trans_kwargs={"no_ts_len": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values, cost_kwargs={"no_ts_len": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values,
+                                cost_kwargs={"no_transition": 0})
 
 
 def test_computer_repair():
@@ -315,7 +345,6 @@ def test_atm_example():
     # My analysis
     analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
                             t=t, d=d, init=q_init)
-    print(analysis)
     assert (analysis['transient'] == q_step).all()
 
     # Steady State probabilities
@@ -331,6 +360,23 @@ def test_atm_example():
     unit_vector[0] = 1
     steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
     assert (analysis['steady_state'] == steady_state).all()
+
+    no_d_analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
+                                 t=t, n=n, init=q_init)
+    assert all(is_analysis_equal(analysis, no_d_analysis))
+    no_t_analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
+                                 n=n, d=d, init=q_init)
+    assert all(is_analysis_equal(analysis, no_t_analysis))
+
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, t=t, init=q_init)
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, d=d, init=q_init)
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, n=n, init=q_init)
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, t=3, d=1,
+                     n=5, init=q_init)
 
     captured_output = io.StringIO()
     sys.stdout = captured_output
@@ -361,7 +407,3 @@ def test_atm_example():
                 " [ 1.   0.   0.   2.5 -4.5  2. ]\n"
                 " [ 1.   0.   0.   0.   2.5 -2.5]]\n")
     assert captured_output.getvalue() == test_str
-
-
-if __name__ == "__main__":
-    test_atm_example()

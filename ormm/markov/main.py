@@ -47,33 +47,35 @@ def analyze_ctmc(states, rate_matrix, t=None, d=None, n=None, init=None):
         invalid (t = n * d).
     """
     num_states = len(states)
-    if t is not None:
+    if init is not None:
         # transient solutions
         # have to use numerical approaches, no closed form in general
         # DTMC approximation (not embedded here)
-        if (d is not None) and (n is None):
+        if (d is not None) and (n is None) and (t is not None):
             n = int(t / d)
-        elif (d is None) and (n is not None):
+        elif (d is None) and (n is not None) and (t is not None):
             d = t / n
-        elif (d is not None) and (n is not None):
+        elif (d is not None) and (n is not None) and (t is None):
+            t = n * d
+        elif (d is not None) and (n is not None) and (t is not None):
             true_t = n * d
             if round(true_t) != t:
                 raise ValueError("Given values for arguments 't', 'd', and"
                                  " 'n' are not compatible.  t must be equal"
                                  " to n * d.")
         else:
-            raise ValueError("Argument 't' was provided without 'd' or 'n'."
-                             " Transient analysis also requires either"
-                             " 'd' (delta) or 'n' (num steps) argument.")
+            raise ValueError("Transient analysis requires two of the three "
+                             "arguments: 't' (end time), 'd' (delta), "
+                             "'n' (num steps).")
         if init is None:
             raise ValueError("Argument 't' was provided without 'init'."
                              " Transient analysis requires 'init' for"
                              " the initial state vector.")
     if ((d is not None) or (n is not None) or
-            (init is not None)) and (t is None):
-        raise ValueError("Argument 't' was not provided, but other"
+            (t is not None)) and (init is None):
+        raise ValueError("Argument 'init' was not provided, but other"
                          " Transient analysis arguments were."
-                         " 't' is required for Transient analysis.")
+                         " 'init' is required for Transient analysis.")
 
     # transition_rates_i is sum of transition rates out of state i
     transition_rates = rate_matrix.sum(axis=1)  # sum across cols
