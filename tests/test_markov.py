@@ -69,6 +69,9 @@ def test_income_audit():
     with pytest.raises(ValueError):
         analysis = analyze_dtmc(P, state_values,
                                 cost_kwargs={"no_transition": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values,
+                                cost_kwargs={"no_state": 0, "transition": 0})
 
 
 def test_computer_repair():
