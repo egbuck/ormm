@@ -1,29 +1,23 @@
 Discrete Time Analysis
-=======================
+======================
 In a Discrete Time Markov Chain, the set :math:`T` is made up of
 discrete time intervals (ex: period 1, 2, 3, etc.).
 This works well for systems where events occur in steps or specified
 intervals of time.  These could be
 months, years, weeks, days, hours, or other time interval choices.
 
-In Markov Chains, we only care about the states at the end of
-each of the time intervals.
-
 Usage Example
 -------------
-Consider a store that has a lit-up sign for displaying the name of the
-store to potential customers driving by.  Assume that the sign has
-1,000 of these special bulbs to make the sign brighter.  Your boss may
-notice the bulbs burning out more than they expected, and wants to know
-if this was just by chance or if this behavior is expected in the long term
-future.  They also would like an analysis on the expected cost of replacing these
-light bulbs.
+Consider an ATM located at a bank.  Only one person can use the machine
+at a time, so additional arrivals must wait in a first come first serve queue.
+Suppose the parking lot is limited in size, and thus the system is limited to a
+maximum of 5 cars (4 waiting and 1 in service).
 
-The code below will return a dictionary with the results of this analysis.
+The code below will return a dictionary with the results of analyzing this system.
 
 .. code-block:: python
 
-   >>> from ormm.markov import markov_analysis, print_markov
+   >>> from ormm.markov import analyze_dtmc, print_markov
    >>> import numpy as np
    >>>
    >>> # Probability of bulb failing based on age of bulb in months
@@ -64,7 +58,7 @@ The code below will return a dictionary with the results of this analysis.
           [2, 0, 0, 0, 0]])
    >>>
    >>> # Run Markov Analysis
-   >>> analysis = markov_analysis(transition_matrix, state_space,
+   >>> analysis = analyze_dtmc(transition_matrix, state_space,
    ...                            trans_kwargs={"ts_length": 12,
    ...                                          "init": [1, 0, 0, 0, 0]},
    ...                            cost_kwargs={"state": inspect_vector,

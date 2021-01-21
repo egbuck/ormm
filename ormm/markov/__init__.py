@@ -1,3 +1,3 @@
-from ormm.markov.main import markov_analysis, print_markov
+from ormm.markov.main import analyze_dtmc, print_markov, analyze_ctmc
 
-__all__ = ["markov_analysis", "print_markov"]
+__all__ = ["analyze_dtmc", "print_markov", "analyze_ctmc"]

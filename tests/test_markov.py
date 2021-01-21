@@ -4,7 +4,9 @@ import sys
 from quantecon.markov import MarkovChain
 import scipy.stats
 import numpy as np
-from ormm.markov import markov_analysis, print_markov
+import pytest
+
+from ormm.markov import analyze_dtmc, print_markov, analyze_ctmc
 
 
 def test_income_audit():
@@ -12,9 +14,9 @@ def test_income_audit():
     # Define MarkovChain object - P is transition matrix
     P = [[0.6, 0.4], [0.5, 0.5]]
     state_values = [0, 1]
-    analysis = markov_analysis(P, state_values,
-                               sim_kwargs={"ts_length": 25,
-                                           "random_state": 42})
+    analysis = analyze_dtmc(P, state_values,
+                            sim_kwargs={"ts_length": 25,
+                                        "random_state": 42})
     analysis["steady_state"]['output'] = \
         analysis["steady_state"]['output'].round(3)
     test = {
@@ -40,6 +42,37 @@ def test_income_audit():
     assert test['sim'].keys() == analysis["sim"].keys()
     assert test['sim']["kwargs"].keys() == analysis["sim"]["kwargs"].keys()
 
+    # Assert print_markov works correctly with sim kwarg
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    print_markov(analysis)
+    sys.stdout = sys.__stdout__  # reset stdout
+    test_str = ("CDFs:\n"
+                "[[0.6 1. ]\n"
+                " [0.5 1. ]]\n\n"
+                "Steady State Probs:\n"
+                "[0.556 0.444]\n\n"
+                "Simulation of length 25\n"
+                "Initial Conditions:\n"
+                "None\n"
+                "Output:\n"
+                "[0 1 0 1 1 0 0 0 0 0 1 0 1 1 0 1 1 1 0 0 0 0 0 1 0]\n\n")
+    assert captured_output.getvalue() == test_str
+
+    # Assert ValueErrors are raised
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values, sim_kwargs={"no_ts_len": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values, trans_kwargs={"no_ts_len": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values, cost_kwargs={"no_ts_len": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values,
+                                cost_kwargs={"no_transition": 0})
+    with pytest.raises(ValueError):
+        analysis = analyze_dtmc(P, state_values,
+                                cost_kwargs={"no_state": 0, "transition": 0})
+
 
 def test_computer_repair():
     """
@@ -64,7 +97,7 @@ def test_computer_repair():
                          [0.0, 0.0, 0.0, 0.0, 1.0],
                          [0.0, 1.0, 0.0, 0.0, 0.0]]
     states = [(0, 0), (1, 0), (2, 0), (1, 1), (2, 1)]
-    analysis = markov_analysis(P=transition_matrix, state_values=states)
+    analysis = analyze_dtmc(P=transition_matrix, states=states)
     captured_output = io.StringIO()
     sys.stdout = captured_output
     print_markov(analysis)
@@ -136,12 +169,12 @@ def test_light_bulb_replacement():
     test_steady_state = markov_obj.stationary_distributions
     print('steady state: ', test_steady_state)
 
-    analysis = markov_analysis(transition_matrix, state_space,
-                               trans_kwargs={"ts_length": 12,
-                                             "init": [1, 0, 0, 0, 0]},
-                               cost_kwargs={"state": inspect_vector,
-                                            "transition": replace_matrix,
-                                            "num": num_bulbs})
+    analysis = analyze_dtmc(transition_matrix, state_space,
+                            trans_kwargs={"ts_length": 12,
+                                          "init": [1, 0, 0, 0, 0]},
+                            cost_kwargs={"state": inspect_vector,
+                                         "transition": replace_matrix,
+                                         "num": num_bulbs})
     test = {
         'cdfs': np.array(
             [[0.5, 1., 1., 1., 1.],
@@ -273,3 +306,107 @@ def is_analysis_equal(analysis, test):
         elif type(analysis[k]) is list:
             is_equal.append(all(a == b for a, b in zip(analysis[k], test[k])))
     return is_equal
+
+
+def test_atm_example():
+    arrival_rate = 2  # per minute
+    service_rate = 2.5  # per minute
+    states = [0, 1, 2, 3, 4, 5]
+    num_states = len(states)
+    rate_matrix = []
+    for row in states:
+        this_row = [arrival_rate if col == row + 1 else 0 for col in states]
+        if row >= 1:
+            this_row[row - 1] = service_rate
+        rate_matrix.append(this_row)
+    rate_matrix = np.array(rate_matrix)
+
+    # transient solutions
+    # have to use numerical approcaches, no closed form in general
+    # QuantEcon only has finite state discrete time MarkovChain
+    # DTMC approximation (not embedded here)
+    d = 0.05  # small time interval, a parameter
+    t = 1  # want to approx. transient probs at this time, a parameter
+    n = int(t / d)  # number of steps - determines accuracy of approx.
+    # alpha_i is sum of transition rates out of state i
+    alpha = rate_matrix.sum(axis=1)  # sum across cols
+    # P is state-transition matrix determined from rate matrix & d
+    P = [[1 - d*alpha[col] if row == col else d * rate_matrix[row, col]
+          for col in states] for row in states]
+    P = np.array(P)
+    # prob that system in state i at time t: q_i(t)
+    # q(t) = [q_0(t), q_1(t), ..., q_(m-1)(t)]
+    # Note sum(q_t) == 1
+    # Initial probability vector:
+    q_init = [1, 0, 0, 0, 0, 0]
+    # transient sol. approx. at time t = n*d with DTMC
+    #   by solving following equation:
+    # eq = q(n*d) == q(0)P^(n)
+    # or q(n*d + d) == q(n*d)P
+    q_step = np.matmul(q_init, np.linalg.matrix_power(P, n))
+
+    # My analysis
+    analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
+                            t=t, d=d, init=q_init)
+    assert (analysis['transient'] == q_step).all()
+
+    # Steady State probabilities
+    # limit of q(t) as t goes to infinity
+    # generator matrix
+    gen_matrix = [[-alpha[row] if row == col else rate_matrix[row, col]
+                   for col in states] for row in states]
+    gen_matrix = np.array(gen_matrix)
+    # augmented generator matrix - replace first col with 1s
+    gen_matrix[:, 0] = np.ones(num_states)
+    # Solve linear equations for steady state probs
+    unit_vector = np.zeros(num_states)
+    unit_vector[0] = 1
+    steady_state = np.matmul(unit_vector.T, np.linalg.inv(gen_matrix))
+    assert (analysis['steady_state'] == steady_state).all()
+
+    no_d_analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
+                                 t=t, n=n, init=q_init)
+    assert all(is_analysis_equal(analysis, no_d_analysis))
+    no_t_analysis = analyze_ctmc(states=states, rate_matrix=rate_matrix,
+                                 n=n, d=d, init=q_init)
+    assert all(is_analysis_equal(analysis, no_t_analysis))
+
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, t=t, init=q_init)
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, d=d, init=q_init)
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, n=n, init=q_init)
+    with pytest.raises(ValueError):
+        analyze_ctmc(states=states, rate_matrix=rate_matrix, t=3, d=1,
+                     n=5, init=q_init)
+
+    captured_output = io.StringIO()
+    sys.stdout = captured_output
+    print_markov(analysis, mtype="ctmc")
+    sys.stdout = sys.__stdout__  # reset stdout
+    test_str = ("Transition Rates:\n"
+                "[2.  4.5 4.5 4.5 4.5 2.5]\n"
+                "P:\n"
+                "[[0.9   0.1   0.    0.    0.    0.   ]\n"
+                " [0.125 0.775 0.1   0.    0.    0.   ]\n"
+                " [0.    0.125 0.775 0.1   0.    0.   ]\n"
+                " [0.    0.    0.125 0.775 0.1   0.   ]\n"
+                " [0.    0.    0.    0.125 0.775 0.1  ]\n"
+                " [0.    0.    0.    0.    0.125 0.875]]\n"
+                "Steady State:\n"
+                "[0.2710556  0.21684448 0.17347558 0.13878047 0.11102437"
+                " 0.0888195 ]\n"
+                "Initial States:\n"
+                "[1, 0, 0, 0, 0, 0]\n"
+                "Transient Probabilities:\n"
+                "[0.43253628 0.29099199 0.16203962 0.0745227  0.02883399"
+                " 0.01107543]\n"
+                "Generator Matrix:\n"
+                "[[ 1.   2.   0.   0.   0.   0. ]\n"
+                " [ 1.  -4.5  2.   0.   0.   0. ]\n"
+                " [ 1.   2.5 -4.5  2.   0.   0. ]\n"
+                " [ 1.   0.   2.5 -4.5  2.   0. ]\n"
+                " [ 1.   0.   0.   2.5 -4.5  2. ]\n"
+                " [ 1.   0.   0.   0.   2.5 -2.5]]\n")
+    assert captured_output.getvalue() == test_str
