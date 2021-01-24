@@ -2,7 +2,8 @@ from ormm.mathprog.milp import \
     resource_allocation, print_sol, sensitivity_analysis, blending
 
 from ormm.mathprog.scheduling import scheduling
-from ormm.mathprog.network_flow import transportation
+from ormm.mathprog.network_flow import transportation, Graph
 
 __all__ = ["resource_allocation", "print_sol",
-           "sensitivity_analysis", "blending", "scheduling", "transportation"]
+           "sensitivity_analysis", "blending", "scheduling", "transportation",
+           "Graph"]

@@ -108,14 +108,18 @@ class Graph():
         Attributes
         ----------
         self.arcs
-            dictionary of possible paths from one node
+            Dictionary of possible paths from one node
             e.g. {'A': ['B', 'C', 'D', 'E'], ...}
         self.costs
             The cost of traveling from one node to another
             e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
+        self.nodes
+            A set of all unique nodes in the graph
+            e.g. {"A", "B", "C", ...}
         """
         self.arcs = defaultdict(list)
-        self.cost = {}
+        self.costs = {}
+        self.nodes = set()
 
     def add_arcs(self, arcs):
         """
@@ -131,12 +135,14 @@ class Graph():
             self._add_arc(*arc)
 
     def _add_arc(self, from_node, to_node, cost, direction="two"):
-        self.arc[from_node].append(to_node)
-        if direction == "two":
-            self.arc[to_node].append(from_node)
-
+        self.arcs[from_node].append(to_node)
         self.costs[(from_node, to_node)] = cost
-        self.costs[(to_node, from_node)] = cost
+
+        if direction == "two":
+            self.arcs[to_node].append(from_node)
+            self.costs[(to_node, from_node)] = cost
+
+        self.nodes.update([from_node, to_node])
 
     def shortest_path(self, source):
         """
@@ -151,25 +157,28 @@ class Graph():
         """
         solved_nodes = {source}
         min_costs = {source: 0}
-        best_paths = {source: (source)}
-        while solved_nodes != self.states:
+        best_paths = {source: (source,)}
+        while solved_nodes != self.nodes:
             # Find best arc that passes from solved node to unsolved
-            # Filter self.arcs to include only solved nodes
+            # Filter self.arcs to include only arcs from solved nodes
             valid_arcs = {node: self.arcs[node]
-                          for node in solved_nodes}
+                          for node in solved_nodes if self.arcs[node]}
             # Change valid_arcs from dict of lists to list of tuples
+            #  And take out arcs that go to solved_nodes
             arc_tuples = [(key, *dest) for key, value in valid_arcs.items()
                           for dest in value]
+            arc_tuples = [(start, end) for (start, end) in arc_tuples
+                          if end not in solved_nodes]
             # Retrieve costs for arc_tuples
             costs = {node: self.costs[node] for node in arc_tuples}
             total_costs = {(from_node, to_node):
-                           min_costs[from_node] + costs[to_node]
+                           min_costs[from_node] + costs[(from_node, to_node)]
                            for (from_node, to_node) in arc_tuples}
             best_add = min(total_costs, key=total_costs.get)
             best_cost = total_costs[best_add]
             new_solved_node = best_add[1]
             solved_nodes.add(new_solved_node)
-            min_costs = {new_solved_node: best_cost}
+            min_costs[new_solved_node] = best_cost
             best_paths[new_solved_node] = \
                 best_paths[best_add[0]] + (new_solved_node,)
         return min_costs, best_paths

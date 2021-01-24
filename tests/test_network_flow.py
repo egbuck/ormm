@@ -3,7 +3,7 @@ import random
 
 import pyomo.environ as pyo
 
-from ormm.mathprog import transportation
+from ormm.mathprog import transportation, Graph
 from tests.methods import solve_instance
 
 MATHPROG_DATA = "ormm/mathprog/example_data/"
@@ -57,5 +57,24 @@ def bad_huge_transportation():
     print(end_time - start_time)
 
 
+def test_shortest_path_simple():
+    graph = Graph()
+    arcs = [["A", "B", 7, "one"],
+            ["B", "C", 3, "one"],
+            ["A", "D", 5, "one"],
+            ["D", "E", 5, "one"],
+            ["E", "F", 5, "one"],
+            ["F", "C", 10, "two"]]
+    graph.add_arcs(arcs)
+    costs, paths = graph.shortest_path("A")
+    test_costs = {'A': 0, 'D': 5, 'B': 7, 'E': 10, 'C': 10, 'F': 15}
+    test_paths = {'A': ('A',), 'D': ('A', 'D'), 'B': ('A', 'B'),
+                  'E': ('A', 'D', 'E'), 'C': ('A', 'B', 'C'),
+                  'F': ('A', 'D', 'E', 'F')}
+    assert costs == test_costs
+    assert paths == test_paths
+
+
 if __name__ == "__main__":
-    bad_huge_transportation()
+    # bad_huge_transportation()
+    test_shortest_path_simple()
