@@ -1,4 +1,5 @@
 import pyomo.environ as pyo
+from collections import defaultdict
 
 
 def transportation(**kwargs):
@@ -98,3 +99,46 @@ def transportation(**kwargs):
         return model.create_instance(**kwargs)
     else:
         return model
+
+
+class Graph():
+    def __init__(self):
+        """
+        Attributes
+        ----------
+        self.edges
+            dictionary of connected nodes
+            e.g. {'A': ['B', 'C', 'D', 'E'], ...}
+        self.costs
+            The cost of traveling from one node to another
+            e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
+        """
+        self.edges = defaultdict(list)
+        self.cost = {}
+
+    def add_edges(self, edges):
+        """
+        Parameters
+        ----------
+        edges
+            Iterable of Iterables that contain edge information,
+            such as from_node, to_node, cost, and
+            optionally whether the edge is one-directional
+            ("one") or bi-directional ("two")
+        """
+        for edge in edges:
+            self._add_edge(*edge)
+
+    def _add_edge(self, from_node, to_node, cost, direction="two"):
+        self.edges[from_node].append(to_node)
+        if direction == "two":
+            self.edges[to_node].append(from_node)
+
+        self.costs[(from_node, to_node)] = cost
+        self.costs[(to_node, from_node)] = cost
+
+    def shortest_path():
+        """
+        Solve the shortest path tree problem with Dijkstra's Algorithm.
+        """
+        pass
