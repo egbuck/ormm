@@ -1,4 +1,5 @@
 import pyomo.environ as pyo
+import pandas as pd
 from collections import defaultdict
 
 
@@ -106,39 +107,94 @@ class Graph():
         """
         Attributes
         ----------
-        self.edges
-            dictionary of connected nodes
+        self.arcs
+            dictionary of possible paths from one node
             e.g. {'A': ['B', 'C', 'D', 'E'], ...}
         self.costs
             The cost of traveling from one node to another
             e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
         """
-        self.edges = defaultdict(list)
+        self.arcs = defaultdict(list)
         self.cost = {}
 
-    def add_edges(self, edges):
+    def add_arcs(self, arcs):
         """
         Parameters
         ----------
         edges
-            Iterable of Iterables that contain edge information,
+            Iterable of Iterables that contain arc information,
             such as from_node, to_node, cost, and
-            optionally whether the edge is one-directional
+            optionally whether the arc is one-directional
             ("one") or bi-directional ("two")
         """
-        for edge in edges:
-            self._add_edge(*edge)
+        for arc in arcs:
+            self._add_arc(*arc)
 
-    def _add_edge(self, from_node, to_node, cost, direction="two"):
-        self.edges[from_node].append(to_node)
+    def _add_arc(self, from_node, to_node, cost, direction="two"):
+        self.arc[from_node].append(to_node)
         if direction == "two":
-            self.edges[to_node].append(from_node)
+            self.arc[to_node].append(from_node)
 
         self.costs[(from_node, to_node)] = cost
         self.costs[(to_node, from_node)] = cost
 
-    def shortest_path():
+    def shortest_path(self, source):
         """
         Solve the shortest path tree problem with Dijkstra's Algorithm.
+        This requires nonnegative arc lengths to get an optimal solution.
+
+        Parameters
+        ----------
+        source
+            The source node to use for minimizing the distance to all
+            other nodes
+        """
+        solved_nodes = {source}
+        min_costs = {source: 0}
+        best_paths = {source: (source)}
+        while solved_nodes != self.states:
+            # Find best arc that passes from solved node to unsolved
+            # Filter self.arcs to include only solved nodes
+            valid_arcs = {node: self.arcs[node]
+                          for node in solved_nodes}
+            # Change valid_arcs from dict of lists to list of tuples
+            arc_tuples = [(key, *dest) for key, value in valid_arcs.items()
+                          for dest in value]
+            # Retrieve costs for arc_tuples
+            costs = {node: self.costs[node] for node in arc_tuples}
+            total_costs = {(from_node, to_node):
+                           min_costs[from_node] + costs[to_node]
+                           for (from_node, to_node) in arc_tuples}
+            best_add = min(total_costs, key=total_costs.get)
+            best_cost = total_costs[best_add]
+            new_solved_node = best_add[1]
+            solved_nodes.add(new_solved_node)
+            min_costs = {new_solved_node: best_cost}
+            best_paths[new_solved_node] = \
+                best_paths[best_add[0]] + (new_solved_node,)
+        return min_costs, best_paths
+
+    def init_df(self):
+        """
         """
         pass
+
+    def add_arcs_df(self, arcs):
+        """
+        """
+        pass
+
+    def shortest_path_df(self, source):
+        solution = pd.DataFrame(data=[[source, 0, source]],
+                                columns=["Destination", "Cost", "Path"])
+        while solution["Destination"] != self.states:
+            # Find best arc that passes from solved node to unsolved
+            # Filter self.arcs to include only solved nodes
+            valid_arcs = {key: self.arcs[key]
+                          for key in solution["Destination"]}
+            # Change valid_arcs from dict of lists to list of tuples
+            arc_tuples = [(key, *dest) for key, value in valid_arcs.items()
+                          for dest in value]
+            # Retrieve costs for arc_tuples
+            costs = {key: self.costs[key] for key in arc_tuples}
+            print(costs)
