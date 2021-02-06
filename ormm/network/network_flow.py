@@ -186,7 +186,7 @@ class Graph():
         ValueError
             If self.costs contains any negative costs (arc lengths)
         """
-        if min(self.costs.values) < 0:
+        if min(self.costs.values()) < 0:
             raise ValueError("Non-negative costs (arc lengths) required"
                              " for Dijkstra's Algorithm for"
                              " shortest path tree problem!")
