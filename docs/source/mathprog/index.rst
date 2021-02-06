@@ -11,4 +11,3 @@ Mathematical Programming
    employee.rst
    rental.rst
    aggregate_planning.rst
-   transportation.rst

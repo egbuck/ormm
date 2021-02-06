@@ -1,9 +1,27 @@
 import pyomo.environ as pyo
-import pandas as pd
 from collections import defaultdict
 
 
-def transportation(**kwargs):
+"""
+Eventually may move transportation_model to method in Graph class
+
+To do this, need to add quite a bit:
+  * Graph() should be able to read in data file (.dat)
+    used for transportation problem
+    - either when transportation_problem is called, or
+      in separate method to permanently add attributes
+  * Graph() needs add_arcs overhaul
+    - reading in different attributes
+    - different input types to handle:
+      1. Dictionaries
+      2. Lists
+      3. Numpy arrays
+      4. Pandas DF
+      5. Data file (.dat)?
+"""
+
+
+def transportation_model(**kwargs):
     """
     Factory method for the balanced transportation problem.
 
@@ -103,7 +121,7 @@ def transportation(**kwargs):
 
 
 class Graph():
-    def __init__(self):
+    def __init__(self, arcs=None):
         """
         Attributes
         ----------
@@ -120,12 +138,14 @@ class Graph():
         self.arcs = defaultdict(list)
         self.costs = {}
         self.nodes = set()
+        if arcs is not None:
+            self.add_arcs(arcs)
 
     def add_arcs(self, arcs):
         """
         Parameters
         ----------
-        edges
+        arcs
             Iterable of Iterables that contain arc information,
             such as from_node, to_node, cost, and
             optionally whether the arc is one-directional
@@ -147,14 +167,29 @@ class Graph():
     def shortest_path(self, source):
         """
         Solve the shortest path tree problem with Dijkstra's Algorithm.
-        This requires nonnegative arc lengths to get an optimal solution.
+        This requires nonnegative costs/arc lengths to get an optimal solution.
 
         Parameters
         ----------
         source
             The source node to use for minimizing the distance to all
             other nodes
+
+        Returns
+        -------
+        dictionary
+            Contains minimum costs and best paths
+            to achieve those minimum costs
+
+        Raises
+        ------
+        ValueError
+            If self.costs contains any negative costs (arc lengths)
         """
+        if min(self.costs.values) < 0:
+            raise ValueError("Non-negative costs (arc lengths) required"
+                             " for Dijkstra's Algorithm for"
+                             " shortest path tree problem!")
         solved_nodes = {source}
         min_costs = {source: 0}
         best_paths = {source: (source,)}
@@ -181,29 +216,4 @@ class Graph():
             min_costs[new_solved_node] = best_cost
             best_paths[new_solved_node] = \
                 best_paths[best_add[0]] + (new_solved_node,)
-        return min_costs, best_paths
-
-    def init_df(self):
-        """
-        """
-        pass
-
-    def add_arcs_df(self, arcs):
-        """
-        """
-        pass
-
-    def shortest_path_df(self, source):
-        solution = pd.DataFrame(data=[[source, 0, source]],
-                                columns=["Destination", "Cost", "Path"])
-        while solution["Destination"] != self.states:
-            # Find best arc that passes from solved node to unsolved
-            # Filter self.arcs to include only solved nodes
-            valid_arcs = {key: self.arcs[key]
-                          for key in solution["Destination"]}
-            # Change valid_arcs from dict of lists to list of tuples
-            arc_tuples = [(key, *dest) for key, value in valid_arcs.items()
-                          for dest in value]
-            # Retrieve costs for arc_tuples
-            costs = {key: self.costs[key] for key in arc_tuples}
-            print(costs)
+        return {"Costs": min_costs, "Paths": best_paths}

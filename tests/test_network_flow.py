@@ -3,17 +3,17 @@ import random
 
 import pyomo.environ as pyo
 
-from ormm.mathprog import transportation, Graph
+from ormm.network import transportation_model, Graph
 from tests.methods import solve_instance
 
-MATHPROG_DATA = "ormm/mathprog/example_data/"
-TRANSPORTATION_DATA = MATHPROG_DATA + "transportation.dat"
+NETWORK_DATA = "ormm/network/example_data/"
+TRANSPORTATION_DATA = NETWORK_DATA + "transportation.dat"
 
 
-def test_transportation():
-    model = transportation()
+def test_transportation_model():
+    model = transportation_model()
     instance1 = model.create_instance(TRANSPORTATION_DATA)
-    instance2 = transportation(filename=TRANSPORTATION_DATA)
+    instance2 = transportation_model(filename=TRANSPORTATION_DATA)
     for inst in [instance1, instance2]:
         instance, results = solve_instance(inst)
         assert instance.OBJ() == 475
@@ -30,7 +30,7 @@ def test_transportation():
                         ('S3', 'D5'): 0.0}
 
 
-def bad_huge_transportation():
+def huge_transportation_model():
     # Define large random datasets
     num_nodes = 1_000
     upper_lim = 100
@@ -46,7 +46,7 @@ def bad_huge_transportation():
                "Demand": demand,
                "ShippingCosts": ship_costs}
     # Define model, load data in it
-    model = transportation()
+    model = transportation_model()
     inst = model.create_instance(data={None: my_data})
     # Start timer and solve
     start_time = time.time()
@@ -66,7 +66,8 @@ def test_shortest_path_simple():
             ["E", "F", 5, "one"],
             ["F", "C", 10, "two"]]
     graph.add_arcs(arcs)
-    costs, paths = graph.shortest_path("A")
+    analysis = graph.shortest_path("A")
+    costs, paths = analysis["Costs"], analysis["Paths"]
     test_costs = {'A': 0, 'D': 5, 'B': 7, 'E': 10, 'C': 10, 'F': 15}
     test_paths = {'A': ('A',), 'D': ('A', 'D'), 'B': ('A', 'B'),
                   'E': ('A', 'D', 'E'), 'C': ('A', 'B', 'C'),
@@ -76,5 +77,5 @@ def test_shortest_path_simple():
 
 
 if __name__ == "__main__":
-    # bad_huge_transportation()
+    # huge_transportation_model()
     test_shortest_path_simple()
