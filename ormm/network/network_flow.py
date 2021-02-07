@@ -1,11 +1,15 @@
-import pyomo.environ as pyo
-from collections import defaultdict
-
-
 """
 Eventually may move transportation_model to method in Graph class
+To do this, would:
+  * When call transportation, arguments for:
+    - These are the supply nodes
+    - These are their supply max's
+    - These are demand nodes
+    - These are demand requirements (mins)
+    - Then maybe option for adding that info to graph object?
 
-To do this, need to add quite a bit:
+Other ideas to add:
+  * Implement print() method on Graph object (__repr__)
   * Graph() should be able to read in data file (.dat)
     used for transportation problem
     - either when transportation_problem is called, or
@@ -19,6 +23,13 @@ To do this, need to add quite a bit:
       4. Pandas DF
       5. Data file (.dat)?
 """
+
+from collections import defaultdict
+from collections.abc import Sequence
+
+import numpy as np
+import pandas as pd
+import pyomo.environ as pyo
 
 
 def transportation_model(**kwargs):
@@ -147,12 +158,81 @@ class Graph():
         ----------
         arcs
             Iterable of Iterables that contain arc information,
-            such as from_node, to_node, cost, and
-            optionally whether the arc is one-directional
+            such as from_node ("From"), to_node ("To"),
+            cost ("Cost), and
+            optionally direction ("Direction") -
+            whether the arc is one-directional
             ("one") or bi-directional ("two")
+
+        Raises
+        ------
+        TypeError
+            If `arcs` is not a dict, list, DataFrame, tuple, or array
+        ValueError
+            If `arcs` does not have enough arguments (columns) to support
+            the requirements (from_node, to_node, cost)
         """
-        for arc in arcs:
-            self._add_arc(*arc)
+        if isinstance(arcs, (Sequence, np.array)):
+            for arc in arcs:
+                self._add_arc(*arc)
+        elif isinstance(arcs, (pd.DataFrame, dict)):
+            if isinstance(arcs, dict):
+                arcs = pd.DataFrame(arcs)
+            # Create possible keywords
+            from_choices = pd.Series(["From", "FromNode", "From_Node",
+                                      "From_node", "From Node"])
+            to_choices = pd.Series(["To", "ToNode", "To_Node", "To_node",
+                                    "To Node"])
+            cost_choices = pd.Series(["Cost", "ShippingCost", "Shipping_Cost",
+                                      "Shipping_cost", "Shipping Cost"])
+            # Add lowercase options to choices
+            from_choices = from_choices.append(from_choices.lower(),
+                                               ignore_index=True)
+            to_choices = to_choices.append(to_choices.lower(),
+                                           ignore_index=True)
+            cost_choices = cost_choices.append(cost_choices.lower(),
+                                               ignore_index=True)
+            # Get lists of matches in column names
+            from_matches = [col for col in arcs.columns if col in from_choices]
+            to_matches = [col for col in arcs.columns if col in to_choices]
+            cost_matches = [col for col in arcs.columns if col in cost_choices]
+            if from_matches and to_matches and cost_matches:
+                direction_choices = pd.Series(["Direction", "direction"])
+                direction_matches = [col for col in arcs.columns
+                                     if col in direction_choices]
+                if direction_matches:
+                    key_cols = {"From": from_matches[0],
+                                "To": to_matches[0],
+                                "Cost": cost_matches[0],
+                                "Direction": direction_matches[0]}
+                    for row in arcs:
+                        self._add_arc(row[key_cols["From"]],
+                                      row[key_cols["To"]],
+                                      row[key_cols["Cost"]],
+                                      row[key_cols["Direction"]])
+                else:
+                    key_cols = {"From": from_matches[0],
+                                "To": to_matches[0],
+                                "Cost": cost_matches[0]}
+                    for row in arcs:
+                        self._add_arc(row[key_cols["From"]],
+                                      row[key_cols["To"]],
+                                      row[key_cols["Cost"]])
+            else:
+                num_cols = arcs.shape[1]
+                if num_cols == 3:
+                    for row in arcs:
+                        self._add_arc(row[0], row[1], row[2])
+                elif num_cols >= 4:
+                    for row in arcs:
+                        self._add_arc(row[0], row[1], row[2], row[3])
+                else:
+                    raise ValueError("Not enough columns in `arcs` to support"
+                                     " required arguments (`From`, `To`,"
+                                     " `Cost`)")
+        else:
+            raise TypeError("Argument 'arcs' must be an iterable of"
+                            " iterables!")
 
     def _add_arc(self, from_node, to_node, cost, direction="two"):
         self.arcs[from_node].append(to_node)
