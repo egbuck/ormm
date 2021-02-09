@@ -172,7 +172,7 @@ class Graph():
             If `arcs` does not have enough arguments (columns) to support
             the requirements (from_node, to_node, cost)
         """
-        if isinstance(arcs, (Sequence, np.array)):
+        if isinstance(arcs, (Sequence, np.ndarray)):
             for arc in arcs:
                 self._add_arc(*arc)
         elif isinstance(arcs, (pd.DataFrame, dict)):
@@ -185,27 +185,33 @@ class Graph():
                                     "To Node"])
             cost_choices = pd.Series(["Cost", "ShippingCost", "Shipping_Cost",
                                       "Shipping_cost", "Shipping Cost"])
-            # Add lowercase options to choices
-            from_choices = from_choices.append(from_choices.lower(),
-                                               ignore_index=True)
-            to_choices = to_choices.append(to_choices.lower(),
-                                           ignore_index=True)
-            cost_choices = cost_choices.append(cost_choices.lower(),
-                                               ignore_index=True)
+            # Add lowercase & uppercase options to choices
+            from_choices = from_choices.append(
+                from_choices.str.lower(), ignore_index=True).append(
+                    from_choices.str.upper(), ignore_index=True)
+            to_choices = to_choices.append(
+                to_choices.str.lower(), ignore_index=True).append(
+                    to_choices.str.upper(), ignore_index=True)
+            cost_choices = cost_choices.append(
+                cost_choices.str.lower(), ignore_index=True).append(
+                    cost_choices.str.upper(), ignore_index=True)
             # Get lists of matches in column names
-            from_matches = [col for col in arcs.columns if col in from_choices]
-            to_matches = [col for col in arcs.columns if col in to_choices]
-            cost_matches = [col for col in arcs.columns if col in cost_choices]
+            from_matches = [col for col in arcs.columns
+                            if col in set(from_choices)]
+            to_matches = [col for col in arcs.columns
+                          if col in set(to_choices)]
+            cost_matches = [col for col in arcs.columns
+                            if col in set(cost_choices)]
             if from_matches and to_matches and cost_matches:
                 direction_choices = pd.Series(["Direction", "direction"])
                 direction_matches = [col for col in arcs.columns
-                                     if col in direction_choices]
+                                     if col in set(direction_choices)]
                 if direction_matches:
                     key_cols = {"From": from_matches[0],
                                 "To": to_matches[0],
                                 "Cost": cost_matches[0],
                                 "Direction": direction_matches[0]}
-                    for row in arcs:
+                    for _, row in arcs.iterrows():
                         self._add_arc(row[key_cols["From"]],
                                       row[key_cols["To"]],
                                       row[key_cols["Cost"]],
@@ -214,17 +220,17 @@ class Graph():
                     key_cols = {"From": from_matches[0],
                                 "To": to_matches[0],
                                 "Cost": cost_matches[0]}
-                    for row in arcs:
+                    for _, row in arcs.iterrows():
                         self._add_arc(row[key_cols["From"]],
                                       row[key_cols["To"]],
                                       row[key_cols["Cost"]])
             else:
                 num_cols = arcs.shape[1]
                 if num_cols == 3:
-                    for row in arcs:
+                    for _, row in arcs.iterrows():
                         self._add_arc(row[0], row[1], row[2])
                 elif num_cols >= 4:
-                    for row in arcs:
+                    for _, row in arcs.iterrows():
                         self._add_arc(row[0], row[1], row[2], row[3])
                 else:
                     raise ValueError("Not enough columns in `arcs` to support"

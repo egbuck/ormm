@@ -2,12 +2,20 @@ import time
 import random
 
 import pyomo.environ as pyo
+import pandas as pd
 
 from ormm.network import transportation_model, Graph
 from tests.methods import solve_instance
 
 NETWORK_DATA = "ormm/network/example_data/"
 TRANSPORTATION_DATA = NETWORK_DATA + "transportation.dat"
+SIMPLE_ARCS = [["A", "B", 7, "one"],
+               ["B", "C", 3, "one"],
+               ["A", "D", 5, "one"],
+               ["D", "E", 5, "one"],
+               ["E", "F", 5, "one"],
+               ["F", "C", 10, "two"]]
+SIMPLE_ARCS_NO_DIRECTION = [arc[:-1] for arc in SIMPLE_ARCS]
 
 
 def test_transportation_model():
@@ -57,15 +65,38 @@ def huge_transportation_model():
     print(end_time - start_time)
 
 
+def test_add_arcs_input_types():
+    list_tuple = [tuple(arc) for arc in SIMPLE_ARCS]
+    tuple_tuple = tuple(tuple(arc) for arc in SIMPLE_ARCS)
+    df_no_cols_direction = pd.DataFrame(SIMPLE_ARCS)
+    df_cols_direction = pd.DataFrame(
+        SIMPLE_ARCS, columns=["From", "To", "Cost", "Direction"])
+    df_no_cols_no_direction = pd.DataFrame(SIMPLE_ARCS_NO_DIRECTION)
+    df_cols_no_direction = pd.DataFrame(
+        SIMPLE_ARCS_NO_DIRECTION, columns=["From", "To", "Cost"])
+    dict_arcs = {"From": [arc[0] for arc in SIMPLE_ARCS],
+                 "To": [arc[1] for arc in SIMPLE_ARCS],
+                 "Cost": [arc[2] for arc in SIMPLE_ARCS],
+                 "Direction": [arc[3] for arc in SIMPLE_ARCS]}
+    input_types = [list_tuple, tuple_tuple,
+                   df_no_cols_direction, df_cols_direction,
+                   df_no_cols_no_direction, df_cols_no_direction, dict_arcs]
+    for input_type in input_types:
+        graph = Graph()
+        graph.add_arcs(input_type)
+        analysis = graph.shortest_path("A")
+        costs, paths = analysis["Costs"], analysis["Paths"]
+        test_costs = {'A': 0, 'D': 5, 'B': 7, 'E': 10, 'C': 10, 'F': 15}
+        test_paths = {'A': ('A',), 'D': ('A', 'D'), 'B': ('A', 'B'),
+                      'E': ('A', 'D', 'E'), 'C': ('A', 'B', 'C'),
+                      'F': ('A', 'D', 'E', 'F')}
+        assert costs == test_costs
+        assert paths == test_paths
+
+
 def test_shortest_path_simple():
     graph = Graph()
-    arcs = [["A", "B", 7, "one"],
-            ["B", "C", 3, "one"],
-            ["A", "D", 5, "one"],
-            ["D", "E", 5, "one"],
-            ["E", "F", 5, "one"],
-            ["F", "C", 10, "two"]]
-    graph.add_arcs(arcs)
+    graph.add_arcs(SIMPLE_ARCS)
     analysis = graph.shortest_path("A")
     costs, paths = analysis["Costs"], analysis["Paths"]
     test_costs = {'A': 0, 'D': 5, 'B': 7, 'E': 10, 'C': 10, 'F': 15}
@@ -78,4 +109,4 @@ def test_shortest_path_simple():
 
 if __name__ == "__main__":
     # huge_transportation_model()
-    test_shortest_path_simple()
+    test_add_arcs_input_types()
