@@ -132,37 +132,48 @@ def transportation_model(**kwargs):
 
 
 class Graph():
-    def __init__(self, arcs=None):
-        """
-        Attributes
-        ----------
-        self.arcs
-            Dictionary of possible paths from one node
-            e.g. {'A': ['B', 'C', 'D', 'E'], ...}
-        self.costs
-            The cost of traveling from one node to another
-            e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
-        self.nodes
-            A set of all unique nodes in the graph
-            e.g. {"A", "B", "C", ...}
-        """
-        self.arcs = defaultdict(list)
-        self.costs = {}
-        self.nodes = set()
-        if arcs is not None:
-            self.add_arcs(arcs)
-
-    def add_arcs(self, arcs):
+    def __init__(self, arcs=defaultdict(list), costs={}, nodes=set()):
         """
         Parameters
         ----------
         arcs
+            Dictionary of possible paths from one node
+            e.g. {'A': ['B', 'C', 'D', 'E'], ...}
+        costs
+            The cost of traveling from one node to another
+            e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
+        nodes
+            A set of all unique nodes in the graph
+            e.g. {"A", "B", "C", ...}
+        """
+        self.arcs = arcs
+        self.costs = costs
+        self.nodes = nodes
+
+    def __repr__(self):
+        """String representation that could recreate object"""
+        return (f"Graph({self.arcs!r}, {self.costs!r}, {self.nodes!r})")
+
+    def __str__(self):
+        """String representation for user reading object
+
+        NOT IMPLEMENTED - currently just calls __repr__"""
+        return repr(self)
+
+    def add_arcs(self, arc_data):
+        """
+        Parameters
+        ----------
+        arc_data
             Iterable of Iterables that contain arc information,
             such as from_node ("From"), to_node ("To"),
             cost ("Cost), and
             optionally direction ("Direction") -
             whether the arc is one-directional
             ("one") or bi-directional ("two")
+            e.g. [["A", "B", 7, "one"],
+                  ["B", "C", 3, "one"],
+                  ["C", "A", 8, "two"]]
 
         Raises
         ------
@@ -172,12 +183,12 @@ class Graph():
             If `arcs` does not have enough arguments (columns) to support
             the requirements (from_node, to_node, cost)
         """
-        if isinstance(arcs, (Sequence, np.ndarray)):
-            for arc in arcs:
+        if isinstance(arc_data, (Sequence, np.ndarray)):
+            for arc in arc_data:
                 self._add_arc(*arc)
-        elif isinstance(arcs, (pd.DataFrame, dict)):
-            if isinstance(arcs, dict):
-                arcs = pd.DataFrame(arcs)
+        elif isinstance(arc_data, (pd.DataFrame, dict)):
+            if isinstance(arc_data, dict):
+                arc_data = pd.DataFrame(arc_data)
             # Create possible keywords
             from_choices = pd.Series(["From", "FromNode", "From_Node",
                                       "From_node", "From Node"])
@@ -196,22 +207,22 @@ class Graph():
                 cost_choices.str.lower(), ignore_index=True).append(
                     cost_choices.str.upper(), ignore_index=True)
             # Get lists of matches in column names
-            from_matches = [col for col in arcs.columns
+            from_matches = [col for col in arc_data.columns
                             if col in set(from_choices)]
-            to_matches = [col for col in arcs.columns
+            to_matches = [col for col in arc_data.columns
                           if col in set(to_choices)]
-            cost_matches = [col for col in arcs.columns
+            cost_matches = [col for col in arc_data.columns
                             if col in set(cost_choices)]
             if from_matches and to_matches and cost_matches:
                 direction_choices = pd.Series(["Direction", "direction"])
-                direction_matches = [col for col in arcs.columns
+                direction_matches = [col for col in arc_data.columns
                                      if col in set(direction_choices)]
                 if direction_matches:
                     key_cols = {"From": from_matches[0],
                                 "To": to_matches[0],
                                 "Cost": cost_matches[0],
                                 "Direction": direction_matches[0]}
-                    for _, row in arcs.iterrows():
+                    for _, row in arc_data.iterrows():
                         self._add_arc(row[key_cols["From"]],
                                       row[key_cols["To"]],
                                       row[key_cols["Cost"]],
@@ -220,17 +231,17 @@ class Graph():
                     key_cols = {"From": from_matches[0],
                                 "To": to_matches[0],
                                 "Cost": cost_matches[0]}
-                    for _, row in arcs.iterrows():
+                    for _, row in arc_data.iterrows():
                         self._add_arc(row[key_cols["From"]],
                                       row[key_cols["To"]],
                                       row[key_cols["Cost"]])
             else:
-                num_cols = arcs.shape[1]
+                num_cols = arc_data.shape[1]
                 if num_cols == 3:
-                    for _, row in arcs.iterrows():
+                    for _, row in arc_data.iterrows():
                         self._add_arc(row[0], row[1], row[2])
                 elif num_cols >= 4:
-                    for _, row in arcs.iterrows():
+                    for _, row in arc_data.iterrows():
                         self._add_arc(row[0], row[1], row[2], row[3])
                 else:
                     raise ValueError("Not enough columns in `arcs` to support"
@@ -241,13 +252,21 @@ class Graph():
                             " iterables!")
 
     def _add_arc(self, from_node, to_node, cost, direction="two"):
-        self.arcs[from_node].append(to_node)
+        # Check if to_node in from_node's list in self.arcs dict
+        if from_node not in self.arcs or to_node not in self.arcs[from_node]:
+            self.arcs[from_node].append(to_node)
+
+        # Add new cost, or overwrite old cost
         self.costs[(from_node, to_node)] = cost
 
+        # Do same thing as above in reverse if bidirectional arc
         if direction == "two":
-            self.arcs[to_node].append(from_node)
+            if to_node not in self.arcs and (
+                    from_node not in self.arcs[to_node]):
+                self.arcs[to_node].append(from_node)
             self.costs[(to_node, from_node)] = cost
 
+        # Add from_node and to_node to nodes set if don't exist
         self.nodes.update([from_node, to_node])
 
     def shortest_path(self, source):

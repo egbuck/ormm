@@ -65,6 +65,23 @@ def huge_transportation_model():
     print(end_time - start_time)
 
 
+def test_graph_repr():
+    graph = Graph()
+    graph.add_arcs(SIMPLE_ARCS)
+    test_str = ("Graph(defaultdict(<class 'list'>, {'A': ['B', 'D'], "
+                "'B': ['C'], 'D': ['E'], 'E': ['F'], 'F': ['C'], "
+                "'C': ['F']}), {('A', 'B'): 7, ('B', 'C'): 3, "
+                "('A', 'D'): 5, ('D', 'E'): 5, ('E', 'F'): 5, "
+                "('F', 'C'): 10, ('C', 'F'): 10}, "
+                "['A', 'B', 'C', 'D', 'E', 'F'])")
+    graph_repr = repr(graph)
+    # Need to reorder set of nodes at end
+    set_start_index = graph_repr.rfind("{")
+    graph_repr_ordered = graph_repr[:set_start_index] + \
+        str(sorted(eval(graph_repr[set_start_index:-1]))) + ")"
+    assert graph_repr_ordered == test_str
+
+
 def test_add_arcs_input_types():
     list_tuple = [tuple(arc) for arc in SIMPLE_ARCS]
     tuple_tuple = tuple(tuple(arc) for arc in SIMPLE_ARCS)
