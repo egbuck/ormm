@@ -7,3 +7,4 @@ Network Flow
    :maxdepth: 2
 
    transportation.rst
+   shortest_path.rst

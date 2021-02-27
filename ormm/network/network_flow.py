@@ -9,7 +9,7 @@ To do this, would:
     - Then maybe option for adding that info to graph object?
 
 Other ideas to add:
-  * Implement print() method on Graph object (__repr__)
+  * Implement print() method on Graph object (__str__)
   * Graph() should be able to read in data file (.dat)
     used for transportation problem
     - either when transportation_problem is called, or
@@ -132,32 +132,42 @@ def transportation_model(**kwargs):
 
 
 class Graph():
+    """
+    Fully connected network of nodes via arcs with costs.
+    This class can be used to create graphs (networks), and
+    then solve different network flow models on these graphs
+    such as the transportation model and shortest path model.
+
+    Parameters
+    ----------
+    arcs : :py:obj:`dict`, optional
+        All possible paths (arcs) from each node.
+        e.g. {'A': ['B', 'C', 'D', 'E'], ...}
+    costs : :py:obj:`dict`, optional
+        The cost of traveling from one node to another.
+        e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
+    nodes : :py:obj:`set`, optional
+        A set of all unique nodes in the graph.
+        e.g. {"A", "B", "C", ...}
+    """
     def __init__(self, arcs=defaultdict(list), costs={}, nodes=set()):
-        """
-        Parameters
-        ----------
-        arcs
-            Dictionary of possible paths from one node
-            e.g. {'A': ['B', 'C', 'D', 'E'], ...}
-        costs
-            The cost of traveling from one node to another
-            e.g. {('A', 'B'): 2, ('A', 'C'): 5, ...}
-        nodes
-            A set of all unique nodes in the graph
-            e.g. {"A", "B", "C", ...}
-        """
         self.arcs = arcs
         self.costs = costs
         self.nodes = nodes
 
     def __repr__(self):
-        """String representation that could recreate object"""
+        """
+        String representation that represents data types
+        and contents for developers
+        """
         return (f"Graph({self.arcs!r}, {self.costs!r}, {self.nodes!r})")
 
     def __str__(self):
-        """String representation for user reading object
+        """
+        String representation for user reading object
 
-        NOT IMPLEMENTED - currently just calls __repr__"""
+        NOT IMPLEMENTED - currently just calls __repr__
+        """
         return repr(self)
 
     def add_arcs(self, arc_data):
@@ -166,14 +176,11 @@ class Graph():
         ----------
         arc_data
             Iterable of Iterables that contain arc information,
-            such as from_node ("From"), to_node ("To"),
+            such as from node ("From"), to node ("To"),
             cost ("Cost), and
             optionally direction ("Direction") -
             whether the arc is one-directional
-            ("one") or bi-directional ("two")
-            e.g. [["A", "B", 7, "one"],
-                  ["B", "C", 3, "one"],
-                  ["C", "A", 8, "two"]]
+            ("one") or bi-directional ("two").
 
         Raises
         ------
@@ -182,6 +189,33 @@ class Graph():
         ValueError
             If `arcs` does not have enough arguments (columns) to support
             the requirements (from_node, to_node, cost)
+
+        Examples
+        --------
+        Adding arcs via list of lists.
+
+        >>> arcs_data = [["A", "B", 7, "one"],
+        ...              ["B", "C", 3, "one"],
+        ...              ["C", "A", 8, "two"]]
+        >>> graph = Graph().add_arcs(arcs_data)
+
+        Adding arcs via dictionary - keys must match.
+
+        >>> arcs_data_dict = {"From": ["A", "B", "C"],
+        ...                   "To": ["B", "C", "A"],
+        ...                   "Cost": [7, 3, 8],
+        ...                   "Direction": ["one", "one", "two"]}
+        >>> graph = Graph().add_arcs(arcs_data_dict)
+
+        Adding arcs via Pandas DataFrame - column names must be the same, or
+        there must be exactly four columns which will be read in order.
+
+        >>> arcs_data_df = pd.DataFrame(arcs_data,
+        ...                             columns=["From", "To",
+        ...                                      "Cost", "Direction"])
+        >>> graph = Graph().add_arcs(arcs_data_df)
+        >>> arcs_data_df = pd.DataFrame(arcs_data)
+        >>> graph = Graph().add_arcs(arcs_data_df)
         """
         if isinstance(arc_data, (Sequence, np.ndarray)):
             for arc in arc_data:
