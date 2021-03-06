@@ -18,17 +18,21 @@ Dijkstra's algorithm finds an optimal solution to the shortest path tree problem
 as long as all of the weighted distances (costs of traveling an arc) are
 nonnegative.  
 
-Initially, let the set :math:`S = \{s\}` and let :math:`\alpha_s = 0`.
+Initially, let the set :math:`\boldsymbol{S} = \{s\}` and let :math:`\alpha_s = 0`.
 
-Repeat until :math:`\bold{S}` is the set of all nodes reachable by the source node:
+Repeat until :math:`\boldsymbol{S}` is the set of all nodes reachable by the source node:
 
     Find an arc :math:`k(i, j)` that passes from a solved node to an unsolved node such that:
 
-:math:`k(i, j) = \text{argmin}\{\alpha_i^' + c_k^' : k^'(i^', j^') 
-       \in \bold{A}, i^' \in \bold{S}, j^' \in \bold{\bar{S}}`
+    .. math::
+    
+       k(i, j) = \text{argmin}\{\alpha_{i^{'}} + c_{k^{'}} : 
+       k^{'}(i^{'}, j^{'}) \in \boldsymbol{A}, i^{'} \in \boldsymbol{S}, 
+       j^{'} \in \boldsymbol{\bar{S}} \}
 
-Add node :math:`j` and arc :math:`k(i, j)` to the tree.  Add node :math:`j` to the solved
-set :math:`\bold{S}`.  Let :math:`\alpha_j = \alpha_i + c_k`, where :math:`k \equiv k(i, j)`.
+    Add node :math:`j` and arc :math:`k(i, j)` to the tree.  Add node :math:`j` to the solved
+    set :math:`\boldsymbol{S}`.  Let :math:`\alpha_j = \alpha_i + c_k`, 
+    where :math:`k \equiv k(i, j)`.
 
 API Reference
 -------------

@@ -22,15 +22,12 @@ ORMM MathProg
    scheduling
    print_sol
    sensitivity_analysis
-   transportation
 
 .. autofunction:: blending
 
 .. autofunction:: resource_allocation
 
 .. autofunction:: scheduling
-
-.. autofunction:: transportation
 
 .. autofunction:: print_sol
 
@@ -43,8 +40,24 @@ ORMM Markov
 .. autosummary::
 
    analyze_dtmc
+   analyze_ctmc
    print_markov
 
 .. autofunction:: analyze_dtmc
 
+.. autofunction:: analyze_ctmc
+
 .. autofunction:: print_markov
+
+ORMM Network
+------------
+.. currentmodule:: ormm.network
+
+.. autosummary::
+
+   transportation_model
+   Graph
+
+.. autofunction:: transportation_model
+
+.. autoclass:: Graph
