@@ -39,7 +39,8 @@ def test_transportation_model():
     instance2 = transportation_model(filename=TRANSPORTATION_DATA)
     graph = Graph()
     graph.add_arcs(ARC_DATA)
-    for inst in [instance1, instance2]:
+    instance_graph = graph.transportation(SUPPLY, DEMAND)
+    for inst in [instance1, instance2, instance_graph]:
         instance, results = solve_instance(inst)
         assert instance.OBJ() == 475
         for v in instance.component_objects(pyo.Var, active=True):
