@@ -4,8 +4,10 @@ To do this, would:
   * When call transportation, arguments for:
     - These are the supply nodes
     - These are their supply max's
+        source = {"A": 35, "B": 50}
     - These are demand nodes
     - These are demand requirements (mins)
+        destination = {"C": 20, "D": 25, "E": 40}
     - Then maybe option for adding that info to graph object?
 
 Other ideas to add:
@@ -356,3 +358,39 @@ class Graph():
             best_paths[new_solved_node] = \
                 best_paths[best_add[0]] + (new_solved_node,)
         return {"Costs": min_costs, "Paths": best_paths}
+
+    def transportation(self, supply, demand):
+        """
+        Create Concrete Model for Balanced Transportation Problem.
+
+        Parameters
+        ----------
+        supply: dict
+            dict of source nodes and their supply capacities
+            e.g. {"A": 15, "B": 35}
+        demand: dict
+            dict of destination nodes and their demand requirements
+            e.g. {"C": 20, "D": 30}
+
+        Raises
+        ------
+        ValueError
+            A source or destination node given does not exist in
+            the graph object
+        """
+        # Data that needs to be used for concrete model
+        for source in supply.keys():
+            if source not in self.nodes:
+                raise ValueError(f"Source Node {source} does not " +
+                                 "exist in the Graph!")
+        for dest in demand.keys():
+            if dest not in self.nodes:
+                raise ValueError(f"Destination Node {dest} does not " +
+                                 "exist in the Graph!")
+        transp_data = {None: {"Sources": supply.keys(),
+                              "Destinations": demand.keys(),
+                              "Supply": supply,
+                              "Demand": demand,
+                              "ShippingCosts": dict(self.costs)}}
+        instance = transportation_model(data=transp_data)
+        return instance

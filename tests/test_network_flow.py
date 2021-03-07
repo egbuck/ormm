@@ -7,8 +7,11 @@ import pandas as pd
 from ormm.network import transportation_model, Graph
 from tests.methods import solve_instance
 
+# Folders and Files
 NETWORK_DATA = "ormm/network/example_data/"
 TRANSPORTATION_DATA = NETWORK_DATA + "transportation.dat"
+
+# Data for Shortest Path Problem
 SIMPLE_ARCS = [["A", "B", 7, "one"],
                ["B", "C", 3, "one"],
                ["A", "D", 5, "one"],
@@ -17,12 +20,29 @@ SIMPLE_ARCS = [["A", "B", 7, "one"],
                ["F", "C", 10, "two"]]
 SIMPLE_ARCS_NO_DIRECTION = [arc[:-1] for arc in SIMPLE_ARCS]
 
+# Data for Transportation Model
+SUPPLY = {"S1": 15, "S2": 15, "S3": 15}
+DEMAND = {"D1": 5, "D2": 10, "D3": 15, "D4": 5, "D5": 10}
+ARC_DATA = pd.DataFrame([["S1", 15, 15, 16, 11, 11],
+                         ["S2", 13, 11, 15,  9,  6],
+                         ["S3", 8,  12, 11,  7,  8]],
+                        columns=["From", "D1", "D2", "D3", "D4", "D5"])
+ARC_DATA = pd.melt(ARC_DATA, id_vars=["From"],
+                   value_vars=["D1", "D2", "D3", "D4", "D5"],
+                   var_name="To", value_name="Cost")
+ARC_DATA["Direction"] = "one"
+
 
 def test_transportation_model():
     model = transportation_model()
     instance1 = model.create_instance(TRANSPORTATION_DATA)
     instance2 = transportation_model(filename=TRANSPORTATION_DATA)
-    for inst in [instance1, instance2]:
+    graph = Graph()
+    graph.add_arcs(ARC_DATA)
+    print(ARC_DATA)
+    print(graph)
+    instance_graph = graph.transportation(SUPPLY, DEMAND)
+    for inst in [instance1, instance2, instance_graph]:
         instance, results = solve_instance(inst)
         assert instance.OBJ() == 475
         for v in instance.component_objects(pyo.Var, active=True):
@@ -79,6 +99,9 @@ def test_graph_repr():
     set_start_index = graph_repr.rfind("{")
     graph_repr_ordered = graph_repr[:set_start_index] + \
         str(sorted(eval(graph_repr[set_start_index:-1]))) + ")"
+    print(graph_repr_ordered)
+    print()
+    print(test_str)
     assert graph_repr_ordered == test_str
 
 
@@ -126,4 +149,7 @@ def test_shortest_path_simple():
 
 if __name__ == "__main__":
     # huge_transportation_model()
-    test_add_arcs_input_types()
+    # test_add_arcs_input_types()
+    # test_transportation_model()
+    # test_graph_repr()
+    test_shortest_path_simple()
