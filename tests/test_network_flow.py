@@ -39,10 +39,7 @@ def test_transportation_model():
     instance2 = transportation_model(filename=TRANSPORTATION_DATA)
     graph = Graph()
     graph.add_arcs(ARC_DATA)
-    print(ARC_DATA)
-    print(graph)
-    instance_graph = graph.transportation(SUPPLY, DEMAND)
-    for inst in [instance1, instance2, instance_graph]:
+    for inst in [instance1, instance2]:
         instance, results = solve_instance(inst)
         assert instance.OBJ() == 475
         for v in instance.component_objects(pyo.Var, active=True):
@@ -136,7 +133,10 @@ def test_add_arcs_input_types():
 
 def test_shortest_path_simple():
     graph = Graph()
+    print(graph)  # How is this not new graph object??
+                  # Old Graph...even changed name, didn't work
     graph.add_arcs(SIMPLE_ARCS)
+    print(graph)
     analysis = graph.shortest_path("A")
     costs, paths = analysis["Costs"], analysis["Paths"]
     test_costs = {'A': 0, 'D': 5, 'B': 7, 'E': 10, 'C': 10, 'F': 15}
@@ -149,7 +149,5 @@ def test_shortest_path_simple():
 
 if __name__ == "__main__":
     # huge_transportation_model()
-    # test_add_arcs_input_types()
-    # test_transportation_model()
-    # test_graph_repr()
+    test_transportation_model()
     test_shortest_path_simple()

@@ -152,10 +152,10 @@ class Graph():
         A set of all unique nodes in the graph.
         e.g. {"A", "B", "C", ...}
     """
-    def __init__(self, arcs=defaultdict(list), costs={}, nodes=set()):
-        self.arcs = arcs
-        self.costs = costs
-        self.nodes = nodes
+    def __init__(self, arcs=None, costs=None, nodes=None):
+        self.arcs = arcs if arcs is not None else defaultdict(list)
+        self.costs = costs if costs is not None else {}
+        self.nodes = nodes if nodes is not None else set()
 
     def __repr__(self):
         """
