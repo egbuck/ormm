@@ -361,7 +361,11 @@ class Graph():
 
     def transportation(self, supply, demand):
         """
-        Create Concrete Model for Balanced Transportation Problem.
+        Return Concrete Model for Balanced Transportation Problem.
+
+        This calls :py:obj:`transportation_model()` for this Graph
+        object and the arguments of this method.  For more details
+        on the model, see the network module function's docstring.
 
         Parameters
         ----------

@@ -16,9 +16,9 @@ def test_scheduling_error():
 
 
 def test_employee_simple():
-    model = scheduling()
+    model = scheduling("employee")
     instance1 = model.create_instance(EMPLOYEE_DATA)
-    instance2 = scheduling(filename=EMPLOYEE_DATA)
+    instance2 = scheduling("employee", filename=EMPLOYEE_DATA)
     for inst in [instance1, instance2]:
         instance, results = solve_instance(inst)
         assert instance.OBJ() == 215

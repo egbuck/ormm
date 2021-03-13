@@ -4,7 +4,7 @@
 import pyomo.environ as pyo
 
 
-def scheduling(prob_class="employee", linear=False, **kwargs):
+def scheduling(prob_class, linear=False, **kwargs):
     """
     Calls factory methods for different scheduling problems.
 
@@ -13,7 +13,7 @@ def scheduling(prob_class="employee", linear=False, **kwargs):
 
     The valid choices are:
 
-    - :py:obj:`employee` (default):  A simple employee scheduling problem to
+    - :py:obj:`employee`:  A simple employee scheduling problem to
       minimize the number of workers employed to meet period requirements.
       Currently assumes that a worker works their periods in a row
       (determined by `ShiftLenth` parameter).
@@ -22,6 +22,10 @@ def scheduling(prob_class="employee", linear=False, **kwargs):
       plans (with different durations & costs), and the goal is to minimize the
       total cost of the plans purchased while meeting the period requirements
       (covering constraints).
+
+    - :py:obj`agg_planning`: A planning problem where the decision variables
+      are how much to produce during each period, to minimize production and
+      holding costs while satisfying demand.
 
     More details on these model classes can be found in the Notes section here,
     as well as the corresponding section of the :ref:`math_prog`.

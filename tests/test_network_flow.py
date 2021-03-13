@@ -97,9 +97,6 @@ def test_graph_repr():
     set_start_index = graph_repr.rfind("{")
     graph_repr_ordered = graph_repr[:set_start_index] + \
         str(sorted(eval(graph_repr[set_start_index:-1]))) + ")"
-    print(graph_repr_ordered)
-    print()
-    print(test_str)
     assert graph_repr_ordered == test_str
 
 
@@ -134,10 +131,7 @@ def test_add_arcs_input_types():
 
 def test_shortest_path_simple():
     graph = Graph()
-    print(graph)  # How is this not new graph object??
-                  # Old Graph...even changed name, didn't work
     graph.add_arcs(SIMPLE_ARCS)
-    print(graph)
     analysis = graph.shortest_path("A")
     costs, paths = analysis["Costs"], analysis["Paths"]
     test_costs = {'A': 0, 'D': 5, 'B': 7, 'E': 10, 'C': 10, 'F': 15}
