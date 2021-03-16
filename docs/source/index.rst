@@ -111,12 +111,17 @@ and add to the documentation.
 .. toctree::
    :maxdepth: 2
 
-   problem_desc/index
+   mathprog/index
 
 .. toctree::
    :maxdepth: 2
 
    markov/index
+
+.. toctree::
+   :maxdepth: 2
+
+   network/index
 
 .. toctree::
    :maxdepth: 2

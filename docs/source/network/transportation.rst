@@ -33,20 +33,20 @@ Parameters
 
    - :py:obj:`Supply[i] for i in Sources` or :math:`S_i \enspace \forall i \in I`
 
-- :py:obj:`Demand` - measure of number of units available at :py:obj:`Source i`
+- :py:obj:`Demand` - measure of number of units required at :py:obj:`Destination j`
 
    - :py:obj:`Demand[j] for j in Destinations` or :math:`D_j \enspace \forall j \in J`
 
-- :py:obj:`ShippingCost` - measure of the cost of holding one extra unit
-  from one period to the next
+- :py:obj:`ShippingCost` - measure of the cost of shipping one unit from
+  :py:obj:`Source i` to :py:obj:`Destination j`
 
    - :py:obj:`ShippingCost[i, j] for i in Sources for j in Destinations`
      or :math:`C_{i,j} \enspace \forall i \in I\text{, }j \in J`
 
 Decision Variables
 """"""""""""""""""
-- :py:obj:`Flow` - number of units to ship from :py:obj`Source i` to
-  :py:obj`Destination j`
+- :py:obj:`Flow` - number of units to ship from :py:obj:`Source i` to
+  :py:obj`:Destination j`
 
    - :py:obj:`Flow[i, j] for i in Sources for j in Destinations`
      or :math:`X_{i,j} \enspace \forall i \in I\text{, }j \in J`
