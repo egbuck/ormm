@@ -41,7 +41,7 @@ PROJECT_URLS = {
 
 setup(
     name="ormm",
-    version="0.0.4",
+    version="0.1.0",
     description="A collection of Operations Research Models & Methods",
     url="https://github.com/egbuck/ormm",
     author="Ethan Buck",
