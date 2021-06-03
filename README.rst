@@ -19,7 +19,8 @@ His Excel packages were last updated in 2011, and while I believe they do still 
 - From what I understand, Microsoft has been trying to phase out VBA and move to Javascript.
   If this happens, this could significantly impact whether or not his packages will work.
 - While his website and packages are still available
-  `here <https://www.me.utexas.edu/~jensen/ORMM/>`_, some sections are/may become unusable.
+  `here <http://staff.ulsu.ru/semushin/_index/_pilocus/_gist/docs/mycourseware/9-linprogram/6-tools/simplex-DemoCD/_SIMPLEX-DemoTools/t6/index.html>`_,
+  some sections are/may become unusable.
   The animations rely on Flash, which is being phased out in google chrome and other web
   browsers.
 
@@ -52,6 +53,10 @@ Currently this subpackage list includes
    The main method requires a transition matrix, but can then run simulations,
    analyze steady state and transient probabilities, and run cost analyses if
    additional arguments are passed.
+3. `network`: A subpackage for network models and methods.  Currently this has
+   implementations for creating a Graph object with arcs, nodes, and arc costs.
+   This graph object has methods for solving the transportation model and the
+   shortest path tree problem.
 
 Installation
 ------------
@@ -80,9 +85,6 @@ containing information for sensitivity analysis.  Some of the problem classes ar
   needed for each period.
 - Aggregate Planning: Minimize the production and holding costs while
   meeting the demand for each period.
-- Transportation: Minimize the shipping costs from source to destination
-  nodes while meeting the demand at each destination node.  Only a certain
-  number of units are available at each source node (the supply).
 
 For more details on optional parameters, usage, and the problem descriptions, see the
 `documentation <https://ormm.readthedocs.io/en/stable/>`_.
