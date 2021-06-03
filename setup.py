@@ -33,6 +33,8 @@ Models & Methods.  Currently this subpackage list includes
 1. `mathprog`: A subpackage for mathematical programs, including linear
    programs and mixed integer linear programs.
 2. `markov`: A subpackage for discrete state markov analysis.
+3. `network`: A subpackage for network models and methods, including the
+   transportation and shortest path tree problems.
 """
 
 PROJECT_URLS = {
