@@ -43,7 +43,7 @@ napoleon_numpy_docstring = True
 autosummary_generate = True
 
 # list of modules to mock import
-autodoc_mock_imports = ["pyomo"]
+autodoc_mock_imports = ["pyomo", "quantecon"]
 
 # overwrite default master doc - needed for readthedocs.org
 master_doc = "index"

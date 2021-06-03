@@ -5,11 +5,12 @@
 API Library Reference
 =====================
 
-The current models are implemented under :py:mod:`ormm.mathprog` and
+The current models are implemented under :py:mod:`ormm.mathprog`, :py:mod:`ormm.network`, and
 :py:mod:`ormm.markov`.  MathProg contains
 factory methods to implement problem classes and other useful functions for
 solution analysis.  Markov contains functions to perform markov analysis on
-discrete state and time processes, as well as printing those results nicely.
+discrete state and time processes, as well as printing those results nicely.  Network contains
+models and methods for the transportation problem and the shortest path tree problem.
 
 ORMM MathProg
 -------------
